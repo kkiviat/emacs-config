@@ -337,34 +337,6 @@ Super Agenda
 #+END_SRC
 
 * Journal
-*** COMMENT org-journal
-Based on config [[https://github.com/rememberYou/.emacs.d/blob/master/config.org#journal][here]].
-Note that if you backfill entries, it will mess up navigating to next / previous entries. Use =M-x org-journal-invalidate-cache= to fix.
-
-As of December 2020, switched to org-roam-dailies instead.
-#+BEGIN_SRC emacs-lisp
-(use-package org-journal
-  :after org
-  :bind (("C-c T" . org-journal-new-entry)
-         ("C-c Y" . journal-file-yesterday))
-  :preface
-  (defun get-journal-file-yesterday ()
-    "Gets filename for yesterday's journal entry."
-    (let* ((yesterday (time-subtract (current-time) (days-to-time 1)))
-           (daily-name (format-time-string "%Y%m%d" yesterday)))
-      (expand-file-name (concat org-journal-dir daily-name ".org"))))
-
-  (defun journal-file-yesterday ()
-    "Creates and load a file based on yesterday's date."
-    (interactive)
-    (find-file (get-journal-file-yesterday)))
-  :custom
-  (org-journal-date-format "W%W: %e %b %Y (%A)\nRemember to write single sentence summary (C-c c D)")
-  (org-journal-dir "~/Dropbox/org/gtd/journal/")
-  (org-journal-enable-encryption nil) ; It's annoying to have to decrypt all the time
-  (org-journal-file-format "%Y%m%d.org")
-  (org-journal-time-format ""))
-#+END_SRC
 
 *** deft
 Deft is good for searching through files in a directory, like the journal directory.

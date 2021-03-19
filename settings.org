@@ -4,7 +4,7 @@
 #+PROPERTY: header-args    :results silent
 
 * Sensible Defaults
-sensible-defaults.el is from [[https://github.com/hrs/sensible-defaults.el][here]]
+sensible-defaults.el is from [[https://github.com/hrs/sensible-defaults.el][here]].
 Enable everything, but disable the visual bell function.
 #+BEGIN_SRC emacs-lisp
 (load-file "~/.emacs.d/sensible-defaults.el")
@@ -72,13 +72,6 @@ Make scrolling less jumpy
 
 * Themes
 
-** COMMENT install themes
-#+BEGIN_SRC emacs-lisp
-(use-package material-theme
-  :config
-  (load-theme 'material-light t))
-#+END_SRC
-
 ** general customizations
 #+BEGIN_SRC emacs-lisp
 (setq org-ellipsis "  ")
@@ -104,19 +97,14 @@ Add more padding in text buffers.  Based on https://lepisma.xyz/2017/10/28/ricin
 ** leuven
 #+BEGIN_SRC emacs-lisp
 (load-theme 'leuven t)
-;(setq org-fontify-whole-heading-line t)
-;(setq org-fontify-done-headline t)
-;(setq org-fontify-quote-and-verse-blocks t)
-;(set-face-attribute 'org-ellipsis nil :weight 'bold :background "white" :foreground "black" :box nil)
+(setq org-fontify-whole-heading-line t)
+(setq org-fontify-done-headline t)
+(setq org-fontify-quote-and-verse-blocks t)
+(set-face-attribute 'org-ellipsis nil :weight 'bold :background "white" :foreground "black" :box nil)
 (set-cursor-color "#f4a460")
 (custom-set-faces
  '(font-lock-string-face ((t (:foreground "Purple")))))
-; '(org-headline-done ((t (:strike-through nil :foreground "#828282")))))
-#+END_SRC
-
-** COMMENT material
-#+BEGIN_SRC emacs-lisp
-(load-theme 'material-light t)
+ '(org-headline-done ((t (:strike-through nil :foreground "#828282")))))
 #+END_SRC
 
 
