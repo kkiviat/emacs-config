@@ -103,7 +103,7 @@ Add more padding in text buffers.  Based on https://lepisma.xyz/2017/10/28/ricin
 (set-face-attribute 'org-ellipsis nil :weight 'bold :background "white" :foreground "black" :box nil)
 (set-cursor-color "#f4a460")
 (custom-set-faces
- '(font-lock-string-face ((t (:foreground "Purple")))))
+ '(font-lock-string-face ((t (:foreground "Purple"))))
  '(org-headline-done ((t (:strike-through nil :foreground "#828282")))))
 #+END_SRC
 

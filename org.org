@@ -470,7 +470,8 @@ Additional shortcuts for inserting code blocks.
 	   :file-name "dailies/%<%Y%m%d>"
 	   :head "#+title: %<%Y-%m-%d (%A)>\nRemember to write single line summary (C-c c D)\n\n"
 	   :unnarrowed t)))
-  :bind (("C-c T" . org-roam-dailies-today)
+  :bind (("C-c j" . org-roam-dailies-today)
+	 ("C-c t" . org-roam-dailies-tomorrow)
 	 :map org-roam-mode-map
 	      (("C-c n l" . org-roam)
 	       ("C-c n f" . org-roam-find-file)
