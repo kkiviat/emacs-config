@@ -1,0 +1,8 @@
+bookmarks
+history
+org-roam.db
+*.el
+recentf
+straight/**
+!straight/versions/default.el
+.org-id-locations

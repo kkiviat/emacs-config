@@ -1,0 +1,216 @@
+#+TITLE: Base emacs configuration
+#+DESCRIPTION: Core configuration
+#+LANGUAGE: en
+#+PROPERTY: header-args    :results silent
+
+* Sensible Defaults
+sensible-defaults.el is from [[https://github.com/hrs/sensible-defaults.el][here]]
+Enable everything, but disable the visual bell function.
+#+BEGIN_SRC emacs-lisp
+(load-file "~/.emacs.d/sensible-defaults.el")
+(sensible-defaults/use-all-settings)
+(sensible-defaults/use-all-keybindings)
+(setq ring-bell-function 'ignore)
+#+END_SRC
+
+
+* Windows
+Hide window chrome
+ #+BEGIN_SRC emacs-lisp
+ (tool-bar-mode 0)
+ ;(menu-bar-mode 0)
+ (scroll-bar-mode -1)
+ #+END_SRC
+
+Start with window maximized
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+#+END_SRC
+
+Allows undo and redo of changes in window configurations.
+By default, undo is bound to *C-c <left>* and redo to *C-c <right>*.
+#+BEGIN_SRC emacs-lisp
+(use-package winner
+  :defer 2
+  :config (winner-mode 1))
+#+END_SRC
+
+
+* Scrolling
+Make scrolling less jumpy
+#+BEGIN_SRC emacs-lisp
+(setq mouse-wheel-scroll-amount '(2 ((shift) . 1))) ;; two lines at a time
+(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(setq scroll-step 1000) ;; keyboard scroll one line at a time
+
+; stop emacs from recentering the buffer point when the point goes outside the window
+(setq scroll-conservatively 100)
+#+END_SRC
+
+
+* Line numbers
+  Display line numbers except in certain modes. From https://www.emacswiki.org/emacs/LineNumbers
+#+BEGIN_SRC emacs-lisp
+(require 'display-line-numbers)
+(defcustom display-line-numbers-exempt-modes '(vterm-mode eshell-mode shell-mode term-mode ansi-term-mode org-mode org-agenda-mode)
+  "Major modes on which to disable the linum mode, exempts them from global requirement"
+  :group 'display-line-numbers
+  :type 'list
+  :version "green")
+
+(defun display-line-numbers--turn-on ()
+  "turn on line numbers but exempting certain major modes defined in `display-line-numbers-exempt-modes'"
+  (if (and
+       (not (member major-mode display-line-numbers-exempt-modes))
+       (not (minibufferp)))
+      (display-line-numbers-mode)))
+
+(global-display-line-numbers-mode)
+#+END_SRC
+
+
+* Themes
+
+** COMMENT install themes
+#+BEGIN_SRC emacs-lisp
+(use-package material-theme
+  :config
+  (load-theme 'material-light t))
+#+END_SRC
+
+** general customizations
+#+BEGIN_SRC emacs-lisp
+(setq org-ellipsis "  ")
+#+END_SRC
+
+Add more padding in text buffers.  Based on https://lepisma.xyz/2017/10/28/ricing-org-mode/index.html.
+#+BEGIN_SRC emacs-lisp
+(defun klk-text-file-spacing ()
+  (setq line-spacing 0.1)
+  (setq header-line-format " ") ; add top margin
+  (setq display-line-numbers nil)
+  (setq left-fringe-width 0) ; disable fringe
+  (setq right-fringe-width 0)
+  (progn
+  (setq left-margin-width 2) ; add side margins
+  (setq right-margin-width 2)
+  (set-window-buffer nil (current-buffer)))
+  )
+
+(add-hook 'text-mode-hook 'klk-text-file-spacing)
+#+END_SRC
+
+** leuven
+#+BEGIN_SRC emacs-lisp
+(load-theme 'leuven t)
+;(setq org-fontify-whole-heading-line t)
+;(setq org-fontify-done-headline t)
+;(setq org-fontify-quote-and-verse-blocks t)
+;(set-face-attribute 'org-ellipsis nil :weight 'bold :background "white" :foreground "black" :box nil)
+(set-cursor-color "#f4a460")
+(custom-set-faces
+ '(font-lock-string-face ((t (:foreground "Purple")))))
+; '(org-headline-done ((t (:strike-through nil :foreground "#828282")))))
+#+END_SRC
+
+** COMMENT material
+#+BEGIN_SRC emacs-lisp
+(load-theme 'material-light t)
+#+END_SRC
+
+
+* Text
+Make the text bigger by default. (sensible-defaults binds font resize to C-- and C-+)
+#+BEGIN_SRC emacs-lisp
+  (set-face-attribute 'default nil :height 110)
+#+END_SRC
+
+Default to visual line mode for some modes.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'text-mode-hook #'visual-line-mode)
+(add-hook 'LaTeX-mode-hook #'visual-line-mode)
+#+END_SRC
+
+
+* Highlighting
+  Highlight all occurrences of word under the cursor. Config from http://xenodium.com/emacs-highlight-symbol-mode/
+  #+BEGIN_SRC emacs-lisp
+  (use-package highlight-symbol
+    :config
+    (set-face-attribute 'highlight-symbol-face nil
+			:background "#E5E5E5"
+			:foreground "default")
+    (setq highlight-symbol-idle-delay 0)
+    (setq highlight-symbol-on-navigation-p t)
+    (add-hook 'prog-mode-hook #'highlight-symbol-mode)
+    (add-hook 'prog-mode-hook #'highlight-symbol-nav-mode))
+  #+END_SRC
+
+
+* Backups / saves
+From [[https://www.emacswiki.org/emacs/BackupDirectory][emacswiki]]
+#+BEGIN_SRC emacs-lisp
+  (setq
+     backup-by-copying t      ; don't clobber symlinks
+     backup-directory-alist
+      '(("." . "~/.saves"))    ; don't litter my fs tree
+     delete-old-versions t
+     kept-new-versions 6
+     kept-old-versions 2
+     version-control t)       ; use versioned backups
+#+END_SRC
+
+Save history between sessions.
+#+BEGIN_SRC emacs-lisp
+(savehist-mode 1)
+#+END_SRC
+
+
+* Helm
+#+BEGIN_SRC emacs-lisp
+  (use-package helm
+    :diminish helm-mode
+     :bind (("M-x" . helm-M-x)
+     	 ("M-y" . helm-show-kill-ring)
+     	 ("C-x b" . helm-mini)
+     	 ("C-x C-f" . helm-find-files))
+     :init
+     (helm-mode 1)
+     :config
+     (setq helm-split-window-in-side-p t
+     	helm-move-to-line-cycle-in-source t
+     	helm-autoresize-mode t
+     	helm-ff-file-name-history-use-recentf t)
+    )
+#+END_SRC
+
+
+* Undo tree
+More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
+
+#+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+  :commands global-undo-tree-mode
+  :init (global-undo-tree-mode 1))
+#+END_SRC
+
+
+* Yasnippet
+#+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+  :config
+  (use-package yasnippet-snippets)
+  (yas-global-mode t)
+  (add-to-list #'yas-snippet-dirs "~/.emacs.d/my-snippets")
+  (yas-reload-all)'
+  :diminish yas-minor-mode)
+#+END_SRC
+
+
+* Latex
+Feature name different from package name; see https://github.com/raxod502/straight.el/issues/516
+#+BEGIN_SRC emacs-lisp
+(use-package tex
+  :straight auctex)
+#+END_SRC

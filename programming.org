@@ -1,0 +1,19 @@
+#+TITLE: Programming config
+#+DESCRIPTION: Configuration related to coding
+#+LANGUAGE: en
+#+PROPERTY: header-args    :results silent
+* Python
+  Basic elpy config from the docs. Deferring loading to improve emacs startup time.
+#+BEGIN_SRC emacs-lisp
+  (use-package elpy
+    :defer t
+    :init
+    (advice-add 'python-mode :before 'elpy-enable))
+#+END_SRC
+
+Auto-format code on save.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'elpy-mode-hook (lambda ()
+                            (add-hook 'before-save-hook
+                                      'elpy-black-fix-code nil t)))
+#+END_SRC
