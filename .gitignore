@@ -6,3 +6,5 @@ recentf
 straight/**
 !straight/versions/default.el
 .org-id-locations
+auto-save-list/**
+elpy*

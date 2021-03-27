@@ -32,6 +32,11 @@ Prettier bullets
     (add-hook 'org-mode-hook 'org-bullets-mode))
 #+END_SRC
 
+Increase list indentation
+#+BEGIN_SRC emacs-lisp
+(setq org-list-indent-offset 2)
+#+END_SRC
+
 Color the TODO states.
 #+BEGIN_SRC emacs-lisp
 (setq org-todo-keyword-faces
@@ -212,6 +217,9 @@ Set the =TODO= states.
 ,** %\\1 Review :monthly:
 ,** %\\1 Key Ideas :monthlykeyideas:
 ,** %\\1 Highlights :highlights:\n" :empty-lines 1)
+			("a" "Accomplishments" entry
+			 (file+datetree ,(org-file-path "accomplishments.org"))
+			 "* %?")
 			("D" "Daily" entry
 			 (file+datetree ,(org-file-path "journal/daily.org"))
 			 "* NOTE %? \nSCHEDULED: %t\nCLOSED: %t")
