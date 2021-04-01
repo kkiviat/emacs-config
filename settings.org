@@ -120,6 +120,13 @@ Default to visual line mode for some modes.
 (add-hook 'LaTeX-mode-hook #'visual-line-mode)
 #+END_SRC
 
+* Flyspell
+  #+BEGIN_SRC emacs-lisp
+(use-package flyspell
+  :straight nil
+  :hook
+  (text-mode . flyspell-mode))
+  #+END_SRC
 
 * Highlighting
   Highlight all occurrences of word under the cursor. Config from http://xenodium.com/emacs-highlight-symbol-mode/

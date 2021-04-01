@@ -201,6 +201,9 @@ Set the =TODO= states.
 			("p" "Project"
 			 entry (file ,(org-file-path "gtd.org"))
 			 "* PROJECT %^{name} \n:PROPERTIES:\n:CREATED: %U\n:PROJECT: %\\1\n:OUTCOME: %?\n:END:\n")
+			("T" "Troubleshooting"
+			 entry (file ,(org-file-path "troubleshooting.org"))
+			 "* %^{problem} \n:PROPERTIES:\n:CREATED: %U\n:END:\n** Solution\n%^{solution}\n** Details\n%?")
 			("w" "Weekly" entry
 			 (file ,(org-file-path "journal/weekly2021.org"))
 			 "** Week %^{week number}
@@ -514,31 +517,32 @@ Package that creates a beautiful interactive graph of your roam files, on http:/
   Set up syncing with google calendar  following https://github.com/emacsmirror/org-gcal.
   Basic calfw config from https://github.com/kiwanami/emacs-calfw
   #+BEGIN_SRC emacs-lisp
-	  (use-package calfw
-	    :init
-	    (setq cfw:fchar-junction ?╋
-		  cfw:fchar-vertical-line ?┃
-		  cfw:fchar-horizontal-line ?━
-		  cfw:fchar-left-junction ?┣
-		  cfw:fchar-right-junction ?┫
-		  cfw:fchar-top-junction ?┯
-		  cfw:fchar-top-left-corner ?┏
-		  cfw:fchar-top-right-corner ?┓
-		  calendar-week-start-day 1 ; 0:Sunday, 1:Monday
-		  ))
-	  (use-package calfw-org)
-	  (use-package calfw-ical)
-	  (use-package calfw-cal)
+    (use-package calfw
+      :init
+      (setq cfw:fchar-junction ?╋
+	    cfw:fchar-vertical-line ?┃
+	    cfw:fchar-horizontal-line ?━
+	    cfw:fchar-left-junction ?┣
+	    cfw:fchar-right-junction ?┫
+	    cfw:fchar-top-junction ?┯
+	    cfw:fchar-top-left-corner ?┏
+	    cfw:fchar-top-right-corner ?┓
+	    calendar-week-start-day 1 ; 0:Sunday, 1:Monday
+	    ))
+    (use-package calfw-org)
+    (use-package calfw-ical)
+    (use-package calfw-cal)
 
-	(defun klk/open-calendar ()
-	  "CFW config for my calendars."
-	  (interactive)
-	  (cfw:open-calendar-buffer
-	   :contents-sources
-	   (list
-	    (cfw:org-create-source "DarkGreen")
-	    (cfw:ical-create-source "gcal" (klk/get-gcal) "Blue")
-	   )))
+  (defun klk/open-calendar ()
+    "CFW config for my calendars."
+    (interactive)
+    (cfw:open-calendar-buffer
+     :contents-sources
+     (list
+      (cfw:org-create-source "DarkGreen")
+      (cfw:ical-create-source "gcal" (klk/get-gcal) "Blue")
+      (cfw:ical-create-source "stanford" (klk/stanford-cal) "Red")
+     )))
   #+END_SRC
 
 * babel
