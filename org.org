@@ -118,6 +118,8 @@ Make files start with inline images loaded, and add a hook to display them after
 Scale up latex preview images.
 #+BEGIN_SRC emacs-lisp
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.7))
+(setq org-preview-latex-image-directory "/tmp/ltximg/")
+(setq org-preview-latex-default-process 'imagemagick)
 #+END_SRC
 
 * Tasks
