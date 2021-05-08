@@ -390,6 +390,10 @@ Use syntax highlighting in source blocks while editing.
   (setq org-src-fontify-natively t)
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (setq org-src-preserve-indentation t)
+#+END_SRC
+
 Hide emphasis markers like *,/,=
 
 #+BEGIN_SRC emacs-lisp
@@ -543,7 +547,7 @@ Package that creates a beautiful interactive graph of your roam files, on http:/
      (list
       (cfw:org-create-source "DarkGreen")
       (cfw:ical-create-source "gcal" (klk/get-gcal) "Blue")
-      (cfw:ical-create-source "stanford" (klk/stanford-cal) "Red")
+;      (cfw:ical-create-source "stanford" (klk/stanford-cal) "Red")
      )))
   #+END_SRC
 
@@ -566,10 +570,11 @@ Package that creates a beautiful interactive graph of your roam files, on http:/
 
 
 #+BEGIN_SRC emacs-lisp
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((python . t)
-     (jupyter . t)
-     ;; other languages..
-     ))
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((python . t)
+   (jupyter . t)
+   (octave . t)
+   ;; other languages..
+   ))
 #+END_SRC

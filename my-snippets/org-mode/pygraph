@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: pygraph
+# key: <pyg
+# --
+#+BEGIN_SRC python :results file
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.arange(-5, 5, 0.1)
+y = x$0
+fig=plt.figure(figsize=(5,3))
+plt.plot(x, y)
+
+fname = '`(make-temp-file "plot-" nil ".png")`'
+plt.savefig(fname)
+return fname
+#+END_SRC
