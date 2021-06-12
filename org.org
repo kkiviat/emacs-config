@@ -115,6 +115,12 @@ Make files start with inline images loaded, and add a hook to display them after
 (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
 #+END_SRC
 
+Set this to =nil= to allow customizing image preview size with something like:
+=#ATTR_ORG: :width 200=
+#+BEGIN_SRC emacs-lisp
+(setq org-image-actual-width nil)
+#+END_SRC
+
 Scale up latex preview images.
 #+BEGIN_SRC emacs-lisp
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.7))
