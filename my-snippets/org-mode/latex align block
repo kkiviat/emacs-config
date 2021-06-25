@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: latex align block
+# key: ali
+# --
+\\begin{align*}
+$0
+\\end{align*}
