@@ -574,6 +574,10 @@ Package that creates a beautiful interactive graph of your roam files, on http:/
       python-shell-interpreter-args "-i --simple-prompt")
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+(use-package ob-ipython)
+#+END_SRC
+
 
 #+BEGIN_SRC emacs-lisp
 (org-babel-do-load-languages
@@ -581,6 +585,7 @@ Package that creates a beautiful interactive graph of your roam files, on http:/
  '((python . t)
    (jupyter . t)
    (octave . t)
+   (ipython . t)
    ;; other languages..
    ))
 #+END_SRC
