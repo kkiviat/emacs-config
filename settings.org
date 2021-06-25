@@ -209,3 +209,8 @@ Feature name different from package name; see https://github.com/raxod502/straig
 (use-package tex
   :straight auctex)
 #+END_SRC
+
+* Magit
+  #+BEGIN_SRC emacs-lisp
+(use-package magit)
+  #+END_SRC
