@@ -332,6 +332,11 @@ Super Agenda
 		 (org-agenda-skip-function '(org-agenda-skip-entry-if 'timestamp 'todo '("PROJECT"))))))
 	 ((org-agenda-todo-ignore-scheduled 'future)
 	  (org-agenda-sorting-strategy '(deadline-up)))))
+       (quote("N" "Next tasks" todo "NEXT"
+	      ((org-agenda-overriding-header "Next Tasks")
+	   	 (org-super-agenda-groups '((:auto-property "Project")))
+	   	 ))
+	      ))
        (quote("p" "Project tasks" todo ""
 	      (
 	       (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo '("PROJECT")))
