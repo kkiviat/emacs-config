@@ -468,6 +468,14 @@ Additional shortcuts for inserting code blocks.
 ,#+startup: latexpreview
 ,#+roam_tags: person \n"
            :unnarrowed t)
+	  ("e" "podcast episode" plain (function org-roam--capture-get-point)
+           "%?"
+           :file-name "%<%Y%m%d%H%M%S>-${slug}"
+           :head "#+title: ${title}
+,#+startup: latexpreview
+,#+roam_tags: podcast episode
+Episode of "
+           :unnarrowed t)
 	  ("o" "organization" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "%<%Y%m%d%H%M%S>-${slug}"
