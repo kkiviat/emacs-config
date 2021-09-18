@@ -13,5 +13,6 @@ plt.plot(x, y)
 
 fname = '`(make-temp-file "plot-" nil ".png")`'
 plt.savefig(fname)
+plt.close()
 return fname
 #+END_SRC
