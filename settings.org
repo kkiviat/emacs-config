@@ -73,6 +73,10 @@ Make scrolling less jumpy
 * Themes
 
 ** general customizations
+ #+BEGIN_SRC emacs-lisp
+(load-theme 'tango-dark)
+ #+END_SRC
+
 #+BEGIN_SRC emacs-lisp
 (setq org-ellipsis "  ")
 #+END_SRC
@@ -94,7 +98,7 @@ Add more padding in text buffers.  Based on https://lepisma.xyz/2017/10/28/ricin
 (add-hook 'text-mode-hook 'klk-text-file-spacing)
 #+END_SRC
 
-** leuven
+** COMMENT leuven
 #+BEGIN_SRC emacs-lisp
 (load-theme 'leuven t)
 (setq org-fontify-whole-heading-line t)
@@ -134,7 +138,7 @@ Default to visual line mode for some modes.
   (use-package highlight-symbol
     :config
     (set-face-attribute 'highlight-symbol-face nil
-			:background "#E5E5E5"
+			:background "#858585"
 			:foreground "default")
     (setq highlight-symbol-idle-delay 0)
     (setq highlight-symbol-on-navigation-p t)

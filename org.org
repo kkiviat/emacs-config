@@ -60,7 +60,7 @@ ETBookOT font is installed from https://github.com/edwardtufte/et-book (by downl
 (defun my-buffer-face-mode-variable ()
   "Set font to a variable width (proportional) fonts in current buffer"
   (interactive)
-  (setq buffer-face-mode-face '(:family "ETBookOT" :height 130))
+  (setq buffer-face-mode-face '(:family "Source Sans Pro" :height 130))
   (buffer-face-mode))
 
  ;; Use monospaced font faces in current buffer
@@ -103,7 +103,6 @@ Create ids for links so they will work even if you move them across files.
       org-clone-delete-id t)
 #+END_SRC
 
-
 * Key bindings
 #+BEGIN_SRC emacs-lisp
 (global-set-key "\C-cl" 'org-store-link)
@@ -111,7 +110,6 @@ Create ids for links so they will work even if you move them across files.
 (global-set-key "\C-cc" 'org-capture)
 (global-set-key "\C-cC" 'klk/open-calendar)
 #+END_SRC
-
 
 * Images
 Make files start with inline images loaded, and add a hook to display them after executing a code block to display resulting graphs.
@@ -431,6 +429,15 @@ This changes the context settings for sparse subtrees so that it will show the c
 (push '(tags-tree . local) org-show-context-detail)
 #+END_SRC
 
+Use variable font sizes for headings
+#+BEGIN_SRC emacs-lisp
+(custom-set-faces
+  '(org-level-1 ((t (:inherit outline-1 :height 1.75))))
+  '(org-level-2 ((t (:inherit outline-2 :height 1.5))))
+  '(org-level-3 ((t (:inherit outline-3 :height 1.25))))
+  '(org-level-4 ((t (:inherit outline-4 :height 1.1))))
+)
+#+END_SRC
 
 * Code
 ** General
@@ -450,7 +457,6 @@ Additional shortcuts for inserting code blocks.
   (add-to-list 'org-structure-template-alist
 	       '("r" "#+BEGIN_SRC R \n?\n#+END_SRC"))
 #+END_SRC
-
 
 * Roam
   Making the generated graphs navigatable requires setting up org-protocol. See the [[https://www.orgroam.com/manual/Installation-_00281_0029.html#Installation-_00281_0029][org roam manual]] for instructions on setting up org-protocol.
