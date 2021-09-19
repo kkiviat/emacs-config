@@ -405,6 +405,20 @@ Deft is good for searching through files in a directory, like the journal direct
 	    (format "%s" file))))))
 #+END_SRC
 
+*** ripgrep
+An alternative to =deft=, using =ripgrep=. Nice in that it actually shows the matches, not just the beginning of the file containing a match.
+Config based on https://renatgalimov.github.io/org-basb-code/.
+#+BEGIN_SRC emacs-lisp
+(use-package helm-rg
+  :init
+  (defun helm-rg-roam-directory (&optional query)
+    "Search with rg in your roam directory, QUERY."
+    (interactive)
+    (let ((helm-rg-default-directory "~/Dropbox/org/roam"))
+      (helm-rg query nil)))
+  :bind (("C-c n R" . helm-rg-roam-directory)))
+#+END_SRC
+
 *** random note
 Random note, for looking at a random past entry.
 #+BEGIN_SRC emacs-lisp
