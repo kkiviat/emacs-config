@@ -544,7 +544,6 @@ Additional shortcuts for inserting code blocks.
 	 ("C-c n f" . org-roam-node-find)
 	 ("C-c n l" . org-roam-buffer-toggle)
 	 ("C-c n i" . org-roam-node-insert)
-	 ;([mouse-1] . org-roam-buffer-visit-thing)
 	 ("C-c f" . org-roam-dailies-find-next-note)
 	 ("C-c b" . org-roam-dailies-find-previous-note)))
 #+END_SRC
