@@ -73,9 +73,10 @@ Make scrolling less jumpy
 * Themes
 
 ** general customizations
- #+BEGIN_SRC emacs-lisp
-(load-theme 'tango-dark)
- #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package doom-themes :defer t)
+(load-theme 'doom-palenight t)
+#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
 (setq org-ellipsis "  ")

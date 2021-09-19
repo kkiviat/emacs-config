@@ -7,6 +7,7 @@
  ("elpy" . "c31cd91325595573c489b92ad58e492a839d2dec")
  ("emacs-async" . "d7e7f79ee42311a0187aa2ab4f4e2f8843fa28da")
  ("emacs-calfw" . "03abce97620a4a7f7ec5f911e669da9031ab9088")
+ ("emacs-doom-themes" . "e716ddbb882a3a06744faa74decb2fea1569c921")
  ("emacs-jupyter" . "6ce8d01e3a550a3268b415bf9d9b635d4dba5940")
  ("emacs-web-server" . "22ce66ea43e0eadb9ec1d691a35d9695fc29cee6")
  ("emacs-websocket" . "34e11124fdd9d73e431499ba8a6b6a8023519664")

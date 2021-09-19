@@ -47,7 +47,7 @@ Color the TODO states.
 (setq org-todo-keyword-faces
 '(("WAITING" . (:foreground "darkorange" :background "lightyellow" :weight bold :box t))
 	("TODO" . (:foreground "darkblue" :background "lightblue" :weight bold :box t))
-	("PROJECT" . (:foreground "black"))
+	("PROJECT" . (:foreground "white"))
 	("NEXT" . (:foreground "darkblue" :background "lightblue" :weight bold :box t))))
 #+END_SRC
 
@@ -60,14 +60,14 @@ ETBookOT font is installed from https://github.com/edwardtufte/et-book (by downl
 (defun my-buffer-face-mode-variable ()
   "Set font to a variable width (proportional) fonts in current buffer"
   (interactive)
-  (setq buffer-face-mode-face '(:family "Source Sans Pro" :height 130))
+  (setq buffer-face-mode-face '(:family "Source Sans Pro" :height 140))
   (buffer-face-mode))
 
  ;; Use monospaced font faces in current buffer
  (defun my-buffer-face-mode-fixed ()
    "Sets a fixed width (monospace) font in current buffer"
    (interactive)
-   (setq buffer-face-mode-face '(:family "Consolas"))
+   (setq buffer-face-mode-face '(:family "Consolas" :weight 'light))
    (buffer-face-mode))
 #+END_SRC
 
@@ -80,6 +80,13 @@ But use monospace font in code blocks and tables.  From https://github.com/jparc
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
 (set-face-attribute 'org-block nil :inherit 'fixed-pitch)
+(set-face-attribute 'org-table nil  :inherit 'fixed-pitch)
+(set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+(set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+(set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+(set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+(set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+(set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
 #+END_SRC
 
 * Refiling
