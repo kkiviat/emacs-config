@@ -24,7 +24,7 @@
  ("let-alist" . "6708ec0b2e6dff80ff5b64698aa009d9070a2ed2")
  ("magit" . "bc85c477b53b8ad0ba87120f172230a2909a2fec")
  ("melpa" . "b2c8cf16d5449478e4137b8a02f610f681f3dfef")
- ("org" . "069bcba529142bdb91647258924513f0fb0f3fa1")
+ ("org" . "3a77e59fc90400bcc5e23a0b5e743e2e05dff09f")
  ("org-bullets" . "767f55feb58b840a5a04eabfc3fbbf0d257c4792")
  ("org-randomnote" . "ea8cf4385970637efffff8f79e14576ba6d7ad13")
  ("org-roam" . "1795039ab93ef19611dbb3fca21c4211c4e655a9")

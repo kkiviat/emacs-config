@@ -13,6 +13,11 @@
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
+;; Load here to avoid issues with accidentally auto-loading the built-in version before this.
+(straight-use-package '(org-contrib :type git
+                                    :repo "https://git.sr.ht/~bzg/org-contrib"
+                                    :local-repo "org-contrib"))
+
 (org-babel-load-file "~/.emacs.d/settings.org")
 (org-babel-load-file "~/Dropbox/org/private.org")
 (org-babel-load-file "~/.emacs.d/org.org")
