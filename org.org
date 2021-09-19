@@ -367,22 +367,35 @@ Super Agenda
 
 *** deft
 Deft is good for searching through files in a directory, like the journal directory.
+=deft-parse-title= override is from https://github.com/jrblevin/deft/issues/75 so the title isn't just ":PROPERTIES:" with org-roam V2.
 #+BEGIN_SRC emacs-lisp
 (use-package deft
   :bind ("C-c d" . deft)
   :bind ("C-c D" . deft-find-file)
   :commands (deft)
   :config
-  (setq deft-default-extension "org")
-  (setq deft-extensions '("org"))
-  (setq deft-directory "~/Dropbox/org/roam")
-  (setq deft-recursive t)
-  (setq deft-use-filename-as-title nil)
-  (setq deft-file-naming-rules '((noslash . "-")
+  (setq deft-default-extension "org"
+	deft-extensions '("org")
+	deft-directory "~/Dropbox/org/roam"
+	deft-recursive t
+	deft-strip-summary-regexp ":PROPERTIES:\n\\(.+\n\\)+:END:\n\\(#\\+.+\n\\)*\\(- .+::.+\n\\)?"
+	deft-use-filename-as-title nil
+	deft-file-naming-rules '((noslash . "-")
 				 (nospace . "-")
-				 (case-fn . downcase)))
-  (setq deft-text-mode 'org-mode)
+				 (case-fn . downcase))
+	deft-text-mode 'org-mode)
   )
+(advice-add 'deft-parse-title :override
+    (lambda (file contents)
+      (if deft-use-filename-as-title
+	  (deft-base-filename file)
+	(let* ((case-fold-search 't)
+	       (begin (string-match "title: " contents))
+	       (end-of-begin (match-end 0))
+	       (end (string-match "\n" contents begin)))
+	  (if begin
+	      (substring contents end-of-begin end)
+	    (format "%s" file))))))
 #+END_SRC
 
 *** random note
@@ -459,94 +472,74 @@ Additional shortcuts for inserting code blocks.
 #+END_SRC
 
 * Roam
-  Making the generated graphs navigatable requires setting up org-protocol. See the [[https://www.orgroam.com/manual/Installation-_00281_0029.html#Installation-_00281_0029][org roam manual]] for instructions on setting up org-protocol.
 #+BEGIN_SRC emacs-lisp
-(server-start)
 (use-package org-roam
-  :hook
-  (after-init . org-roam-mode)
+  ; the repo has org-roam-dailies.el in an extensions folder; for it to be included
+  :straight (org-roam :type git :flavor melpa :host github :repo "org-roam/org-roam"
+		      :files ("*.el" "extensions/*.el"))
   :custom
   (org-roam-directory "~/Dropbox/org/roam")
+  :init
+  (setq org-roam-v2-ack t)
   :config
-  (require 'org-roam-protocol)
+  (org-roam-db-autosync-mode)
+  (define-key org-roam-mode-map [mouse-1] #'org-roam-buffer-visit-thing)
+  ; Keep backlink buffer as side window like v1
+  ;; (add-to-list 'display-buffer-alist
+  ;;              '("\\*org-roam\\*"
+  ;;                 (display-buffer-in-direction)
+  ;;                 (direction . right)
+  ;;                 (window-width . 0.33)
+  ;;                 (window-height . fit-window-to-buffer)))
   (setq org-roam-capture-templates
-        '(("d" "default" plain (function org-roam--capture-get-point)
+        '(("d" "default" plain
            "%?"
-           :file-name "%<%Y%m%d%H%M%S>-${slug}"
-           :head "#+title: ${title}
-,#+startup: latexpreview
-,#+roam_tags: \n"
+           :if-new (file+head
+		    "%<%Y%m%d%H%M%S>-${slug}"
+		    "#+title: ${title}\n#+startup: latexpreview\n#+filetags: \n")
            :unnarrowed t)
-	  ("p" "person" plain (function org-roam--capture-get-point)
+	  ("p" "person" plain
            "%?"
-           :file-name "%<%Y%m%d%H%M%S>-${slug}"
-           :head "#+title: ${title}
-,#+startup: latexpreview
-,#+roam_tags: person \n"
+           :if-new (file+head
+		    "%<%Y%m%d%H%M%S>-${slug}"
+		    "#+title: ${title}\n#+startup: latexpreview\n#+filetags: :person: \n")
            :unnarrowed t)
-	  ("e" "podcast episode" plain (function org-roam--capture-get-point)
-           "%?"
-           :file-name "%<%Y%m%d%H%M%S>-${slug}"
-           :head "#+title: ${title}
-,#+startup: latexpreview
-,#+roam_tags: podcast episode
-Episode of "
+	  ("e" "podcast episode" plain
+           "Episode of %?"
+           :if-new (file+head
+		    "%<%Y%m%d%H%M%S>-${slug}"
+		    "#+title: ${title}\n#+startup: latexpreview\n#+filetags: :podcast:episode:\n ")
            :unnarrowed t)
-	  ("o" "organization" plain (function org-roam--capture-get-point)
+	  ("o" "organization" plain
            "%?"
-           :file-name "%<%Y%m%d%H%M%S>-${slug}"
-           :head "#+title: ${title}
-,#+startup: latexpreview
-,#+roam_tags: organization \n"
+           :if-new (file+head
+		    "%<%Y%m%d%H%M%S>-${slug}"
+		    "#+title: ${title}\n#+startup: latexpreview\n#+filetags: :organization: \n")
            :unnarrowed t)
-	  ("l" "literature" plain (function org-roam--capture-get-point)
+	  ("l" "literature" plain
            "%?"
-           :file-name "%<%Y%m%d%H%M%S>-${slug}"
-           :head "#+title: ${title}
-,#+startup: latexpreview
-,#+author: ${author}
-,#+year: ${year}
-,#+roam_tags: literature\n"
+           :if-new (file+head
+		    "%<%Y%m%d%H%M%S>-${slug}"
+		    "#+title: ${title}\n#+startup: latexpreview\n#+author: ${author}\n#+year: ${year}\n#+filetags: :literature:\n")
            :unnarrowed t)))
   (setq org-roam-dailies-directory "dailies/")
-  (setq org-roam-graph-exclude-matcher '("dailies"))
   (setq org-roam-dailies-capture-templates
-	'(("d" "daily" plain
-	   #'org-roam-capture--get-point
-	   "%?"
-	   :file-name "dailies/%<%Y%m%d>"
-	   :head "#+title: %<%Y-%m-%d (%A)>\nRemember to write single line summary (C-c c D)\n\n"
-	   :unnarrowed t)))
-  :bind (("C-c j" . org-roam-dailies-today)
-	 ("C-c t" . org-roam-dailies-tomorrow)
-	 :map org-roam-mode-map
-	      (("C-c n l" . org-roam)
-	       ("C-c n f" . org-roam-find-file)
-	       ("C-c n g" . org-roam-graph)
-	       ("C-c f" . org-roam-dailies-find-next-note)
-	       ("C-c b" . org-roam-dailies-find-previous-note))
-	      :map org-mode-map
-	      (("C-c n i" . org-roam-insert))
-	      (("C-c n I" . org-roam-insert-immediate))))
-
-#+END_SRC
-
-
-Package that creates a beautiful interactive graph of your roam files, on http://127.0.0.1:8080/.
-#+BEGIN_SRC emacs-lisp
-(use-package org-roam-server
-  :config
-  (setq org-roam-server-host "127.0.0.1"
-        org-roam-server-port 8080
-        org-roam-server-authenticate nil
-        org-roam-server-export-inline-images t
-        org-roam-server-serve-files nil
-        org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
-        org-roam-server-network-poll t
-        org-roam-server-network-arrows nil
-        org-roam-server-network-label-truncate t
-        org-roam-server-network-label-truncate-length 60
-        org-roam-server-network-label-wrap-length 20))
+	(quote (("d" "daily" plain
+                 "%?"
+                 :if-new (file+head
+                          "%<%Y%m%d>.org"
+                          "#+title: %<%Y-%m-%d (%A)>\n\n\n")
+                 :unnarrowed t))))
+  :bind (("C-c j" . org-roam-dailies-goto-today)
+	 ("C-c t" . org-roam-dailies-goto-tomorrow)
+	 ("C-c y" . org-roam-dailies-goto-yesterday)
+	 ("C-c n d" . org-roam-dailies-goto-date)
+	 ("C-c n f" . org-roam-node-find)
+	 ("C-c n l" . org-roam-buffer-toggle)
+	 ("C-c n i" . org-roam-node-insert)
+	 ;([mouse-1] . org-roam-buffer-visit-thing)
+	 ("C-c f" . org-roam-dailies-find-next-note)
+	 ("C-c b" . org-roam-dailies-find-previous-note)))
 #+END_SRC
 
 * Calendar

@@ -13,11 +13,6 @@
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
-;; Load here to avoid issues with accidentally auto-loading the built-in version before this.
-(use-package org-plus-contrib
-   :mode (("\\.org$" . org-mode))
-   :ensure org-plus-contrib
-   )
 (org-babel-load-file "~/.emacs.d/settings.org")
 (org-babel-load-file "~/Dropbox/org/private.org")
 (org-babel-load-file "~/.emacs.d/org.org")
