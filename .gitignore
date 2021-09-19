@@ -8,3 +8,4 @@ straight/**
 .org-id-locations
 auto-save-list/**
 elpy*
+session*
