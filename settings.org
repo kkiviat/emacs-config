@@ -22,9 +22,10 @@ Hide window chrome
  (scroll-bar-mode -1)
  #+END_SRC
 
-Start with window maximized
+Start with window maximized and partially transparent.
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
 #+END_SRC
 
 Allows undo and redo of changes in window configurations.
@@ -42,7 +43,7 @@ Make scrolling less jumpy
 (setq mouse-wheel-scroll-amount '(2 ((shift) . 1))) ;; two lines at a time
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-(setq scroll-step 1000) ;; keyboard scroll one line at a time
+(setq scroll-step 1) ;; keyboard scroll one line at a time
 
 ; stop emacs from recentering the buffer point when the point goes outside the window
 (setq scroll-conservatively 100)
