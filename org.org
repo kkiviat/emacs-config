@@ -499,7 +499,7 @@ Additional shortcuts for inserting code blocks.
 * Roam
 #+BEGIN_SRC emacs-lisp
 (use-package org-roam
-  ; the repo has org-roam-dailies.el in an extensions folder; for it to be included
+  ;; the repo has org-roam-dailies.el in an extensions folder; force it to be included
   :straight (org-roam :type git :flavor melpa :host github :repo "org-roam/org-roam"
 		      :files ("*.el" "extensions/*.el"))
   :demand t ; force this to be loaded
@@ -510,7 +510,7 @@ Additional shortcuts for inserting code blocks.
   :config
   (org-roam-db-autosync-mode)
   (define-key org-roam-mode-map [mouse-1] #'org-roam-buffer-visit-thing)
-  ; Keep backlink buffer as side window like v1
+  ;; Keep backlink buffer as side window like v1
   ;; (add-to-list 'display-buffer-alist
   ;;              '("\\*org-roam\\*"
   ;;                 (display-buffer-in-direction)
@@ -542,20 +542,18 @@ Additional shortcuts for inserting code blocks.
 		    "%<%Y%m%d%H%M%S>-${slug}"
 		    "#+title: ${title}\n#+startup: latexpreview\n#+filetags: :organization: \n")
            :unnarrowed t)
-	  ("l" "literature" plain
-           "%?"
-           :if-new (file+head
-		    "%<%Y%m%d%H%M%S>-${slug}"
-		    "#+title: ${title}\n#+startup: latexpreview\n#+author: ${author}\n#+year: ${year}\n#+filetags: :literature:\n")
-           :unnarrowed t)))
-  (setq org-roam-dailies-directory "dailies/")
-  (setq org-roam-dailies-capture-templates
-	(quote (("d" "daily" plain
-                 "%?"
-                 :if-new (file+head
-                          "%<%Y%m%d>.org"
-                          "#+title: %<%Y-%m-%d (%A)>\n\n\n")
-                 :unnarrowed t))))
+	  ("r" "bibliography reference" plain "%?"
+           :if-new
+           (file+head "references/${citekey}.org" "#+title: ${title}\n")
+	   :unnarrowed t)))
+(setq org-roam-dailies-directory "dailies/")
+(setq org-roam-dailies-capture-templates
+      (quote (("d" "daily" plain
+               "%?"
+               :if-new (file+head
+                        "%<%Y%m%d>.org"
+                        "#+title: %<%Y-%m-%d (%A)>\n\n\n")
+               :unnarrowed t))))
   #+END_SRC
 
   Handy config from https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/ to add roam files with the =Project= tag to the agenda list, so I can track TODOs within a project.
@@ -623,6 +621,76 @@ Set key bindings and end =use-package= =org-roam= config.
        ("C-c n i" . org-roam-node-insert)
        ("C-c f" . org-roam-dailies-find-next-note)
        ("C-c b" . org-roam-dailies-find-previous-note)))
+#+END_SRC
+
+* Reference management
+
+** pdf-tools
+Better pdf interactions in Emacs.
+#+BEGIN_SRC emacs-lisp
+(use-package pdf-tools
+  :config
+  (pdf-tools-install)
+  (setq-default pdf-view-display-size 'fit-page)
+  (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
+  :custom
+  (pdf-annot-activate-created-annotations t "automatically annotate highlights")
+)
+#+END_SRC
+
+** bibtex
+Set paths that will be used by multiple packages.
+#+BEGIN_SRC emacs-lisp
+(setq bib-files (directory-files "~/Dropbox/Zotero" t "^[A-Z|a-z].+.bib$")
+      pdf-files-directory "~/Dropbox/papers/bibtex")
+#+END_SRC
+
+** helm-bibtex
+Set up =helm-bibtex= to use the Zotero =.bib= file and store notes in the =org-roam= directory.
+#+BEGIN_SRC emacs-lisp
+(use-package helm-bibtex
+  :config
+  (require 'helm-config)
+  (setq bibtex-completion-bibliography bib-files
+        bibtex-completion-library-path pdf-files-directory
+        bibtex-completion-pdf-field "File"
+        bibtex-completion-notes-path org-roam-directory))
+#+END_SRC
+
+** org-ref
+Manage references in org mode.
+#+BEGIN_SRC emacs-lisp
+(use-package org-ref
+  :config
+  (setq org-ref-completion-library 'org-ref-helm-cite
+        org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
+        org-ref-default-bibliography bib-files
+        org-ref-notes-directory org-roam-directory
+        org-ref-notes-function 'orb-edit-notes)
+  ;; Open pdfs in Emacs, not externally
+  (defun my/org-ref-open-pdf-at-point ()
+    "Open the pdf for bibtex key under point if it exists."
+    (interactive)
+    (let* ((results (org-ref-get-bibtex-key-and-file))
+           (key (car results))
+           (pdf-file (funcall org-ref-get-pdf-filename-function key)))
+      (if (file-exists-p pdf-file)
+          (find-file pdf-file)
+	(message "No PDF found for %s" key))))
+
+  (setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
+  )
+#+END_SRC
+
+** org-roam-bibtex
+Integrate bibtex with =org-roam=.
+#+BEGIN_SRC emacs-lisp
+(use-package org-roam-bibtex
+  :after (org-roam helm-bibtex)
+  :bind (:map org-mode-map ("C-c n b" . orb-note-actions))
+  :config
+  (require 'org-ref) ; optional: if Org Ref is not loaded anywhere else, load it here
+  (org-roam-bibtex-mode))
 #+END_SRC
 
 * Calendar
