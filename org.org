@@ -2,6 +2,10 @@
 #+DESCRIPTION: Configuration for org-mode
 #+LANGUAGE: en
 #+PROPERTY: header-args    :results silent
+Enable lexical binding (needed for some of the org-roam config). *This must be at the top of the file.*
+#+BEGIN_SRC emacs-lisp
+;; -*- lexical-binding: t; -*-
+#+END_SRC
 
 * General
 
@@ -498,6 +502,7 @@ Additional shortcuts for inserting code blocks.
   ; the repo has org-roam-dailies.el in an extensions folder; for it to be included
   :straight (org-roam :type git :flavor melpa :host github :repo "org-roam/org-roam"
 		      :files ("*.el" "extensions/*.el"))
+  :demand t ; force this to be loaded
   :custom
   (org-roam-directory "~/Dropbox/org/roam")
   :init
@@ -551,15 +556,73 @@ Additional shortcuts for inserting code blocks.
                           "%<%Y%m%d>.org"
                           "#+title: %<%Y-%m-%d (%A)>\n\n\n")
                  :unnarrowed t))))
-  :bind (("C-c j" . org-roam-dailies-goto-today)
-	 ("C-c t" . org-roam-dailies-goto-tomorrow)
-	 ("C-c y" . org-roam-dailies-goto-yesterday)
-	 ("C-c n d" . org-roam-dailies-goto-date)
-	 ("C-c n f" . org-roam-node-find)
-	 ("C-c n l" . org-roam-buffer-toggle)
-	 ("C-c n i" . org-roam-node-insert)
-	 ("C-c f" . org-roam-dailies-find-next-note)
-	 ("C-c b" . org-roam-dailies-find-previous-note)))
+  #+END_SRC
+
+  Handy config from https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/ to add roam files with the =Project= tag to the agenda list, so I can track TODOs within a project.
+
+Add existing projects to agenda list on startup:
+  #+BEGIN_SRC emacs-lisp
+(defun my/org-roam-filter-by-tag (tag-name)
+  (lambda (node)
+    (member tag-name (org-roam-node-tags node))))
+
+(defun my/org-roam-list-notes-by-tag (tag-name)
+  (mapcar #'org-roam-node-file
+          (seq-filter
+           (my/org-roam-filter-by-tag tag-name)
+           (org-roam-node-list))))
+
+(defun my/org-roam-refresh-agenda-list ()
+  (interactive)
+  (setq org-agenda-files (append org-agenda-files (my/org-roam-list-notes-by-tag "project"))))
+
+;; Build the agenda list the first time for the session
+(my/org-roam-refresh-agenda-list)
+#+END_SRC
+
+And add new projects to agenda list after capture.
+#+BEGIN_SRC emacs-lisp
+(defun my/org-roam-project-finalize-hook ()
+  "Adds the captured project file to `org-agenda-files' if the
+capture was not aborted."
+  ;; Remove the hook since it was added temporarily
+  (remove-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
+
+  ;; Add project file to the agenda list if the capture was confirmed
+  (unless org-note-abort
+    (with-current-buffer (org-capture-get :buffer)
+      (add-to-list 'org-agenda-files (buffer-file-name)))))
+
+(defun my/org-roam-find-project ()
+  (interactive)
+  ;; Add the project file to the agenda after capture is finished
+  (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
+
+  ;; Select a project file to open, creating it if necessary
+  (org-roam-node-find
+   nil
+   nil
+   (my/org-roam-filter-by-tag "project")
+   :templates
+   '(("p" "project" plain "* Goals\n\n%?\n\n* Tasks\n\n** TODO Add initial tasks\n\n"
+      :if-new (file+head
+	       "%<%Y%m%d%H%M%S>-${slug}"
+	       "#+title: ${title}\n#+category: ${title}\n#+filetags: :project:")
+      :unnarrowed t))))
+#+END_SRC
+
+Set key bindings and end =use-package= =org-roam= config.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c n p") #'my/org-roam-find-project)
+:bind (("C-c j" . org-roam-dailies-goto-today)
+       ("C-c t" . org-roam-dailies-goto-tomorrow)
+       ("C-c y" . org-roam-dailies-goto-yesterday)
+       ("C-c n d" . org-roam-dailies-goto-date)
+       ("C-c n f" . org-roam-node-find)
+       ("C-c n l" . org-roam-buffer-toggle)
+       ("C-c n i" . org-roam-node-insert)
+       ("C-c f" . org-roam-dailies-find-next-note)
+       ("C-c b" . org-roam-dailies-find-previous-note)))
 #+END_SRC
 
 * Calendar
