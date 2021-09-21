@@ -33,6 +33,7 @@
  ("org" . "3a77e59fc90400bcc5e23a0b5e743e2e05dff09f")
  ("org-bullets" . "767f55feb58b840a5a04eabfc3fbbf0d257c4792")
  ("org-contrib" . "fc81309cf6756607a836f93049a9393c2967c4e0")
+ ("org-noter" . "9ead81d42dd4dd5074782d239b2efddf9b8b7b3d")
  ("org-randomnote" . "ea8cf4385970637efffff8f79e14576ba6d7ad13")
  ("org-ref" . "8c503e61681a39cfb104793b35f2f7b801c6830f")
  ("org-roam" . "1795039ab93ef19611dbb3fca21c4211c4e655a9")

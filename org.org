@@ -544,7 +544,7 @@ Additional shortcuts for inserting code blocks.
            :unnarrowed t)
 	  ("r" "bibliography reference" plain "%?"
            :if-new
-           (file+head "references/${citekey}.org" "#+title: ${title}\n")
+           (file+head "references/${citekey}.org" "#+title: ${title}\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ${file}\n:END:\n")
 	   :unnarrowed t)))
 (setq org-roam-dailies-directory "dailies/")
 (setq org-roam-dailies-capture-templates
@@ -691,6 +691,21 @@ Integrate bibtex with =org-roam=.
   :config
   (require 'org-ref) ; optional: if Org Ref is not loaded anywhere else, load it here
   (org-roam-bibtex-mode))
+#+END_SRC
+
+** org-noter
+Attach notes to locations in the pdf.
+#+BEGIN_SRC emacs-lisp
+(use-package org-noter
+  :after org-roam
+  :config
+  (setq
+   org-noter-notes-window-location 'horizontal-split
+   org-noter-always-create-frame nil
+   org-noter-hide-other nil
+   org-noter-notes-search-path 'org-roam-directory
+   )
+  )
 #+END_SRC
 
 * Calendar
