@@ -18,6 +18,11 @@ Save all org buffers periodically to reduce conflicts between desktop and orgzly
 (setq org-return-follows-link t)
 #+END_SRC
 
+Don't show blank lines between headings in folded view.
+#+BEGIN_SRC emacs-lisp
+(setq org-cycle-separator-lines 0)
+#+END_SRC
+
 Most of this is from [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][this]] guide:
 
 Set the org directory and method for getting the full path to an org file from its name.
@@ -470,9 +475,9 @@ This changes the context settings for sparse subtrees so that it will show the c
 Use variable font sizes for headings
 #+BEGIN_SRC emacs-lisp
 (custom-set-faces
-  '(org-level-1 ((t (:inherit outline-1 :height 1.75))))
-  '(org-level-2 ((t (:inherit outline-2 :height 1.5))))
-  '(org-level-3 ((t (:inherit outline-3 :height 1.25))))
+  '(org-level-1 ((t (:inherit outline-1 :height 1.4))))
+  '(org-level-2 ((t (:inherit outline-2 :height 1.25))))
+  '(org-level-3 ((t (:inherit outline-3 :height 1.2))))
   '(org-level-4 ((t (:inherit outline-4 :height 1.1))))
 )
 #+END_SRC
