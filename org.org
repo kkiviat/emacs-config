@@ -534,25 +534,25 @@ Additional shortcuts for inserting code blocks.
         '(("d" "default" plain
            "%?"
            :if-new (file+head
-		    "%<%Y%m%d%H%M%S>-${slug}"
+		    "%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n#+startup: latexpreview\n#+filetags: \n")
            :unnarrowed t)
 	  ("p" "person" plain
            "%?"
            :if-new (file+head
-		    "%<%Y%m%d%H%M%S>-${slug}"
+		    "%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n#+startup: latexpreview\n#+filetags: :person: \n")
            :unnarrowed t)
 	  ("e" "podcast episode" plain
            "Episode of %?"
            :if-new (file+head
-		    "%<%Y%m%d%H%M%S>-${slug}"
+		    "%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n#+startup: latexpreview\n#+filetags: :podcast:episode:\n ")
            :unnarrowed t)
 	  ("o" "organization" plain
            "%?"
            :if-new (file+head
-		    "%<%Y%m%d%H%M%S>-${slug}"
+		    "%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n#+startup: latexpreview\n#+filetags: :organization: \n")
            :unnarrowed t)
 	  ("r" "bibliography reference" plain "%?"
