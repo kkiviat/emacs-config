@@ -282,6 +282,7 @@ Set files to be included in the agenda. Includes archive because I like to see o
 			 ,(org-file-path "work.org")
 			 ,(org-file-path "recurring.org")
 			 ,(org-file-path "archive.org")
+			 ,(org-file-path "school.org")
 			 ,(org-file-path "p-financial.org")
 			 ,(org-file-path "p-health.org")
 			 ,(org-file-path "p-garden.org")
