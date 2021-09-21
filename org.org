@@ -511,12 +511,12 @@ Additional shortcuts for inserting code blocks.
   (org-roam-db-autosync-mode)
   (define-key org-roam-mode-map [mouse-1] #'org-roam-buffer-visit-thing)
   ;; Keep backlink buffer as side window like v1
-  ;; (add-to-list 'display-buffer-alist
-  ;;              '("\\*org-roam\\*"
-  ;;                 (display-buffer-in-direction)
-  ;;                 (direction . right)
-  ;;                 (window-width . 0.33)
-  ;;                 (window-height . fit-window-to-buffer)))
+  (add-to-list 'display-buffer-alist
+               '("\\*org-roam\\*"
+                  (display-buffer-in-direction)
+                  (direction . right)
+                  (window-width . 0.33)
+                  (window-height . fit-window-to-buffer)))
   (setq org-roam-capture-templates
         '(("d" "default" plain
            "%?"
@@ -544,7 +544,7 @@ Additional shortcuts for inserting code blocks.
            :unnarrowed t)
 	  ("r" "bibliography reference" plain "%?"
            :if-new
-           (file+head "references/${citekey}.org" "#+title: ${title}\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ${file}\n:END:\n")
+           (file+head "references/${citekey}.org" "#+title: ${title}\n#+author: ${author}\n#+date: ${date}\n#+filetags: :reference:\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ${file}\n:END:\n")
 	   :unnarrowed t)))
 (setq org-roam-dailies-directory "dailies/")
 (setq org-roam-dailies-capture-templates
@@ -631,7 +631,7 @@ Better pdf interactions in Emacs.
 (use-package pdf-tools
   :config
   (pdf-tools-install)
-  (setq-default pdf-view-display-size 'fit-page)
+  (setq-default pdf-view-display-size 'fit-width)
   (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
   :custom
   (pdf-annot-activate-created-annotations t "automatically annotate highlights")
@@ -699,12 +699,13 @@ Attach notes to locations in the pdf.
 (use-package org-noter
   :after org-roam
   :config
-  (setq
-   org-noter-notes-window-location 'horizontal-split
-   org-noter-always-create-frame nil
-   org-noter-hide-other nil
-   org-noter-notes-search-path 'org-roam-directory
+  (setq org-noter-notes-window-location 'horizontal-split
+	org-noter-always-create-frame nil
+	org-noter-hide-other nil
+	org-noter-notes-search-path 'org-roam-directory
+	org-noter-doc-split-fraction '(0.66 . 0.5)
    )
+  :bind (:map org-mode-map ("C-c n n" . org-noter))
   )
 #+END_SRC
 
