@@ -297,86 +297,94 @@ Super Agenda
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-custom-commands
-	(list
-	 (quote
-	  ("h" "Hotlist"
-	   ((tags-todo "DEADLINE<\"<+0d>\""
-		       ((org-agenda-overriding-header "OVERDUE")))
-	    (tags-todo "DEADLINE>=\"<+0d>\"+DEADLINE<=\"<+1w>\""
-		       ((org-agenda-overriding-header "DUE IN NEXT 7 DAYS")))
-	    (tags-todo "DEADLINE=\"\"+PRIORITY={A}|DEADLINE>\"<+1w>\"+PRIORITY={A}"
-		       ((org-agenda-overriding-header "HIGH PRIORITY")))
-	    (tags-todo "DEADLINE=\"\"+FLAGGED|DEADLINE>\"<+1w>\"+FLAGGED"
-		       ((org-agenda-overriding-header "FLAGGED")
-			(org-agenda-skip-function
-			 '(org-agenda-skip-entry-when-regexp-matches))
-			(org-agenda-skip-regexp "\\[#A\\]"))))
-	   ((org-agenda-todo-ignore-scheduled 'future)
-	    (org-agenda-sorting-strategy '(deadline-up)))))
-	 (quote
-	  ("x" "Daily Agenda"
-	   (
-	    (tags-todo "+PRIORITY={A}"
-		       ((org-agenda-overriding-header "High Priority Tasks")))
-	    (
-	     agenda "" ((org-agenda-span 'day)
-			(org-agenda-log-mode-items '(closed clock state))
-			(org-agenda-prefix-format "  %?-12t% s")
-					  ; (org-agenda-compact-blocks t)
-			(org-super-agenda-groups
-			 '(
-			   (:name "⏰ Calendar" :time-grid t)
-			   (:name "⚠ Overdue!" :deadline past)
-			   (:name "⚠ Overdue!" :and (:scheduled past :not (:habit t)))
-			   (:auto-property "Project")
-			   (:auto-category)
-			   (:name "Misc. Scheduled" :and (:scheduled today :not (:habit t)))
-			   (:name "Due" :and (:deadline today :not (:habit t)))
-			   (:name "⭐ Next" :todo "NEXT")
-			   (:name "⭐ Important" :priority "A")
-			   ;(:name "📌 Routines" :and (:habit t :category "recurring" :tag "habit"))
-			   (:name "📌 Chores" :and (:habit t :category "recurring" :tag "chore"))
-			   ))
-			))
-	    ;; (todo "NEXT"
-	    ;; 	((org-agenda-overriding-header "Next Tasks")
-	    ;; 	 (org-super-agenda-groups '((:auto-property "Project")))
-	    ;; 	 ))
-	    )))
-	 (quote
-	  ("U" "Unscheduled"
-	   ((todo ""
-		  ((org-agenda-overriding-header "Unscheduled Tasks")
-		   (org-agenda-skip-function '(org-agenda-skip-entry-if 'timestamp 'todo '("PROJECT"))))))
-	   ((org-agenda-todo-ignore-scheduled 'future)
-	    (org-agenda-sorting-strategy '(deadline-up)))))
-	 (quote("N" "Next tasks" todo "NEXT"
+(defun timestamp-in-n-days (n)
+  "Get the timestamp of n days in the future."
+  (format-time-string "%Y-%m-%d" (time-add (* 3600 24 n) (current-time))))
+
+(setq org-agenda-custom-commands
+      (list
+       (quote
+	("d" "Daily Agenda"
+	 (
+	  (
+	   agenda "" ((org-agenda-span 'day)
+		      (org-agenda-log-mode-items '(closed clock state))
+		      (org-agenda-prefix-format "  %?-12t% s")
+		      (org-super-agenda-groups
+		       '(
+			 (:name "⏰ Calendar" :time-grid t)
+			 (:name "☆ Important" :priority "A")
+			 (:name "⚠ Overdue!" :deadline past :and (:scheduled past :not (:habit t)))
+			 (:name "☆ Due" :and (:deadline today :not (:habit t)))
+			 (:auto-property "Project")
+			 (:auto-category)
+			 (:name "Misc. Scheduled" :and (:scheduled today :not (:habit t)))
+			 (:name "📌 Routines" :and (:habit t :category "recurring" :tag "habit"))
+			 (:name "📌 Chores" :and (:habit t :category "recurring" :tag "chore"))
+			 ))
+		      ))
+	  )))
+       (quote
+	("x" "Daily Agenda"
+	 (
+	  (
+	   agenda "" (
+		      (org-agenda-span 'day)
+		      (org-agenda-overriding-header "Today")
+		      (org-agenda-log-mode-items '(closed clock state))
+		      (org-agenda-prefix-format "  %?-12t% s")
+		      (org-super-agenda-groups
+		       '((:name "⏰ Calendar" :time-grid t)
+			 (:name "☆ Important" :priority "A")
+			 (:name "⚠ Overdue!" :deadline past :and (:scheduled past :not (:habit t)))
+			 (:name "Scheduled Today" :scheduled today)
+			 (:name "☆ Due" :and (:deadline today :not (:habit t)))
+			 ))
+		      ))
+	  (alltodo "" ((org-agenda-overriding-header "Upcoming Schedule")
+                       (org-super-agenda-groups
+                        `((:name "Tomorrow" :scheduled (on ,(timestamp-in-n-days 1)))
+			  (:name "In Two Days" :scheduled (on ,(timestamp-in-n-days 2)))
+			  (:discard (:anything t))
+			  ))))
+	  (todo "NEXT"
 		((org-agenda-overriding-header "Next Tasks")
-		   (org-super-agenda-groups '((:auto-property "Project") (:auto-category)))
-		   ))
-		)
-	 (quote("p" "Project tasks" todo ""
-		(
-		 (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo '("PROJECT")))
-		 (org-super-agenda-groups '((:auto-property "Project" :not (:todo "PROJECT")) (:discard (:anything t))))
-		 )
-		))
-	 (quote
-	  ("n" "Notes"
-	   (
-	    (agenda "" ((org-agenda-span 'week)
-			(org-agenda-log-mode-items '(closed clock state))
-			(org-agenda-prefix-format "  %?-12t% s")
-					  ; (org-agenda-compact-blocks t)
-			(org-super-agenda-groups
-			 '(
-			   (:name "Daily Summary" :and (:time-grid t :tag "daily"))
-			   (:discard (:anything t))
-			   ))
-			)))))
-	 )
-	)
+		 (org-super-agenda-groups '((:auto-property "Project") (:auto-category)))
+		 ))
+	  )))
+       (quote
+	("U" "Unscheduled"
+	 ((todo ""
+		((org-agenda-overriding-header "Unscheduled Tasks")
+		 (org-agenda-skip-function '(org-agenda-skip-entry-if 'timestamp 'todo '("PROJECT"))))))
+	 ((org-agenda-todo-ignore-scheduled 'future)
+	  (org-agenda-sorting-strategy '(deadline-up)))))
+       (quote("N" "Next tasks" todo "NEXT"
+	      ((org-agenda-overriding-header "Next Tasks")
+	       (org-super-agenda-groups '((:auto-property "Project") (:auto-category)))
+	       ))
+	     )
+       (quote("p" "Project tasks" todo ""
+	      (
+	       (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo '("PROJECT")))
+	       (org-super-agenda-groups '((:auto-property "Project" :not (:todo "PROJECT")) (:discard (:anything t))))
+	       )
+	      ))
+       (quote
+	("n" "Notes"
+	 (
+	  (agenda "" ((org-agenda-span 'week)
+		      (org-agenda-log-mode-items '(closed clock state))
+		      (org-agenda-prefix-format "  %?-12t% s")
+					; (org-agenda-compact-blocks t)
+		      (org-super-agenda-groups
+		       '(
+			 (:name "Daily Summary" :and (:time-grid t :tag "daily"))
+			 (:discard (:anything t))
+			 ))
+		      )))))
+       )
+      )
 #+END_SRC
 
 * Journal
