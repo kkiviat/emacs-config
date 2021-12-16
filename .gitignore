@@ -1,7 +1,10 @@
 bookmarks
 history
 org-roam.db
-*.el
+org.el
+settings.el
+programming.el
+\#*
 recentf
 straight/**
 !straight/versions/default.el

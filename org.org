@@ -89,43 +89,6 @@ Allow formatting code blocks using minted in $\LaTeX$ export. From [[https://sta
         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 #+END_SRC
-* Fonts
-Enable changing font face per buffer. From https://www.emacswiki.org/emacs/FacesPerBuffer.
-
-ETBookOT font is installed from https://github.com/edwardtufte/et-book (by downloading the .otf files in =et-book-ligatures-enabled= and putting them in =~/.local/share/fonts= and running =fc-cache -f -v=). (Font name obtained from =fc-list=.)
-#+BEGIN_SRC emacs-lisp
-;; Use variable width font faces in current buffer
-(defun my-buffer-face-mode-variable ()
-  "Set font to a variable width (proportional) fonts in current buffer"
-  (interactive)
-  (setq buffer-face-mode-face '(:family "Source Sans Pro" :height 140))
-  (buffer-face-mode))
-
- ;; Use monospaced font faces in current buffer
- (defun my-buffer-face-mode-fixed ()
-   "Sets a fixed width (monospace) font in current buffer"
-   (interactive)
-   (setq buffer-face-mode-face '(:family "Consolas" :weight 'light))
-   (buffer-face-mode))
-#+END_SRC
-
-Use the variable font for org buffers by default.
-#+BEGIN_SRC emacs-lisp
-(add-hook 'org-mode-hook 'my-buffer-face-mode-variable)
-#+END_SRC
-
-But use monospace font in code blocks and tables.  From https://github.com/jparcill/emacs_config/blob/master/config.el
-#+BEGIN_SRC emacs-lisp
-(set-face-attribute 'org-table nil :inherit 'fixed-pitch)
-(set-face-attribute 'org-block nil :inherit 'fixed-pitch)
-(set-face-attribute 'org-table nil  :inherit 'fixed-pitch)
-(set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
-(set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-(set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-(set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-(set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-(set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
-#+END_SRC
 
 * Refiling
 Set targets for refiling. Use =C-c C-w= to refile. This determines what options you're prompted with. Includes everything in all the agenda files, plus the someday file and various list files.
