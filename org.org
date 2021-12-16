@@ -37,8 +37,12 @@ Set the org directory and method for getting the full path to an org file from i
 Prettier bullets
 #+BEGIN_SRC emacs-lisp
   (use-package org-bullets
-    :init
-    (add-hook 'org-mode-hook 'org-bullets-mode))
+    :hook
+    (org-mode . org-bullets-mode)
+    :custom
+    ;(org-bullets-bullet-list '("\u200b"))) ;; 0 width space for no bullets
+    (org-bullets-bullet-list '("|" "\u200b" "|" "|" "|" "|" "|" "|"))) ;; vertical bar
+;    (org-bullets-bullet-list '("" "" "✜" "◉" "○" "✸" "✿" "◆" "▶" "✸")))
 #+END_SRC
 
 Increase list indentation
@@ -51,6 +55,16 @@ Set a sequence for list bullet symbols.
 (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+")))
 #+END_SRC
 
+Copied from https://mstempl.netlify.app/post/beautify-org-mode/. Replace list dash / plus with bullet symbols.
+#+BEGIN_SRC emacs-lisp
+(font-lock-add-keywords 'org-mode
+                        '(("^ *\\([-]\\) "
+                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+(font-lock-add-keywords 'org-mode
+                        '(("^ *\\([+]\\) "
+                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "◦"))))))
+#+END_SRC
+
 Color the TODO states.
 #+BEGIN_SRC emacs-lisp
 (setq org-todo-keyword-faces
@@ -60,6 +74,21 @@ Color the TODO states.
 	("NEXT" . (:foreground "darkblue" :background "lightblue" :weight bold :box t))))
 #+END_SRC
 
+* Export
+Allow overriding variable values in buffer for export (using =#+BIND: variable value=)
+#+BEGIN_SRC emacs-lisp
+(setq org-export-allow-bind-keywords t)
+#+END_SRC
+
+Allow formatting code blocks using minted in $\LaTeX$ export. From [[https://stackoverflow.com/questions/46438516/how-to-encapsualte-code-blocks-into-a-frame-when-exporting-to-pdf/60396939#60396939][Stack Overflow]].
+#+BEGIN_SRC emacs-lisp
+(setq org-latex-listings 'minted
+      org-latex-packages-alist '(("" "minted"))
+      org-latex-pdf-process
+      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+#+END_SRC
 * Fonts
 Enable changing font face per buffer. From https://www.emacswiki.org/emacs/FacesPerBuffer.
 
@@ -339,6 +368,8 @@ Super Agenda
 			 (:name "☆ Important" :priority "A")
 			 (:name "⚠ Overdue!" :deadline past :and (:scheduled past :not (:habit t)))
 			 (:name "Scheduled Today" :scheduled today)
+			 (:auto-property "Project")
+			 (:auto-category)
 			 (:name "☆ Due" :and (:deadline today :not (:habit t)))
 			 ))
 		      ))
@@ -483,12 +514,12 @@ This changes the context settings for sparse subtrees so that it will show the c
 
 Use variable font sizes for headings
 #+BEGIN_SRC emacs-lisp
-(custom-set-faces
-  '(org-level-1 ((t (:inherit outline-1 :height 1.4))))
-  '(org-level-2 ((t (:inherit outline-2 :height 1.25))))
-  '(org-level-3 ((t (:inherit outline-3 :height 1.2))))
-  '(org-level-4 ((t (:inherit outline-4 :height 1.1))))
-)
+;; (custom-set-faces
+;;   '(org-level-1 ((t (:inherit outline-1 :height 1.4))))
+;;   '(org-level-2 ((t (:inherit outline-2 :height 1.25))))
+;;   '(org-level-3 ((t (:inherit outline-3 :height 1.2))))
+;;   '(org-level-4 ((t (:inherit outline-4 :height 1.1))))
+;; )
 #+END_SRC
 
 * Code
