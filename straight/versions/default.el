@@ -52,6 +52,7 @@
  ("ts.el" . "b7ca357a0ed57694e0b25ec1b1ca12e24a4ce541")
  ("undo-tree" . "e326c6135e62f5fe8536528d3acd5e798f847407")
  ("use-package" . "a7422fb8ab1baee19adb2717b5b47b9c3812a84c")
+ ("virtualenvwrapper.el" . "c7e84505db4142fd1beebf38ffe37c3f42444ca3")
  ("with-editor" . "5519b6a67ecd66865b4fdd5447425eee900c54f4")
  ("yasnippet" . "5cbdbf0d2015540c59ed8ee0fcf4788effdf75b6")
  ("yasnippet-snippets" . "899c027f442587e0f8ef90761f58b27907ca64b4"))
