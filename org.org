@@ -787,7 +787,20 @@ Attach notes to locations in the pdf.
   #+END_SRC
 
 * babel
-  #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
+(use-package virtualenvwrapper
+  :init
+  (venv-workon "base")
+  )
+#+END_SRC
+
+[[https://github.com/nnicandro/emacs-jupyter][emacs-jupyter]] requires [[https://github.com/nnicandro/emacs-zmq][emacs-zmq]]. To install =emacs-zmq=, after running the following, go to =straight/build/zmq= and run =make=.
+
+May need to first run =sudo dnf install libstdc++-static=.
+
+#+BEGIN_SRC emacs-lisp
+(use-package zmq)
+
 (use-package jupyter
   :config
   (require 'jupyter-julia))

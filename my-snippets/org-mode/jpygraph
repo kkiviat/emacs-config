@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: jupyter-python graph
+# key: <jpyg
+# --
+#+BEGIN_SRC jupyter-python :kernel python3 :session py :async yes :file '`(make-temp-file "plot-" nil ".png")`'
+import matplotlib.pyplot as plt
+import numpy as np
+x = np.arange(-5, 5, 0.1)
+y = x
+fig, ax = plt.subplots()
+ax.plot(x, y)
+pass
+#+END_SRC
