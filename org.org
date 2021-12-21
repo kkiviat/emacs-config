@@ -561,7 +561,7 @@ Additional shortcuts for inserting code blocks.
                :if-new (file+head
                         "%<%Y%m%d>.org"
                         "#+title: %<%Y-%m-%d (%A)>\n\n\n")
-               :unnarrowed t)))))
+               :unnarrowed t))))
   #+END_SRC
 
   Handy config from https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/ to add roam files with the =Project= tag to the agenda list, so I can track TODOs within a project.
@@ -614,7 +614,7 @@ capture was not aborted."
       :if-new (file+head
 	       "%<%Y%m%d%H%M%S>-${slug}"
 	       "#+title: ${title}\n#+category: ${title}\n#+filetags: :project:")
-      :unnarrowed t)))
+      :unnarrowed t))))
 #+END_SRC
 
 Set key bindings and end =use-package= =org-roam= config.
