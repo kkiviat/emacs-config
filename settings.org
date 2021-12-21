@@ -102,6 +102,7 @@ Use the variable font for org buffers by default.
 Use monospace font in code blocks and tables.  From https://github.com/jparcill/emacs_config/blob/master/config.el
 #+BEGIN_SRC emacs-lisp
 (defun klk-set-org-block-fixed-pitch ()
+  (interactive)
   (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
   (set-face-attribute 'org-block nil :inherit 'fixed-pitch)
   (set-face-attribute 'org-table nil  :inherit 'fixed-pitch)
