@@ -224,7 +224,7 @@ Set the =TODO= states.
 			 entry (file ,(org-file-path "troubleshooting.org"))
 			 "* %^{problem} \n:PROPERTIES:\n:CREATED: %U\n:END:\n** Solution\n%^{solution}\n** Details\n%?")
 			("w" "Weekly" entry
-			 (file ,(org-file-path "journal/weekly2021.org"))
+			 (file ,(org-file-path "journal/weekly2022.org"))
 			 "** Week %^{week number}
 [[file:~/Dropbox/org/roam/dailies/%^{start of week (yyyymmdd).org}]]
 ,*** Goals / priorities :goals:
@@ -232,7 +232,7 @@ Set the =TODO= states.
 ,*** Review :weekly:
 ,*** Key Ideas :keyideas:\n")
 			("m" "Monthly" entry
-			 (file ,(org-file-path "journal/weekly2021.org"))
+			 (file ,(org-file-path "journal/weekly2022.org"))
 			 "* %^{month}
 ,** %\\1 Goals / priorities :goals:
 - %?
