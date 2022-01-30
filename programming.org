@@ -26,17 +26,15 @@
 #+END_SRC
 
 * Python
-Install blacken for formatting python code.
-#+BEGIN_SRC emacs-lisp
-(use-package blacken)
-#+END_SRC
-
   Basic elpy config from the docs. Deferring loading to improve emacs startup time.
+  Use system virtualenv-path where black is installed.
 #+BEGIN_SRC emacs-lisp
   (use-package elpy
     :defer t
     :init
-    (advice-add 'python-mode :before 'elpy-enable))
+    (advice-add 'python-mode :before 'elpy-enable)
+    :config
+    (setq elpy-rpc-virtualenv-path 'system))
 #+END_SRC
 
 Auto-format code on save.
