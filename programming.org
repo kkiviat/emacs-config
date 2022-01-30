@@ -26,6 +26,11 @@
 #+END_SRC
 
 * Python
+Install blacken for formatting python code.
+#+BEGIN_SRC emacs-lisp
+(use-package blacken)
+#+END_SRC
+
   Basic elpy config from the docs. Deferring loading to improve emacs startup time.
 #+BEGIN_SRC emacs-lisp
   (use-package elpy

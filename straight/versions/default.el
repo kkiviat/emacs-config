@@ -1,6 +1,7 @@
 (("Highlight-Indentation-for-Emacs" . "d88db4248882da2d4316e76ed673b4ac1fa99ce3")
  ("auctex" . "384c4b989192087144512a528bcc1949c2ab3e5b")
  ("biblio.el" . "517ec18f00f91b61481214b178f7ae0b8fbc499b")
+ ("blacken" . "563c744f545552cb92e8e84d5be4e2cdbabc93ca")
  ("company-mode" . "88001d794d963049339883216b6606de0a1209ea")
  ("dash.el" . "39d067b9fbb2db65fc7a6938bfb21489ad990cb4")
  ("deft" . "c4af44827f4257e7619e63abfd22094a29a9ab52")
