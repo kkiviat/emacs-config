@@ -84,10 +84,7 @@ Allow formatting code blocks using minted in $\LaTeX$ export. From [[https://sta
 #+BEGIN_SRC emacs-lisp
 (setq org-latex-listings 'minted
       org-latex-packages-alist '(("" "minted"))
-      org-latex-pdf-process
-      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+      org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
 #+END_SRC
 
 * Refiling
