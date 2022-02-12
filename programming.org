@@ -53,16 +53,6 @@ pip install python-lsp-server[all]
   (global-company-mode t))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-;; (use-package company
-;;   :bind (:map company-active-map
-;;          ("C-n" . company-select-next)
-;;          ("C-p" . company-select-previous))
-;;   :config
-;;   (setq company-idle-delay 0.3)
-;;   (global-company-mode t))
-#+END_SRC
-
 * Python
   Basic elpy config from the docs. Deferring loading to improve emacs startup time.
   Use system virtualenv-path where black is installed.
