@@ -49,8 +49,7 @@ pip install python-lsp-server[all]
          ("<tab>" . company-indent-or-complete-common))
   :custom
   (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0)
-  (global-company-mode t))
+  (company-idle-delay 0.0))
 #+END_SRC
 
 * Python
