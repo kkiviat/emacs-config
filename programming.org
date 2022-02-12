@@ -2,6 +2,30 @@
 #+DESCRIPTION: Configuration related to coding
 #+LANGUAGE: en
 #+PROPERTY: header-args    :results silent
+* lsp-mode
+** basic setup
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-mode
+  :init
+  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+  (setq lsp-keymap-prefix "C-l")
+  :hook (
+         (python-mode . lsp)
+         ;; (lsp-mode . lsp-enable-which-key-integration))
+	 )
+  :commands lsp)
+
+(use-package lsp-ui :commands lsp-ui-mode)
+(use-package helm-lsp :commands helm-lsp-workspace-symbol)
+
+(use-package dap-mode)
+;; (use-package dap-LANGUAGE) to load the dap adapter for your language
+#+END_SRC
+** python
+Install the python language server.
+#+BEGIN_SRC sh
+pip install python-lsp-server[all]
+#+END_SRC
 * Flycheck
   Syntax checking support
 #+BEGIN_SRC emacs-lisp
@@ -17,12 +41,26 @@
   Auto-completion support
 #+BEGIN_SRC emacs-lisp
 (use-package company
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
   :bind (:map company-active-map
-         ("C-n" . company-select-next)
-         ("C-p" . company-select-previous))
-  :config
-  (setq company-idle-delay 0.3)
+         ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map
+         ("<tab>" . company-indent-or-complete-common))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0)
   (global-company-mode t))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+;; (use-package company
+;;   :bind (:map company-active-map
+;;          ("C-n" . company-select-next)
+;;          ("C-p" . company-select-previous))
+;;   :config
+;;   (setq company-idle-delay 0.3)
+;;   (global-company-mode t))
 #+END_SRC
 
 * Python
