@@ -637,7 +637,7 @@ Better pdf interactions in Emacs.
   :config
   (pdf-tools-install)
   (setq-default pdf-view-display-size 'fit-width)
-  (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
+  ;; (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
   :custom
   (pdf-annot-activate-created-annotations t "automatically annotate highlights")
 )
