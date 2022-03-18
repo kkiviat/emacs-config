@@ -12,3 +12,6 @@ straight/**
 auto-save-list/**
 elpy*
 session*
+transient*
+.dap-breakpoints
+.lsp-session-v1
