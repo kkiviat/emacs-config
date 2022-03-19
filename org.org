@@ -9,8 +9,9 @@ Enable lexical binding (needed for some of the org-roam config). *This must be a
 
 * General
 
+Indent org files by default
 #+BEGIN_SRC emacs-lisp
-(add-hook 'org-mode-hook (lambda () (pixel-scroll-precision-mode)))
+(setq org-startup-indented t)
 #+END_SRC
 
 Save all org buffers periodically to reduce conflicts between desktop and orgzly on mobile.
