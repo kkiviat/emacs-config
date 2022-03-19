@@ -112,11 +112,12 @@ Enable changing font face per buffer. From https://www.emacswiki.org/emacs/Faces
 ETBookOT font is installed from https://github.com/edwardtufte/et-book (by downloading the .otf files in =et-book-ligatures-enabled= and putting them in =~/.local/share/fonts= and running =fc-cache -f -v=). (Font name obtained from =fc-list=.)
 
 #+BEGIN_SRC emacs-lisp
+(defvar my-variable-font-family "Source Sans Pro")
 ;; Use variable width font faces in current buffer
 (defun klk-buffer-face-mode-variable ()
   "Set font to a variable width (proportional) fonts in current buffer"
   (interactive)
-  (setq buffer-face-mode-face '(:family "Source Sans Pro" :height 140))
+  (setq buffer-face-mode-face `(:family ,my-variable-font-family :height 140))
   (buffer-face-mode))
 
  ;; Use monospaced font faces in current buffer
@@ -125,6 +126,18 @@ ETBookOT font is installed from https://github.com/edwardtufte/et-book (by downl
    (interactive)
    (setq buffer-face-mode-face '(:family "Consolas" :weight 'light))
    (buffer-face-mode))
+#+END_SRC
+
+Function to change the default variable font family and apply the change to all currently open org buffers.
+#+BEGIN_SRC emacs-lisp
+(defun my/change-variable-font-family (family)
+  (setq my-variable-font-family family)
+  (mapc (lambda (buffer)
+          (with-current-buffer buffer
+	    (when (eq major-mode 'org-mode)
+            (call-interactively 'klk-buffer-face-mode-variable))))
+  (buffer-list))
+  )
 #+END_SRC
 
 Use the variable font for org buffers by default.
@@ -196,7 +209,7 @@ Add more padding in text buffers.  Based on https://lepisma.xyz/2017/10/28/ricin
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(klk-light-theme) ; default
+;; (klk-light-theme) ; default
 #+END_SRC
 
 ** COMMENT leuven
@@ -216,7 +229,7 @@ Add more padding in text buffers.  Based on https://lepisma.xyz/2017/10/28/ricin
 * Text
 Make the text bigger by default. (sensible-defaults binds font resize to C-- and C-+)
 #+BEGIN_SRC emacs-lisp
-  (set-face-attribute 'default nil :height 110)
+(set-face-attribute 'default nil :height 110)
 #+END_SRC
 
 Default to visual line mode for some modes.
