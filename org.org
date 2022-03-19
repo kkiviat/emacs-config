@@ -9,11 +9,6 @@ Enable lexical binding (needed for some of the org-roam config). *This must be a
 
 * General
 
-Indent org files by default
-#+BEGIN_SRC emacs-lisp
-(setq org-startup-indented t)
-#+END_SRC
-
 Save all org buffers periodically to reduce conflicts between desktop and orgzly on mobile.
 #+BEGIN_SRC emacs-lisp
 (run-with-idle-timer 60 t 'org-save-all-org-buffers)
@@ -77,6 +72,22 @@ Color the TODO states.
 	("TODO" . (:foreground "darkblue" :background "lightblue" :weight bold :box t))
 	("PROJECT" . (:foreground "white"))
 	("NEXT" . (:foreground "darkblue" :background "lightblue" :weight bold :box t))))
+#+END_SRC
+
+* COMMENT Indentation
+Don't use this because it causes problems with scrolling over large images.
+
+Indent org files by default
+#+BEGIN_SRC emacs-lisp
+(setq org-startup-indented t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-visual-indent
+  :straight (org-visual-outline :type git :host github :repo "legalnonsense/org-visual-outline")
+  :config
+  (setq org-visual-indent-color-indent '((1 (:background "darkgray" :foreground "darkgray" :height .1))))
+  (org-visual-indent-mode))
 #+END_SRC
 
 * Export
@@ -466,6 +477,13 @@ Hide emphasis markers like *,/,=
 (setq org-hide-leading-stars t)
 #+END_SRC
 
+But show them when the cursor is on the word.
+#+BEGIN_SRC emacs-lisp
+(use-package org-appear
+  :straight (org-appear :type git :host github :repo "awth13/org-appear")
+  :config (add-hook 'org-mode-hook 'org-appear-mode))
+#+END_SRC
+
 Load images inline.
 
 #+BEGIN_SRC emacs-lisp
@@ -510,8 +528,7 @@ Additional shortcuts for inserting code blocks.
 #+BEGIN_SRC emacs-lisp
 (use-package org-roam
   ;; the repo has org-roam-dailies.el in an extensions folder; force it to be included
-  :straight (org-roam :type git :flavor melpa :host github :repo "org-roam/org-roam"
-		      :files ("*.el" "extensions/*.el"))
+  :straight (org-roam :type git :flavor melpa :host github :repo "org-roam/org-roam")
   :demand t ; force this to be loaded
   :custom
   (org-roam-directory "~/Dropbox/org/roam")
