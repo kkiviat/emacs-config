@@ -9,6 +9,10 @@ Enable lexical binding (needed for some of the org-roam config). *This must be a
 
 * General
 
+#+BEGIN_SRC emacs-lisp
+(add-hook 'org-mode-hook (lambda () (pixel-scroll-precision-mode)))
+#+END_SRC
+
 Save all org buffers periodically to reduce conflicts between desktop and orgzly on mobile.
 #+BEGIN_SRC emacs-lisp
 (run-with-idle-timer 60 t 'org-save-all-org-buffers)
@@ -643,6 +647,16 @@ Better pdf interactions in Emacs.
 )
 #+END_SRC
 
+Emacs 29's =pixel-scroll-precision-mode= doesn't seem to work with pdf-tools ([[https://github.com/vedang/pdf-tools/issues/56][issue]]). For now, work around it by turning mode off when changing to a pdf buffer, and on otherwise.
+#+BEGIN_SRC emacs-lisp
+(defun my/set-precision-scrolling ()
+  (if (eq major-mode 'pdf-view-mode)
+      (pixel-scroll-precision-mode -1)
+    (pixel-scroll-precision-mode 1)))
+
+(add-hook 'buffer-list-update-hook #'my/set-precision-scrolling)
+#+END_SRC
+
 ** bibtex
 Set paths that will be used by multiple packages.
 #+BEGIN_SRC emacs-lisp
@@ -666,24 +680,9 @@ Set up =helm-bibtex= to use the Zotero =.bib= file and store notes in the =org-r
 Manage references in org mode.
 #+BEGIN_SRC emacs-lisp
 (use-package org-ref
-  :config
-  (setq org-ref-completion-library 'org-ref-helm-cite
-        org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
-        org-ref-default-bibliography bib-files
-        org-ref-notes-directory org-roam-directory
-        org-ref-notes-function 'orb-edit-notes)
-  ;; Open pdfs in Emacs, not externally
-  (defun my/org-ref-open-pdf-at-point ()
-    "Open the pdf for bibtex key under point if it exists."
-    (interactive)
-    (let* ((results (org-ref-get-bibtex-key-and-file))
-           (key (car results))
-           (pdf-file (funcall org-ref-get-pdf-filename-function key)))
-      (if (file-exists-p pdf-file)
-          (find-file pdf-file)
-	(message "No PDF found for %s" key))))
-
-  (setq org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point)
+  :after helm-bibtex
+  :bind (:map org-mode-map ("C-c ]" . org-ref-insert-link))
+  :demand
   )
 #+END_SRC
 
