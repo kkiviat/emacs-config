@@ -26,8 +26,8 @@ Start with window maximized and partially transparent.
 Transparency toggling / setting code based on [[https://www.reddit.com/r/emacs/comments/9e98hp/translucent_background/e5pi7bl/][this reddit post]].
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-(set-frame-parameter (selected-frame) 'alpha '(90 90))
-(add-to-list 'default-frame-alist '(alpha 90 90))
+(set-frame-parameter (selected-frame) 'alpha '(100 100))
+(add-to-list 'default-frame-alist '(alpha 100 100))
 
 (eval-when-compile (require 'cl))
 (defun toggle-transparency ()
@@ -216,7 +216,8 @@ Spring theme uses fonts from https://www.ishouldbemoppingthefloor.com/2015/02/20
   )
 #+END_SRC
 
-Set up hook for theme changes. =org-latex-preview= needs a =C-u C-u= prefix argument to reload for the whole buffer. =C-u= corresponds to 4, =C-u= corresponds to 16.
+Set up hook for theme changes. Refreshes $\LaTeX$ previews in all open org buffers, and toggles =org-bullets-mode= to update bullets.
+=org-latex-preview= needs a =C-u C-u= prefix argument to reload for the whole buffer. =C-u= corresponds to 4, =C-u= corresponds to 16.
 #+BEGIN_SRC emacs-lisp
 (defun klk-refresh-org-buffer-colors (&rest args)
   (mapc (lambda (buffer)
