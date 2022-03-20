@@ -130,6 +130,15 @@ ETBookOT font is installed from https://github.com/edwardtufte/et-book (by downl
 
 Function to change the default variable font family and apply the change to all currently open org buffers.
 #+BEGIN_SRC emacs-lisp
+(defun klk-change-variable-font-family (choice)
+  "Change the font used in org mode for variable width font"
+  (interactive
+   (let ((choices '("boldfont" "Source Sans Pro" "ETBookOT")))
+     (list (completing-read "Choose: " choices nil t))))
+  (my/change-variable-font-family choice)
+  choice)
+
+
 (defun my/change-variable-font-family (family)
   (setq my-variable-font-family family)
   (mapc (lambda (buffer)
