@@ -253,13 +253,13 @@ Set the =TODO= states.
 ,** %\\1 Key Ideas :monthlykeyideas:
 ,** %\\1 Highlights :highlights:\n" :empty-lines 1)
 			("a" "Accomplishments" entry
-			 (file+datetree ,(org-file-path "accomplishments.org"))
+			 (file+olp+datetree ,(org-file-path "accomplishments.org"))
 			 "* %?")
 			("D" "Daily" entry
-			 (file+datetree ,(org-file-path "journal/daily.org"))
+			 (file+olp+datetree ,(org-file-path "journal/daily.org"))
 			 "* NOTE %? \nSCHEDULED: %t\nCLOSED: %t")
 			("N" "Daily Note" entry
-			 (file+datetree ,(org-file-path "journal/daily.org"))
+			 (file+olp+datetree ,(org-file-path "journal/daily.org"))
 			 "* NOTE %? \nSCHEDULED: %^{Date}t\nCLOSED: %^{Same date again}t")
 			))
 #+END_SRC
@@ -532,10 +532,9 @@ Additional shortcuts for inserting code blocks.
   :demand t ; force this to be loaded
   :custom
   (org-roam-directory "~/Dropbox/org/roam")
-  :init
-  (setq org-roam-v2-ack t)
   :config
   (org-roam-db-autosync-mode)
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (define-key org-roam-mode-map [mouse-1] #'org-roam-buffer-visit-thing)
   ;; Keep backlink buffer as side window like v1
   (add-to-list 'display-buffer-alist
