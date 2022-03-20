@@ -38,7 +38,7 @@
  '(org-agenda-date-today ((t (:inherit org-agenda-date :foreground "#454138" :slant italic :weight bold))))
  '(org-agenda-date-weekend ((t (:inherit org-agenda-date :foreground "#454138" :slant italic :weight bold))))
  '(org-agenda-structure ((t (:foreground "#454138" :weight bold :height 1.2))))
- '(org-block ((t (:extend t :background "#dcd8c0" :foreground "#000000"))))
+ '(org-block ((t (:extend t :background "honeydew1" :foreground "#000000"))))
  '(org-block-begin-line ((t (:inherit org-block :extend t :background "DarkOrchid4" :foreground "#bab5a1"))))
  '(org-block-end-line ((t (:inherit org-block-begin-line :extend t))))
  '(org-drawer ((t (:foreground "#454138"))))
@@ -67,7 +67,7 @@
    '(("sh"
       (:extend t :background "papaya whip"))
      ("jupyter-python"
-      (:extend t :background "LavenderBlush2"))
+      (:extend t :background "MistyRose1"))
      ("python"
       (:extend t :background "thistle")))))
 

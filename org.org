@@ -41,8 +41,8 @@ Prettier bullets
     (org-mode . org-bullets-mode)
     :custom
     ;(org-bullets-bullet-list '("\u200b"))) ;; 0 width space for no bullets
-    (org-bullets-bullet-list '("|" "\u200b" "|" "|" "|" "|" "|" "|"))) ;; vertical bar
-;    (org-bullets-bullet-list '("" "" "✜" "◉" "○" "✸" "✿" "◆" "▶" "✸")))
+    ;; (org-bullets-bullet-list '("|" "\u200b" "|" "|" "|" "|" "|" "|"))) ;; vertical bar
+    (org-bullets-bullet-list '("\u200b" "✜" "◉" "○" "✸" "✿" "◆" "▶" "✸")))
 #+END_SRC
 
 Increase list indentation
