@@ -527,7 +527,6 @@ Additional shortcuts for inserting code blocks.
 * Roam
 #+BEGIN_SRC emacs-lisp
 (use-package org-roam
-  ;; the repo has org-roam-dailies.el in an extensions folder; force it to be included
   :straight (org-roam :type git :flavor melpa :host github :repo "org-roam/org-roam")
   :demand t ; force this to be loaded
   :custom
@@ -711,7 +710,8 @@ Integrate bibtex with =org-roam=.
   :bind (:map org-mode-map ("C-c n b" . orb-note-actions))
   :config
   (require 'org-ref) ; optional: if Org Ref is not loaded anywhere else, load it here
-  (org-roam-bibtex-mode))
+  (org-roam-bibtex-mode)
+  :demand)
 #+END_SRC
 
 ** org-noter
