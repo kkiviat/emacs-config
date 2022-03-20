@@ -3,15 +3,17 @@
 
 (setq org-fontify-whole-heading-line t)
 (setq org-fontify-quote-and-verse-blocks t)
+(setq org-bullets-bullet-list '("|" "\u200b" "|" "|" "|" "|" "|" "|")) ;; vertical bar
 (custom-theme-set-faces
  'nier
  '(default ((t (:inherit nil :extend nil :stipple nil :background "#d1cdb7" :foreground "#333333" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :foundry "ADBO" :family "Source Code Pro"))))
  '(fringe ((t (:background "#d1cdb7"))))
+ '(org-hide ((t (:foreground "#d1cdb7"))))
  '(header-line ((t (:background "#d1cdb7"))))
  '(highlight ((t (:background "#454138" :foreground "#d1cdb7"))))
  '(isearch ((t (:background "#454138" :foreground "#d1cdb7"))))
  '(lazy-highlight ((t (:background "#bab5a1"))))
- '(link ((t (:foreground "#454138" :underline t))))
+ '(link ((t (:foreground "#454138" :underline t :weight bold))))
  '(mode-line ((t (:background "#454138" :foreground "#bab5a1"))))
  '(org-agenda-date-today ((t (:inherit org-agenda-date :foreground "#454138" :slant italic :weight bold))))
  '(org-agenda-date-weekend ((t (:inherit org-agenda-date :foreground "#454138" :slant italic :weight bold))))
@@ -37,5 +39,13 @@
  '(org-table-header ((t (:inherit org-table :background "#454138" :foreground "#bab5a1"))))
  '(region ((t (:extend t :background "#bab5a1"))))
  )
+(custom-set-variables
+ '(org-src-block-faces
+   '(("sh"
+      (:inherit org-block))
+     ("jupyter-python"
+      (:inherit org-block))
+     ("python"
+      (:inherit org-block)))))
 
 (provide-theme 'nier)

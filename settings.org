@@ -206,25 +206,33 @@ Add more padding in text buffers.  Based on https://lepisma.xyz/2017/10/28/ricin
   (load-theme 'doom-palenight t)
   (klk-set-org-block-fixed-pitch)
   )
+
+(defun klk-spring-theme ()
+  (interactive)
+  (klk-disable-all-themes)
+  (load-theme 'Spring t)
+  (klk-set-org-block-fixed-pitch)
+  )
+#+END_SRC
+
+Set up hook for theme changes. =org-latex-preview= needs a =C-u C-u= prefix argument to reload for the whole buffer. =C-u= corresponds to 4, =C-u= corresponds to 16.
+#+BEGIN_SRC emacs-lisp
+(defun klk-refresh-org-buffer-colors (&rest args)
+  (mapc (lambda (buffer)
+          (with-current-buffer buffer
+	    (when (eq major-mode 'org-mode)
+	      (let ((current-prefix-arg '(16))) ; C-u C-u
+		(call-interactively 'org-latex-preview))
+	      (org-bullets-mode))))
+  (buffer-list))
+  )
+
+(advice-add 'load-theme :after 'klk-refresh-org-buffer-colors)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
 ;; (klk-light-theme) ; default
 #+END_SRC
-
-** COMMENT leuven
-#+BEGIN_SRC emacs-lisp
-(load-theme 'leuven t)
-(setq org-fontify-whole-heading-line t)
-(setq org-fontify-done-headline t)
-(setq org-fontify-quote-and-verse-blocks t)
-(set-face-attribute 'org-ellipsis nil :weight 'bold :background "white" :foreground "black" :box nil)
-(set-cursor-color "#f4a460")
-(custom-set-faces
- '(font-lock-string-face ((t (:foreground "Purple"))))
- '(org-headline-done ((t (:strike-through nil :foreground "#828282")))))
-#+END_SRC
-
 
 * Text
 Make the text bigger by default. (sensible-defaults binds font resize to C-- and C-+)
