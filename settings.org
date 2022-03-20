@@ -138,7 +138,6 @@ Function to change the default variable font family and apply the change to all 
   (my/change-variable-font-family choice)
   choice)
 
-
 (defun my/change-variable-font-family (family)
   (setq my-variable-font-family family)
   (mapc (lambda (buffer)
@@ -203,39 +202,20 @@ Spring theme uses fonts from https://www.ishouldbemoppingthefloor.com/2015/02/20
   (interactive)
   (dolist (theme custom-enabled-themes) (disable-theme theme)))
 
-(defun klk-light-theme ()
+(defun klk-choose-theme ()
   (interactive)
-  (klk-disable-all-themes)
-  (load-theme 'nier t)
-  (klk-set-org-block-fixed-pitch)
-  )
-
-(defun klk-dark-theme ()
-  (interactive)
-  (klk-disable-all-themes)
-  (load-theme 'doom-palenight t)
-  (klk-set-org-block-fixed-pitch)
-  )
-
-(defun klk-spring-theme ()
-  (interactive)
-  (klk-disable-all-themes)
-  (load-theme 'Spring t)
-  (klk-set-org-block-fixed-pitch)
-  )
-
-(defun klk-defaultplus-theme ()
-  (interactive)
-  (klk-disable-all-themes)
-  (load-theme 'defaultplus t)
-  (klk-set-org-block-fixed-pitch)
-  )
-
-(defun klk-white-theme ()
-  (interactive)
-  (klk-disable-all-themes)
-  (load-theme 'white t)
-  (klk-set-org-block-fixed-pitch)
+  (let ((choices '(("Spring"  . (lambda () (load-theme 'Spring t)))
+		   ("White"  . (lambda () (load-theme 'white t)))
+                   ("Nier" . (lambda () (load-theme 'nier t)))
+		   ("Dark" . (lambda () (load-theme 'doom-palenight t)))
+                   ("DefaultPlus"  . (lambda () (load-theme 'defaultplus t))))))
+    (let ((choice (alist-get
+		   (completing-read "Choose: " choices) choices nil nil 'equal)))
+      (klk-disable-all-themes)
+      (funcall choice)
+      (klk-set-org-block-fixed-pitch)
+      )
+    )
   )
 #+END_SRC
 
@@ -256,7 +236,8 @@ Set up hook for theme changes. Refreshes $\LaTeX$ previews in all open org buffe
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(klk-spring-theme) ; default
+  (load-theme 'Spring t)
+  (klk-set-org-block-fixed-pitch) ; default
 #+END_SRC
 
 * Text
