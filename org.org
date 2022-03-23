@@ -579,12 +579,12 @@ Additional shortcuts for inserting code blocks.
                         "%<%Y%m%d>.org"
                         "#+title: %<%Y-%m-%d (%A)>\n\n\n")
                :unnarrowed t))))
-  #+END_SRC
+#+END_SRC
 
   Handy config from https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/ to add roam files with the =Project= tag to the agenda list, so I can track TODOs within a project.
 
 Add existing projects to agenda list on startup:
-  #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (defun my/org-roam-filter-by-tag (tag-name)
   (lambda (node)
     (member tag-name (org-roam-node-tags node))))
@@ -648,6 +648,23 @@ Set key bindings and end =use-package= =org-roam= config.
        ("C-c b" . org-roam-dailies-find-previous-note)))
 #+END_SRC
 
+
+  Graphical UI
+#+BEGIN_SRC emacs-lisp
+(use-package org-roam-ui
+  :straight
+    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+    :after org-roam
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+    ;; :hook (after-init . org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-sync-theme t
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-open-on-start nil))
+#+END_SRC
 * Reference management
 
 ** pdf-tools
@@ -763,6 +780,8 @@ Attach notes to locations in the pdf.
   #+END_SRC
 
 * babel
+
+** venv
 #+BEGIN_SRC emacs-lisp
 (use-package virtualenvwrapper
   :init
@@ -770,6 +789,7 @@ Attach notes to locations in the pdf.
   )
 #+END_SRC
 
+** jupyter
 [[https://github.com/nnicandro/emacs-jupyter][emacs-jupyter]] requires [[https://github.com/nnicandro/emacs-zmq][emacs-zmq]]. To install =emacs-zmq=, after running the following, go to =straight/build/zmq= and run =make=.
 
 May need to first run =sudo dnf install libstdc++-static=.
@@ -787,6 +807,13 @@ May need to first run =sudo dnf install libstdc++-static=.
       org-edit-src-content-indentation 0)
 #+END_SRC
 
+Fix for ansi color sequence issue from https://github.com/nnicandro/emacs-jupyter/issues/380
+#+BEGIN_SRC emacs-lisp
+(defun jupyter-ansi-color-apply-on-region (begin end)
+  (ansi-color-apply-on-region begin end t))
+#+END_SRC
+
+** load languages
 #+BEGIN_SRC emacs-lisp
 (org-babel-do-load-languages
  'org-babel-load-languages
