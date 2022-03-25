@@ -550,6 +550,7 @@ Additional shortcuts for inserting code blocks.
 #+END_SRC
 
 * Roam
+After much struggling with getting the org-roam buffer to follow links reasonably, the configuration below (dedicated side window, from [[https://org-roam.discourse.group/t/sidebar-roam-buffer-gets-replaced-with-org-roam-node-instead-of-updating/2162/6][this discussion]]) works well enough.
 #+BEGIN_SRC emacs-lisp
 (use-package org-roam
   :straight (org-roam :type git :flavor melpa :host github :repo "org-roam/org-roam")
@@ -559,14 +560,16 @@ Additional shortcuts for inserting code blocks.
   :config
   (org-roam-db-autosync-mode)
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-  (define-key org-roam-mode-map [mouse-1] #'org-roam-buffer-visit-thing)
-  ;; Keep backlink buffer as side window like v1
+  (add-hook 'org-roam-mode-hook #'visual-line-mode)
   (add-to-list 'display-buffer-alist
-               '("\\*org-roam\\*"
-                  (display-buffer-in-direction)
-                  (direction . right)
-                  (window-width . 0.33)
-                  (window-height . fit-window-to-buffer)))
+                 '("\\*org-roam\\*"
+                   (display-buffer-in-side-window)
+                   (dedicated . t)
+                   (side . right)
+                   (slot . 0)
+                   (window-width . 0.33)
+                   (window-parameters . ((no-other-window . t)
+                                         (no-delete-other-windows . t)))))
   (setq org-roam-capture-templates
         '(("d" "default" plain
            "%?"
