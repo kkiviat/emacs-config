@@ -65,13 +65,9 @@ Copied from https://mstempl.netlify.app/post/beautify-org-mode/. Replace list da
                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "◦"))))))
 #+END_SRC
 
-Color the TODO states.
+Stop org files from being opened in new windows.
 #+BEGIN_SRC emacs-lisp
-;; (setq org-todo-keyword-faces
-;; '(("WAITING" . (:foreground "darkorange" :background "lightyellow" :weight bold :box t))
-;; 	("TODO" . (:foreground "darkblue" :background "lightblue" :weight bold :box t))
-;; 	("PROJECT" . (:foreground "white"))
-;; 	("NEXT" . (:foreground "darkblue" :background "lightblue" :weight bold :box t))))
+(setq org-link-frame-setup '((file . find-file)))
 #+END_SRC
 
 * COMMENT Indentation
