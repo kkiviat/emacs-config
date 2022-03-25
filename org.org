@@ -561,6 +561,7 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
   (org-roam-db-autosync-mode)
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (add-hook 'org-roam-mode-hook #'visual-line-mode)
+  (define-key org-roam-mode-map [mouse-1] #'org-roam-preview-visit)
   (add-to-list 'display-buffer-alist
                  '("\\*org-roam\\*"
                    (display-buffer-in-side-window)
