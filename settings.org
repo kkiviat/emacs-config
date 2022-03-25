@@ -136,7 +136,7 @@ Function to change the default variable font family and apply the change to all 
 (defun klk-change-variable-font-family (choice)
   "Change the font used in org mode for variable width font"
   (interactive
-   (let ((choices '("boldfont" "Source Sans Pro" "ETBookOT")))
+   (let ((choices '("boldfont" "Source Sans Pro" "ETBookOT" "KG Part of Me")))
      (list (completing-read "Choose: " choices nil t))))
   (my/change-variable-font-family choice)
   choice)
@@ -211,6 +211,7 @@ Spring theme uses fonts from https://www.ishouldbemoppingthefloor.com/2015/02/20
 		   ("White"  . (lambda () (load-theme 'white t)))
                    ("Nier" . (lambda () (load-theme 'nier t)))
 		   ("Dark" . (lambda () (load-theme 'doom-palenight t)))
+		   ("Dark Yellow" . (lambda () (load-theme 'dark-yellow t)))
                    ("DefaultPlus"  . (lambda () (load-theme 'defaultplus t))))))
     (let ((choice (alist-get
 		   (completing-read "Choose: " choices) choices nil nil 'equal)))

@@ -80,6 +80,8 @@
  '(mode-line-buffer-id ((t (:weight bold))))
  '(mode-line-emphasis ((t (:weight bold))))
  '(region ((t (:extend t :background "light pink"))))
+
+ '(helm-match ((t (:foreground "deep pink"))))
  )
 )
 (custom-set-variables
