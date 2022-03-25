@@ -105,6 +105,9 @@ Emacs 29 has smooth scrolling natively.
 
 
 * Themes
+#+BEGIN_SRC emacs-lisp
+(setq custom-theme-directory "~/.emacs.d/themes")
+#+END_SRC
 
 ** fonts
 Enable changing font face per buffer. From https://www.emacswiki.org/emacs/FacesPerBuffer.
