@@ -40,9 +40,9 @@ Prettier bullets
     :hook
     (org-mode . org-bullets-mode)
     :custom
-    ;(org-bullets-bullet-list '("\u200b"))) ;; 0 width space for no bullets
+    (org-bullets-bullet-list '("\u200b"))) ;; 0 width space for no bullets
     ;; (org-bullets-bullet-list '("|" "\u200b" "|" "|" "|" "|" "|" "|"))) ;; vertical bar
-    (org-bullets-bullet-list '("\u200b" "✜" "◉" "○" "✸" "✿" "◆" "▶" "✸")))
+    ;; (org-bullets-bullet-list '("\u200b" "✜" "◉" "○" "✸" "✿" "◆" "▶" "✸")))
 #+END_SRC
 
 Increase list indentation
@@ -67,11 +67,11 @@ Copied from https://mstempl.netlify.app/post/beautify-org-mode/. Replace list da
 
 Color the TODO states.
 #+BEGIN_SRC emacs-lisp
-(setq org-todo-keyword-faces
-'(("WAITING" . (:foreground "darkorange" :background "lightyellow" :weight bold :box t))
-	("TODO" . (:foreground "darkblue" :background "lightblue" :weight bold :box t))
-	("PROJECT" . (:foreground "white"))
-	("NEXT" . (:foreground "darkblue" :background "lightblue" :weight bold :box t))))
+;; (setq org-todo-keyword-faces
+;; '(("WAITING" . (:foreground "darkorange" :background "lightyellow" :weight bold :box t))
+;; 	("TODO" . (:foreground "darkblue" :background "lightblue" :weight bold :box t))
+;; 	("PROJECT" . (:foreground "white"))
+;; 	("NEXT" . (:foreground "darkblue" :background "lightblue" :weight bold :box t))))
 #+END_SRC
 
 * COMMENT Indentation
@@ -91,6 +91,15 @@ Indent org files by default
 #+END_SRC
 
 * Export
+Enable using :ignore: in a heading to leave off the heading (but not content) of a section in export.
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :ensure org-plus-contrib
+  :config
+  (require 'ox-extra)
+  (ox-extras-activate '(ignore-headlines)))
+#+END_SRC
+
 Allow overriding variable values in buffer for export (using =#+BIND: variable value=)
 #+BEGIN_SRC emacs-lisp
 (setq org-export-allow-bind-keywords t)
@@ -101,6 +110,22 @@ Allow formatting code blocks using minted in $\LaTeX$ export. From [[https://sta
 (setq org-latex-listings 'minted
       org-latex-packages-alist '(("" "minted"))
       org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+#+END_SRC
+
+Add support for Elsevier article format. From https://write.as/dani/writing-a-phd-thesis-with-org-mode.
+#+BEGIN_SRC emacs-lisp
+(with-eval-after-load 'ox-latex
+  (add-to-list 'org-latex-classes
+		   '("elsarticle"
+		     "\\documentclass{elsarticle}
+   [NO-DEFAULT-PACKAGES]
+   [PACKAGES]
+   [EXTRA]"
+		     ("\\section{%s}" . "\\section*{%s}")
+		     ("\\subsection{%s}" . "\\subsection*{%s}")
+		     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+		     ("\\paragraph{%s}" . "\\paragraph*{%s}")
+		     ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 #+END_SRC
 
 * Refiling
@@ -715,6 +740,8 @@ Manage references in org mode.
 (use-package org-ref
   :after helm-bibtex
   :bind (:map org-mode-map ("C-c ]" . org-ref-insert-link))
+  :config
+  (setq org-latex-prefer-user-labels t)
   :demand
   )
 #+END_SRC
