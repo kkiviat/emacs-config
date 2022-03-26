@@ -7,19 +7,19 @@
 (setq org-bullets-bullet-list '("\u200b"))
 (let* ((variable-tuple1
         (cond ((x-family-fonts "KG Happy")    '(:family "KG Happy"))
-	      ((x-family-fonts "Source Sans Pro")    '(:family "Source Sans Pro"))
+	      ((x-family-fonts "Source Sans 3")    '(:family "Source Sans 3"))
               (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
        (variable-tuple2
         (cond ((x-family-fonts "Covered By Your Grace")    '(:family "Covered By Your Grace"))
-	      ((x-family-fonts "Source Sans Pro")    '(:family "Source Sans Pro"))
+	      ((x-family-fonts "Source Sans 3")    '(:family "Source Sans 3"))
               (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
        (variable-tuple3
         (cond ((x-family-fonts "boldfont")    '(:family "boldfont"))
-	      ((x-family-fonts "Source Sans Pro")    '(:family "Source Sans Pro"))
+	      ((x-family-fonts "Source Sans 3")    '(:family "Source Sans 3"))
               (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
        (variable-tuple-title
         (cond ((x-family-fonts "KG Part of Me")    '(:family "KG Part of Me"))
-	      ((x-family-fonts "Source Sans Pro")    '(:family "Source Sans Pro"))
+	      ((x-family-fonts "Source Sans 3")    '(:family "Source Sans 3"))
               (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
        )
 (custom-theme-set-faces
