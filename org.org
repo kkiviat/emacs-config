@@ -361,7 +361,7 @@ Super Agenda
 		      (org-agenda-log-mode-items '(closed clock state))
 		      (org-agenda-prefix-format "  %?-12t% s")
 		      (org-super-agenda-groups
-		       '((:name "⏰ Calendar" :time-grid t)
+		       '((:name "Calendar" :time-grid t)
 			 (:name "☆ Important" :priority "A")
 			 (:name "⚠ Overdue!" :deadline past :and (:scheduled past :not (:habit t)))
 			 (:name "Scheduled Today" :scheduled today)
@@ -376,10 +376,10 @@ Super Agenda
 			  (:name "In Two Days" :scheduled (on ,(timestamp-in-n-days 2)))
 			  (:discard (:anything t))
 			  ))))
-	  (todo "NEXT"
-		((org-agenda-overriding-header "Next Tasks")
-		 (org-super-agenda-groups '((:auto-property "Project") (:auto-category)))
-		 ))
+	  ;; (todo "NEXT"
+	  ;; 	((org-agenda-overriding-header "Next Tasks")
+	  ;; 	 (org-super-agenda-groups '((:auto-property "Project") (:auto-category)))
+	  ;; 	 ))
 	  )))
        (quote
 	("U" "Unscheduled"
