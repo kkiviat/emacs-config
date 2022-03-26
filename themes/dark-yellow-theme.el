@@ -23,7 +23,7 @@
        )
 (custom-theme-set-faces
  'dark-yellow
- '(default ((t (:inherit nil :extend nil :stipple nil :background "black" :foreground "yellow" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :foundry "ADBO" :family "Source Code Pro"))))
+ '(default ((t (:inherit nil :extend nil :stipple nil :background "black" :foreground "yellow" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "ADBO" :family "Source Code Pro"))))
  '(fringe ((t (:background "black"))))
  '(org-hide ((t (:foreground "black"))))
  '(header-line ((t (:background "black"))))

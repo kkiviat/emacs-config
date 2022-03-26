@@ -10,7 +10,7 @@
        )
 (custom-theme-set-faces
  'clean
- '(default ((t (:inherit nil :extend nil :stipple nil :background "white" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :foundry "ADBO" :family "Source Code Pro"))))
+ '(default ((t (:inherit nil :extend nil :stipple nil :background "white" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal :foundry "ADBO" :family "Source Code Pro"))))
  '(fringe ((t (:background "white"))))
  '(org-hide ((t (:foreground "white"))))
  '(header-line ((t (:background "white"))))

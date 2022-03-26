@@ -6,7 +6,7 @@
 (setq org-bullets-bullet-list '("\u200b"))
 (custom-theme-set-faces
  'defaultplus
- '(default ((t (:family "Source Code Pro" :foundry "ADBO" :width normal :height 113 :weight regular :slant normal :underline nil :overline nil :extend nil :strike-through nil :box nil :inverse-video nil :foreground "#ffffff" :background "#3b3b3e" :stipple nil :inherit nil))))
+ ;; '(default ((t (:family "Source Code Pro" :foundry "ADBO" :width normal :height 120 :weight regular :slant normal :underline nil :overline nil :extend nil :strike-through nil :box nil :inverse-video nil :foreground "#ffffff" :background "#3b3b3e" :stipple nil :inherit nil))))
  '(cursor ((t (:background "#ffffff"))))
  '(fixed-pitch ((t (:family "Monospace"))))
  '(variable-pitch ((((type w32)) (:foundry "outline" :family "Arial")) (t (:family "Sans Serif"))))

@@ -24,7 +24,7 @@
        )
 (custom-theme-set-faces
  'Spring
- '(default ((t (:inherit nil :extend nil :stipple nil :background "light goldenrod" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :foundry "ADBO" :family "Source Code Pro"))))
+ '(default ((t (:inherit nil :extend nil :stipple nil :background "light goldenrod" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal :foundry "ADBO" :family "Source Code Pro"))))
  '(fringe ((t (:background "light goldenrod"))))
  '(org-hide ((t (:foreground "light goldenrod"))))
  '(header-line ((t (:background "light goldenrod"))))

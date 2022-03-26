@@ -6,7 +6,7 @@
 (setq org-bullets-bullet-list '("|" "\u200b" "|" "|" "|" "|" "|" "|")) ;; vertical bar
 (custom-theme-set-faces
  'nier
- '(default ((t (:inherit nil :extend nil :stipple nil :background "#d1cdb7" :foreground "#333333" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :foundry "ADBO" :family "Source Code Pro"))))
+ '(default ((t (:inherit nil :extend nil :stipple nil :background "#d1cdb7" :foreground "#333333" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal :foundry "ADBO" :family "Source Code Pro"))))
  '(fringe ((t (:background "#d1cdb7"))))
  '(org-hide ((t (:foreground "#d1cdb7"))))
  '(header-line ((t (:background "#d1cdb7"))))
