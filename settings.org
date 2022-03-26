@@ -103,6 +103,18 @@ Emacs 29 has smooth scrolling natively.
 #+END_SRC
 
 
+* Text
+Make the text bigger by default. (sensible-defaults binds font resize to C-- and C-+)
+#+BEGIN_SRC emacs-lisp
+(set-face-attribute 'default nil :height 140)
+#+END_SRC
+
+Default to visual line mode for some modes.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'text-mode-hook #'visual-line-mode)
+(add-hook 'LaTeX-mode-hook #'visual-line-mode)
+#+END_SRC
+
 * Themes
 #+BEGIN_SRC emacs-lisp
 (setq custom-theme-directory "~/.emacs.d/themes")
@@ -113,46 +125,97 @@ Enable changing font face per buffer. From https://www.emacswiki.org/emacs/Faces
 
 ETBookOT font is installed from https://github.com/edwardtufte/et-book (by downloading the .otf files in =et-book-ligatures-enabled= and putting them in =~/.local/share/fonts= and running =fc-cache -f -v=). (Font name obtained from =fc-list=.)
 
+Set the default variable and fixed-pitch fonts.
 #+BEGIN_SRC emacs-lisp
-(defvar my-variable-font-family "Source Sans Pro")
-;; Use variable width font faces in current buffer
-(defun klk-buffer-face-mode-variable ()
-  "Set font to a variable width (proportional) fonts in current buffer"
-  (interactive)
-  (setq buffer-face-mode-face `(:family ,my-variable-font-family :height 140))
-  (buffer-face-mode))
-
- ;; Use monospaced font faces in current buffer
- (defun klk-buffer-face-mode-fixed ()
-   "Sets a fixed width (monospace) font in current buffer"
-   (interactive)
-   (setq buffer-face-mode-face '(:family "Consolas" :weight 'light))
-   (buffer-face-mode))
+(custom-theme-set-faces
+   'user
+   '(variable-pitch ((t (:family "Source Sans 3"))))
+   '(fixed-pitch ((t ( :family "DejaVu Sans Mono")))))
 #+END_SRC
 
-Function to change the default variable font family and apply the change to all currently open org buffers.
+Functions to change fonts. "default" includes org buffers when =fixed-pitch-mode= is not enabled. "fixed" controls code blocks, etc. "variable" controls the font in org buffers when =fixed-pitch-mode= is enabled.
 #+BEGIN_SRC emacs-lisp
-(defun klk-change-variable-font-family (choice)
-  "Change the font used in org mode for variable width font"
+(defun klk-change-font (choice)
+  "Top-level function to choose the class of font to change then change it"
+  (interactive
+   (let ((choices '("default" "fixed" "variable")))
+     (list (completing-read "Choose: " choices nil t))))
+  (command-execute
+   (cond ((string= choice "default") 'klk/change-default-font-family)
+	 ((string= choice "fixed") 'klk/change-fixed-font-family)
+	 ((string= choice "variable") 'klk/change-variable-font-family)))
+  choice)
+
+(defun klk/change-variable-font-family (choice)
+  "Change the font used for variable width text"
   (interactive
    (let ((choices '("boldfont" "Source Sans 3" "ETBookOT" "KG Part of Me")))
      (list (completing-read "Choose: " choices nil t))))
-  (my/change-variable-font-family choice)
+  (custom-theme-set-faces
+   'user
+   `(variable-pitch ((t (:family ,choice)))))
   choice)
 
-(defun my/change-variable-font-family (family)
-  (setq my-variable-font-family family)
+(defun klk/change-fixed-font-family (choice)
+  "Change the font used for fixed width (including default) text"
+  (interactive
+   (let ((choices '("DejaVu Sans Mono" "Free Mono" "Source Code Pro")))
+     (list (completing-read "Choose: " choices nil t))))
+  (custom-theme-set-faces
+   'user
+   `(fixed-pitch ((t (:family ,choice)))))
+  choice)
+
+(defun klk/change-default-font-family (choice)
+  "Change the font used for default text (used in org buffers when not variable pitch)"
+  (interactive
+   (let ((choices '("DejaVu Sans Mono" "Source Sans Mono" "FreeMono" "Source Code Pro")))
+     (list (completing-read "Choose: " choices nil t))))
+  (custom-theme-set-faces
+   'user
+   `(default ((t (:family ,choice)))))
+  choice)
+#+END_SRC
+
+
+Enable changing font per buffer.
+#+BEGIN_SRC emacs-lisp
+(defun klk-buffer-set-font-family (family)
+  "Set font to the specified family in current buffer"
+  (setq buffer-face-mode-face `(:family ,family))
+  (buffer-face-mode))
+#+END_SRC
+
+Functions to toggle =variable-pitch-mode= it for all org buffers.
+#+BEGIN_SRC emacs-lisp
+(defun klk-org-variable-pitch-on ()
+  (interactive)
+  (add-hook 'org-mode-hook 'variable-pitch-mode)
   (mapc (lambda (buffer)
           (with-current-buffer buffer
 	    (when (eq major-mode 'org-mode)
-            (call-interactively 'klk-buffer-face-mode-variable))))
+            (variable-pitch-mode 1))))
   (buffer-list))
   )
-#+END_SRC
 
-Use the variable font for org buffers by default.
-#+BEGIN_SRC emacs-lisp
-(add-hook 'org-mode-hook 'klk-buffer-face-mode-variable)
+(defun klk-org-variable-pitch-off ()
+  (interactive)
+  (remove-hook 'org-mode-hook 'variable-pitch-mode)
+  (mapc (lambda (buffer)
+          (with-current-buffer buffer
+	    (when (eq major-mode 'org-mode)
+            (variable-pitch-mode -1))))
+  (buffer-list))
+  )
+
+(defun klk-toggle-variable-pitch-org-buffers ()
+  (interactive)
+  (mapc (lambda (buffer)
+          (with-current-buffer buffer
+	    (when (eq major-mode 'org-mode)
+            (call-interactively 'variable-pitch-mode))))
+  (buffer-list))
+  )
 #+END_SRC
 
 Use monospace font in code blocks and tables.  From https://github.com/jparcill/emacs_config/blob/master/config.el
@@ -242,18 +305,6 @@ Set up hook for theme changes. Refreshes $\LaTeX$ previews in all open org buffe
 #+BEGIN_SRC emacs-lisp
 (load-theme 'clean t)
 (klk-set-org-block-fixed-pitch) ; default
-#+END_SRC
-
-* Text
-Make the text bigger by default. (sensible-defaults binds font resize to C-- and C-+)
-#+BEGIN_SRC emacs-lisp
-(set-face-attribute 'default nil :height 110)
-#+END_SRC
-
-Default to visual line mode for some modes.
-#+BEGIN_SRC emacs-lisp
-(add-hook 'text-mode-hook #'visual-line-mode)
-(add-hook 'LaTeX-mode-hook #'visual-line-mode)
 #+END_SRC
 
 * Flyspell
