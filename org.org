@@ -36,11 +36,11 @@ Set the org directory and method for getting the full path to an org file from i
 
 Prettier bullets
 #+BEGIN_SRC emacs-lisp
-  (use-package org-bullets
-    :hook
-    (org-mode . org-bullets-mode)
-    :custom
-    (org-bullets-bullet-list '("\u200b"))) ;; 0 width space for no bullets
+(use-package org-bullets
+  :hook
+  (org-mode . org-bullets-mode))
+    ;; :custom
+    ;; (org-bullets-bullet-list '("\u200b"))) ;; 0 width space for no bullets
     ;; (org-bullets-bullet-list '("|" "\u200b" "|" "|" "|" "|" "|" "|"))) ;; vertical bar
     ;; (org-bullets-bullet-list '("\u200b" "✜" "◉" "○" "✸" "✿" "◆" "▶" "✸")))
 #+END_SRC
@@ -596,7 +596,7 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
            "%?"
            :if-new (file+head
 		    "%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n#+startup: latexpreview\n#+filetags: \n")
+		    "#+STARTUP: indent\n#+title: ${title}\n#+startup: latexpreview\n#+filetags: \n")
            :unnarrowed t)
 	  ("p" "person" plain
            "%?"
@@ -626,7 +626,7 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
                "%?"
                :if-new (file+head
                         "%<%Y%m%d>.org"
-                        "#+title: %<%Y-%m-%d (%A)>\n\n\n")
+                        "#+STARTUP: indent\n#+title: %<%Y-%m-%d (%A)>\n")
                :unnarrowed t))))
 #+END_SRC
 
