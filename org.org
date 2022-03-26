@@ -701,7 +701,6 @@ Set key bindings and end =use-package= =org-roam= config.
           org-roam-ui-open-on-start nil))
 #+END_SRC
 * Reference management
-
 ** pdf-tools
 Better pdf interactions in Emacs.
 #+BEGIN_SRC emacs-lisp
@@ -784,6 +783,14 @@ Attach notes to locations in the pdf.
   )
 #+END_SRC
 
+** Anki
+#+BEGIN_SRC emacs-lisp
+(use-package org-anki
+  :config
+  (setq org-anki-default-deck "Default")
+  :bind (("C-c s" . org-anki-sync-entry))
+  )
+#+END_SRC
 * Calendar
   Set up syncing with google calendar  following https://github.com/emacsmirror/org-gcal.
 
