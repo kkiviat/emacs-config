@@ -300,10 +300,20 @@ Some agenda view tweaks.
 (setq org-deadline-warning-days 7)
 #+END_SRC
 
+Add more space for the category in the agenda.
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-prefix-format '((agenda . " %i %-15:c%?-12t% s")
+				 (todo . " %i %-12:c")
+				 (tags . " %i %-12:c")
+				 (search . " %i %-12:c")))
+#+END_SRC
+
 Set files to be included in the agenda. Includes archive because I like to see old completed tasks in the agenda, and also =daily.org= because I want to show my one-line daily summaries in the agenda.
 #+BEGIN_SRC emacs-lisp
 (setq org-agenda-files `(,(org-file-path "inbox.org")
 			 ,(org-file-path "mobile inbox.org")
+			 ,(org-file-path "gcal.org")
+			 ,(org-file-path "gcal-school.org")
 			 ,(org-file-path "gtd.org")
 			 ,(org-file-path "work.org")
 			 ,(org-file-path "recurring.org")
@@ -776,6 +786,8 @@ Attach notes to locations in the pdf.
 
 * Calendar
   Set up syncing with google calendar  following https://github.com/emacsmirror/org-gcal.
+
+** calfw
   Basic calfw config from https://github.com/kiwanami/emacs-calfw
   #+BEGIN_SRC emacs-lisp
     (use-package calfw
@@ -802,10 +814,18 @@ Attach notes to locations in the pdf.
      (list
       (cfw:org-create-source "DarkGreen")
       (cfw:ical-create-source "gcal" (klk/get-gcal) "Blue")
-;      (cfw:ical-create-source "stanford" (klk/stanford-cal) "Red")
      )))
   #+END_SRC
 
+** org-gcal
+#+BEGIN_SRC emacs-lisp
+(use-package org-gcal
+  :config
+  (setq org-gcal-client-id (klk/get-gcal-client-id)
+	org-gcal-client-secret (klk/get-gcal-client-secret)
+	org-gcal-fetch-file-alist `((,(klk/get-gcal-id) . "~/Dropbox/org/gtd/gcal.org")
+				    (,(klk/get-gcal-id-school) . "~/Dropbox/org/gtd/gcal-school.org"))))
+#+END_SRC
 * babel
 
 ** venv

@@ -17,3 +17,7 @@ transient*
 .lsp-session-v1
 *~undo-tree~
 eln-cache/*
+request/*
+url/*
+org-gcal/*
+.org-generic-id-locations
