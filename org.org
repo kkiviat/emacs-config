@@ -188,6 +188,13 @@ Scale up latex preview images.
 (setq org-preview-latex-default-process 'imagemagick)
 #+END_SRC
 
+This package uses AucTeX's preview library for org mode LaTeX previews, which is faster. Especially important since I'm regenerating previews in all open buffers when I change themes.
+#+BEGIN_SRC emacs-lisp
+(use-package org-auctex
+  :straight (org-auctex :type git :host github :repo "karthink/org-auctex")
+  :config (add-hook 'org-mode-hook 'org-auctex-mode))
+#+END_SRC
+
 * Tasks
 
 ** General
@@ -451,9 +458,11 @@ Super Agenda
 
 * Journal
 
-*** deft
+*** COMMENT deft
 Deft is good for searching through files in a directory, like the journal directory.
 =deft-parse-title= override is from https://github.com/jrblevin/deft/issues/75 so the title isn't just ":PROPERTIES:" with org-roam V2.
+
+Note: this causes some annoyances because it seems to trigger auto-saves in org-roam files every couple of seconds.
 #+BEGIN_SRC emacs-lisp
 (use-package deft
   :bind ("C-c d" . deft)
