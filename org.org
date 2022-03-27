@@ -495,13 +495,14 @@ Note: this causes some annoyances because it seems to trigger auto-saves in org-
 
 *** ripgrep
 An alternative to =deft=, using =ripgrep=. Nice in that it actually shows the matches, not just the beginning of the file containing a match.
-Config based on https://renatgalimov.github.io/org-basb-code/.
+Config based on https://renatgalimov.github.io/org-basb-code/. Note that I had to add the =defvar= line per the comment on [[https://stackoverflow.com/a/20967895][this answer]], since =helm-rg-default-directory= is a lexical variable.
 #+BEGIN_SRC emacs-lisp
 (use-package helm-rg
   :init
   (defun helm-rg-roam-directory (&optional query)
     "Search with rg in your roam directory, QUERY."
     (interactive)
+    (defvar helm-rg-default-directory)
     (let ((helm-rg-default-directory "~/Dropbox/org/roam"))
       (helm-rg query nil)))
   :bind (("C-c n R" . helm-rg-roam-directory)))
