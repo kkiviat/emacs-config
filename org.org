@@ -70,6 +70,15 @@ Stop org files from being opened in new windows.
 (setq org-link-frame-setup '((file . find-file)))
 #+END_SRC
 
+* Sidebar
+The tree sidebar provides an outline on the left that you can use to jump around the file. The regular sidebar on the right shows TODO items in the file.
+#+BEGIN_SRC emacs-lisp
+(use-package org-sidebar
+  :straight (org-sidebar :type git :host github :repo "alphapapa/org-sidebar")
+  :bind (("<f5>" . org-sidebar-tree-toggle)
+	 ("<f6>" . org-sidebar-toggle))
+  )
+#+END_SRC
 * COMMENT Indentation
 Don't use this because it causes problems with scrolling over large images.
 
