@@ -70,7 +70,7 @@ Make scrolling less jumpy
 (setq scroll-step 1) ;; keyboard scroll one line at a time
 
 ; stop emacs from recentering the buffer point when the point goes outside the window
-(setq scroll-conservatively 100)
+(setq scroll-conservatively 101)
 #+END_SRC
 
 * Scrolling
@@ -86,7 +86,7 @@ Emacs 29 has smooth scrolling natively.
   Display line numbers except in certain modes. From https://www.emacswiki.org/emacs/LineNumbers
 #+BEGIN_SRC emacs-lisp
 (require 'display-line-numbers)
-(defcustom display-line-numbers-exempt-modes '(vterm-mode eshell-mode shell-mode term-mode ansi-term-mode org-mode org-agenda-mode)
+(defcustom display-line-numbers-exempt-modes '(vterm-mode eshell-mode shell-mode term-mode ansi-term-mode org-mode org-agenda-mode pdf-view-mode)
   "Major modes on which to disable the linum mode, exempts them from global requirement"
   :group 'display-line-numbers
   :type 'list
@@ -130,7 +130,7 @@ Set the default variable and fixed-pitch fonts.
 (custom-theme-set-faces
    'user
    '(variable-pitch ((t (:family "Source Sans 3"))))
-   '(fixed-pitch ((t ( :family "DejaVu Sans Mono")))))
+   '(fixed-pitch ((t ( :family "Hack")))))
 #+END_SRC
 
 Functions to change fonts. "default" includes org buffers when =fixed-pitch-mode= is not enabled. "fixed" controls code blocks, etc. "variable" controls the font in org buffers when =fixed-pitch-mode= is enabled.
@@ -169,7 +169,7 @@ Functions to change fonts. "default" includes org buffers when =fixed-pitch-mode
 (defun klk/change-default-font-family (choice)
   "Change the font used for default text (used in org buffers when not variable pitch)"
   (interactive
-   (let ((choices '("DejaVu Sans Mono" "Source Sans Mono" "FreeMono" "Source Code Pro")))
+   (let ((choices '("DejaVu Sans Mono" "Source Sans Mono" "FreeMono" "Source Code Pro" "Hack")))
      (list (completing-read "Choose: " choices nil t))))
   (custom-theme-set-faces
    'user
