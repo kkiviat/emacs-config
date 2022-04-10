@@ -615,7 +615,7 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
            "%?"
            :if-new (file+head
 		    "%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+STARTUP: indent\n#+title: ${title}\n#+startup: latexpreview\n#+filetags: \n")
+		    "#+title: ${title}\n#+startup: latexpreview\n#+startup: indent\n#+filetags: \n")
            :unnarrowed t)
 	  ("p" "person" plain
            "%?"
@@ -645,7 +645,7 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
                "%?"
                :if-new (file+head
                         "%<%Y%m%d>.org"
-                        "#+STARTUP: indent\n#+title: %<%Y-%m-%d (%A)>\n")
+                        "#+startup: indent\n#+title: %<%Y-%m-%d (%A)>\n")
                :unnarrowed t))))
 #+END_SRC
 
