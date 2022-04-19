@@ -2,7 +2,7 @@
 # name: jupyter-python graph
 # key: <jpyg
 # --
-#+BEGIN_SRC jupyter-python :kernel python3 :session py :async yes :file `(make-temp-file "plot-" nil ".png")`
+#+BEGIN_SRC jupyter-python :kernel python3 :async yes :file `(make-temp-file "plot-" nil ".png")`
 import matplotlib.pyplot as plt
 import numpy as np
 x = np.arange(-5, 5, 0.1)
