@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: table
+# key: <t
+# --
+#+name: table:$1
+#+caption: $2
+#+attr_latex: :align |c|lll|
+| $0 | | | |
