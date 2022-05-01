@@ -61,24 +61,25 @@ By default, undo is bound to *C-c <left>* and redo to *C-c <right>*.
   :config (winner-mode 1))
 #+END_SRC
 
-* COMMENT Scrolling (pre Emacs 29)
-Make scrolling less jumpy
-#+BEGIN_SRC emacs-lisp
-(setq mouse-wheel-scroll-amount '(2 ((shift) . 1))) ;; two lines at a time
-(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-(setq scroll-step 1) ;; keyboard scroll one line at a time
-
-; stop emacs from recentering the buffer point when the point goes outside the window
-(setq scroll-conservatively 101)
-#+END_SRC
-
 * Scrolling
 Emacs 29 has smooth scrolling natively.
 #+BEGIN_SRC emacs-lisp
-(pixel-scroll-precision-mode)
-(setq pixel-scroll-precision-large-scroll-height 40.0)
-(setq pixel-scroll-precision-interpolation-factor 30)
+  (if (version< emacs-version "29")
+      (progn
+	(setq mouse-wheel-scroll-amount '(2 ((shift) . 1))) ;; two lines at a time
+	(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+	(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+	(setq scroll-step 1) ;; keyboard scroll one line at a time
+
+					; stop emacs from recentering the buffer point when the point goes outside the window
+	(setq scroll-conservatively 101)
+	)
+    (progn
+      (pixel-scroll-precision-mode)
+      (setq pixel-scroll-precision-large-scroll-height 40.0)
+      (setq pixel-scroll-precision-interpolation-factor 30)
+      )
+    )
 #+END_SRC
 
 

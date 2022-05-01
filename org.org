@@ -749,12 +749,13 @@ Better pdf interactions in Emacs.
 
 Emacs 29's =pixel-scroll-precision-mode= doesn't seem to work with pdf-tools ([[https://github.com/vedang/pdf-tools/issues/56][issue]]). For now, work around it by turning mode off when changing to a pdf buffer, and on otherwise.
 #+BEGIN_SRC emacs-lisp
-(defun my/set-precision-scrolling ()
-  (if (eq major-mode 'pdf-view-mode)
-      (pixel-scroll-precision-mode -1)
-    (pixel-scroll-precision-mode 1)))
+  (if (version< emacs-version "29") nil (progn
+  (defun my/set-precision-scrolling ()
+    (if (eq major-mode 'pdf-view-mode)
+	(pixel-scroll-precision-mode -1)
+      (pixel-scroll-precision-mode 1)))
 
-(add-hook 'buffer-list-update-hook #'my/set-precision-scrolling)
+  (add-hook 'buffer-list-update-hook #'my/set-precision-scrolling)))
 #+END_SRC
 
 ** bibtex
@@ -879,7 +880,7 @@ Attach notes to locations in the pdf.
 ** jupyter
 [[https://github.com/nnicandro/emacs-jupyter][emacs-jupyter]] requires [[https://github.com/nnicandro/emacs-zmq][emacs-zmq]]. To install =emacs-zmq=, after running the following, go to =straight/build/zmq= and run =make=.
 
-May need to first run =sudo dnf install libstdc++-static=.
+May need to first run =sudo dnf install libstdc++-static zeromq-devel libtool=.
 
 #+BEGIN_SRC emacs-lisp
 (use-package zmq)
