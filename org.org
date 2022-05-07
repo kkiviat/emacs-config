@@ -248,6 +248,8 @@ Set the =TODO= states.
  #+END_SRC
 
 ** Capture
+
+*** Templates
 #+BEGIN_SRC emacs-lisp
 (setq org-capture-templates `(
 			("t" "Tasks")
@@ -308,6 +310,24 @@ Set the =TODO= states.
 			 (file+olp+datetree ,(org-file-path "journal/daily.org"))
 			 "* NOTE %? \nSCHEDULED: %^{Date}t\nCLOSED: %^{Same date again}t")
 			))
+#+END_SRC
+
+*** Capture from outside emacs
+Bind a system shortcut to =emacsclient -n -e '(yequake-toggle "org-capture")'= to bring up a temporary capture frame. Must have an emacsclient instance running. Doesn't work with refiling.
+#+BEGIN_SRC emacs-lisp
+(use-package yequake
+  :straight (yequake :type git :host github :repo "alphapapa/yequake")
+
+  :custom
+  (yequake-frames
+   '(("org-capture"
+      (buffer-fns . (yequake-org-capture))
+      (width . 0.75)
+      (height . 0.5)
+      (alpha . 0.95)
+      (frame-parameters . ((undecorated . t)
+                           (skip-taskbar . t)
+                           (sticky . t)))))))
 #+END_SRC
 
 ** Agenda
