@@ -931,3 +931,22 @@ Fix for ansi color sequence issue from https://github.com/nnicandro/emacs-jupyte
    ;; other languages..
    ))
 #+END_SRC
+
+* images
+Slightly easier way to interact with krita or xournal++ files in buffers. Still have to create the files separately, though. These just allow clicking on a link in an org buffer to open an existing image file.
+** org-krita
+#+BEGIN_SRC emacs-lisp
+(use-package org-krita
+  :ensure t
+  :straight (org-krita :host github :repo "lepisma/org-krita" :files ("*.el" "resources"))
+  :config
+  (add-hook 'org-mode-hook 'org-krita-mode))
+#+END_SRC
+** org-xournalpp
+#+BEGIN_SRC emacs-lisp
+(use-package org-xournalpp
+  :ensure t
+  :straight (org-xournalpp :host gitlab :repo "vherrmann/org-xournalpp" :files ("*.el" "resources"))
+  :config
+  (add-hook 'org-mode-hook 'org-xournalpp-mode))
+#+END_SRC
