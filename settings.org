@@ -436,6 +436,18 @@ Include their config to add padding to buffers and tweak a few other things.
  org-agenda-current-time-string
  "⭠ now ─────────────────────────────────────────────────")
 #+END_SRC
+** icons
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons
+  :if (display-graphic-p))
+
+(use-package all-the-icons-dired
+  :if (display-graphic-p)
+  :hook (dired-mode-hook . all-the-icons-dired-mode))
+  ;; :hook (dired-mode . (lambda () (interactive)
+  ;;                       (unless (file-remote-p default-directory)
+  ;;                         (all-the-icons-dired-mode)))))
+#+END_SRC
 
 * Flyspell
   #+BEGIN_SRC emacs-lisp
@@ -523,6 +535,9 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
   :config
   (setq persp-state-default-file "~/Dropbox/org/.persp")
   (add-hook 'kill-emacs-hook #'persp-state-save))
+
+(use-package persp-projectile
+  :after projectile)
 #+END_SRC
 
 * Yasnippet
@@ -554,4 +569,30 @@ Feature name different from package name; see https://github.com/raxod502/straig
 (use-package imenu
   :config
   (setq org-imenu-depth 3))
+#+END_SRC
+
+* Dashboard
+#+BEGIN_SRC emacs-lisp
+(use-package dashboard
+  :config
+  (dashboard-setup-startup-hook)
+  (setq dashboard-items '(;(recents  . 5)
+                        (bookmarks . 5)
+                        (projects . 5)
+                        (agenda . 5)))
+  (setq dashboard-set-navigator t)
+  (setq dashboard-center-content t)
+  (setq dashboard-startup-banner 'logo)
+  (setq dashboard-navigator-buttons
+        `((;; Github
+           (,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0)
+            "Github"
+            "Github"
+            (lambda (&rest _) (browse-url "https://github.com/kkiviat/emacs-config")))
+           ;; Perspectives
+           (,(all-the-icons-octicon "history" :height 1.1 :v-adjust 0.0)
+            "Restore"
+            "Restore"
+            (lambda (&rest _) (persp-state-load persp-state-default-file)))
+           ))))
 #+END_SRC
