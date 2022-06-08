@@ -22,3 +22,4 @@ url/*
 org-gcal/*
 .org-generic-id-locations
 persist/
+projectile-bookmarks.eld

@@ -489,6 +489,42 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
 #+END_SRC
 
 
+* Projectile
++ =C-c p p= to switch to a project
++ =C-c p s r= to ripgrep through current project
++ =C-c p S= save all project buffers
++ =C-c p f= select file in project
+#+BEGIN_SRC emacs-lisp
+(use-package rg) ;; ripgrep for searching in projectile
+
+(use-package projectile
+  :init
+  (projectile-mode +1)
+  :bind (:map projectile-mode-map
+              ("s-p" . projectile-command-map)
+              ("C-c p" . projectile-command-map))
+  :config
+  (setq projectile-project-search-path '("~/Dropbox/org/gtd" ("~/" . 1)))
+)
+#+END_SRC
+
+* Perspective
+=perspective.el= allows saving multiple buffer lists / window configurations and quickly switching between them.
+- =C-z s= switch to or create new perspective
+- =C-z [n|p]= switch to next or previous perspective
+#+BEGIN_SRC emacs-lisp
+(use-package perspective
+  :bind
+  ("C-x C-b" . persp-list-buffers)
+  :custom
+  (persp-mode-prefix-key (kbd "C-z"))
+  :init
+  (persp-mode)
+  :config
+  (setq persp-state-default-file "~/Dropbox/org/.persp")
+  (add-hook 'kill-emacs-hook #'persp-state-save))
+#+END_SRC
+
 * Yasnippet
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
