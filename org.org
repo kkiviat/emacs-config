@@ -602,12 +602,6 @@ new one (which shows the same information).
   (setq org-src-window-setup 'current-window)
 #+END_SRC
 
-Additional shortcuts for inserting code blocks.
-#+BEGIN_SRC emacs-lisp
-  (add-to-list 'org-structure-template-alist
-	       '("r" "#+BEGIN_SRC R \n?\n#+END_SRC"))
-#+END_SRC
-
 * Roam
 After much struggling with getting the org-roam buffer to follow links reasonably, the configuration below (dedicated side window, from [[https://org-roam.discourse.group/t/sidebar-roam-buffer-gets-replaced-with-org-roam-node-instead-of-updating/2162/6][this discussion]]) works well enough.
 #+BEGIN_SRC emacs-lisp

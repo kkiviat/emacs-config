@@ -18,7 +18,7 @@ Enable everything, but disable the visual bell function.
 Hide window chrome
  #+BEGIN_SRC emacs-lisp
  (tool-bar-mode 0)
- ;(menu-bar-mode 0)
+ (menu-bar-mode 0)
  (scroll-bar-mode -1)
  #+END_SRC
 
@@ -116,9 +116,30 @@ Default to visual line mode for some modes.
 (add-hook 'LaTeX-mode-hook #'visual-line-mode)
 #+END_SRC
 
+* Helm
+#+BEGIN_SRC emacs-lisp
+  (use-package helm
+    :diminish helm-mode
+    :demand
+     :bind (("M-x" . helm-M-x)
+     	 ("M-y" . helm-show-kill-ring)
+     	 ("C-x b" . helm-mini)
+     	 ("C-x C-f" . helm-find-files))
+     :init
+     (helm-mode 1)
+     :config
+     (setq helm-split-window-in-side-p t
+     	helm-move-to-line-cycle-in-source t
+     	helm-autoresize-mode t
+     	helm-ff-file-name-history-use-recentf t)
+    )
+#+END_SRC
+
+
 * Themes
 #+BEGIN_SRC emacs-lisp
 (setq custom-theme-directory "~/.emacs.d/themes")
+(setq custom--inhibit-theme-enable nil)
 #+END_SRC
 
 ** fonts
@@ -235,20 +256,14 @@ Use monospace font in code blocks and tables.  From https://github.com/jparcill/
   )
 #+END_SRC
 
-** general customizations
-#+BEGIN_SRC emacs-lisp
-(use-package doom-themes :defer t)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(setq org-ellipsis "  ")
-#+END_SRC
+** COMMENT general customizations
+Disabled for now because I'm using the config from org-modern to add padding
 
 Add more padding in text buffers.  Based on https://lepisma.xyz/2017/10/28/ricing-org-mode/index.html.
 #+BEGIN_SRC emacs-lisp
 (defun klk-text-file-spacing ()
   (setq line-spacing 0.1)
-  (setq header-line-format " ") ; add top margin
+  ;; (setq header-line-format " ") ; add top margin
   (setq display-line-numbers nil)
   (setq left-fringe-width 0) ; disable fringe
   (setq right-fringe-width 0)
@@ -261,6 +276,65 @@ Add more padding in text buffers.  Based on https://lepisma.xyz/2017/10/28/ricin
 (add-hook 'text-mode-hook 'klk-text-file-spacing)
 #+END_SRC
 
+** Load themes
+#+BEGIN_SRC emacs-lisp
+  (use-package doom-themes :defer t)
+#+END_SRC
+
+Install the nice bespoke theme, but set it to color source code blocks as well.
+#+BEGIN_SRC emacs-lisp
+  (use-package bespoke-themes
+    :straight (:type git :host github :repo "mclear-tools/bespoke-themes" :branch "main")
+    :config
+    ;; Set use of italics
+    (setq bespoke-set-italic-comments t
+	  bespoke-set-italic-keywords t)
+    ;; Set variable pitch
+    (setq bespoke-set-variable-pitch t)
+    ;; Set initial theme variant
+    (setq bespoke-set-theme 'light)
+    )
+
+  (add-hook 'bespoke-after-load-theme-hook 'my/customize-theme-bespoke)
+
+
+  (defun my/customize-theme-bespoke (_theme &rest _args)
+    (when (member 'bespoke custom-enabled-themes)
+      (custom-theme-set-faces
+       'bespoke
+
+       '(org-block-begin-line
+	 ((t (:underline "#A7A6AA" :foreground "white" :background "#30608C" :extend t))))
+       '(org-block
+	 ((t (:background "#EFF0F1" :extend t))))
+       '(org-block-end-line
+	 ((t (:overline "#A7A6AA" :foreground "white" :background "#30608C" :extend t))))
+       )))
+
+  (advice-add 'load-theme :after #'my/customize-theme-bespoke)
+#+END_SRC
+
+** Modeline
+#+BEGIN_SRC emacs-lisp
+(use-package bespoke-modeline
+  :straight (:type git :host github :repo "mclear-tools/bespoke-modeline")
+  :init
+  ;; Set header line
+  (setq bespoke-modeline-position 'top)
+  ;; Set mode-line height
+  (setq bespoke-modeline-size 3)
+  ;; Show diff lines in mode-line
+  (setq bespoke-modeline-git-diff-mode-line t)
+  ;; Set mode-line cleaner
+  (setq bespoke-modeline-cleaner t)
+  ;; Use mode-line visual bell
+  (setq bespoke-modeline-visual-bell t)
+  ;; Set vc symbol
+  (setq  bespoke-modeline-vc-symbol "G:")
+  :config
+  (bespoke-modeline-mode))
+#+END_SRC
+
 ** toggle themes
 Spring theme uses fonts from https://www.ishouldbemoppingthefloor.com/2015/02/20-free-spring-fonts.html
 #+BEGIN_SRC emacs-lisp
@@ -271,6 +345,7 @@ Spring theme uses fonts from https://www.ishouldbemoppingthefloor.com/2015/02/20
 (defun klk-choose-theme ()
   (interactive)
   (let ((choices '(("Spring"  . (lambda () (load-theme 'Spring t)))
+		   ("Bespoke" . (lambda () (load-theme 'bespoke t)))
 		   ("White"  . (lambda () (load-theme 'white t)))
 		   ("Clean"  . (lambda () (load-theme 'clean t)))
                    ("Nier" . (lambda () (load-theme 'nier t)))
@@ -298,14 +373,68 @@ Set up hook for theme changes. Refreshes $\LaTeX$ previews in all open org buffe
 		(call-interactively 'org-latex-preview))
 	      (org-bullets-mode))))
   (buffer-list))
+  ;; Reset colors of window divider
+  (dolist (face '(window-divider
+                window-divider-first-pixel
+                window-divider-last-pixel))
+  (face-spec-reset-face face)
+  (set-face-foreground face (face-attribute 'default :background)))
+  (set-face-background 'fringe (face-attribute 'default :background))
   )
 
 (advice-add 'load-theme :after 'klk-refresh-org-buffer-colors)
 #+END_SRC
 
+** Set up current theme
 #+BEGIN_SRC emacs-lisp
-(load-theme 'clean t)
+(load-theme 'bespoke t)
 (klk-set-org-block-fixed-pitch) ; default
+#+END_SRC
+
+* Prettify
+** org-modern
+#+BEGIN_SRC emacs-lisp
+(use-package org-modern
+  :straight (org-modern :type git :host github :repo "minad/org-modern")
+  :config
+  (setq org-modern-star nil)
+  )
+#+END_SRC
+
+Include their config to add padding to buffers and tweak a few other things.
+#+BEGIN_SRC emacs-lisp
+(modify-all-frames-parameters
+ '((right-divider-width . 40)
+   (internal-border-width . 40)))
+(dolist (face '(window-divider
+                window-divider-first-pixel
+                window-divider-last-pixel))
+  (face-spec-reset-face face)
+  (set-face-foreground face (face-attribute 'default :background)))
+(set-face-background 'fringe (face-attribute 'default :background))
+
+
+(setq
+ ;; Edit settings
+ org-auto-align-tags nil
+ org-tags-column 0
+ org-catch-invisible-edits 'show-and-error
+ org-special-ctrl-a/e t
+ org-insert-heading-respect-content t
+
+ ;; Org styling, hide markup etc.
+ org-hide-emphasis-markers t
+ org-pretty-entities t
+ org-ellipsis "…"
+
+ ;; Agenda styling
+ org-agenda-block-separator ?─
+ org-agenda-time-grid
+ '((daily today require-timed)
+   (800 1000 1200 1400 1600 1800 2000)
+   " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+ org-agenda-current-time-string
+ "⭠ now ─────────────────────────────────────────────────")
 #+END_SRC
 
 * Flyspell
@@ -350,25 +479,6 @@ Save history between sessions.
 #+END_SRC
 
 
-* Helm
-#+BEGIN_SRC emacs-lisp
-  (use-package helm
-    :diminish helm-mode
-     :bind (("M-x" . helm-M-x)
-     	 ("M-y" . helm-show-kill-ring)
-     	 ("C-x b" . helm-mini)
-     	 ("C-x C-f" . helm-find-files))
-     :init
-     (helm-mode 1)
-     :config
-     (setq helm-split-window-in-side-p t
-     	helm-move-to-line-cycle-in-source t
-     	helm-autoresize-mode t
-     	helm-ff-file-name-history-use-recentf t)
-    )
-#+END_SRC
-
-
 * Undo tree
 More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
 
@@ -402,3 +512,10 @@ Feature name different from package name; see https://github.com/raxod502/straig
   #+BEGIN_SRC emacs-lisp
 (use-package magit)
   #+END_SRC
+
+* imenu
+#+BEGIN_SRC emacs-lisp
+(use-package imenu
+  :config
+  (setq org-imenu-depth 3))
+#+END_SRC

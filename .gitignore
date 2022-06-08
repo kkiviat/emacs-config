@@ -21,3 +21,4 @@ request/*
 url/*
 org-gcal/*
 .org-generic-id-locations
+persist/
