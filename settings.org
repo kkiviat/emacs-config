@@ -78,6 +78,7 @@ Emacs 29 has smooth scrolling natively.
       (pixel-scroll-precision-mode)
       (setq pixel-scroll-precision-large-scroll-height 40.0)
       (setq pixel-scroll-precision-interpolation-factor 30)
+      (setq scroll-conservatively 101) ;; keyboard scroll one line at a time
       )
     )
 #+END_SRC
@@ -309,6 +310,8 @@ Install the nice bespoke theme, but set it to color source code blocks as well.
 	 ((t (:background "#EFF0F1" :extend t))))
        '(org-block-end-line
 	 ((t (:overline "#A7A6AA" :foreground "white" :background "#30608C" :extend t))))
+       '(highlight-symbol-face
+	 ((t (:background "#DBE1EB"))))
        )))
 
   (advice-add 'load-theme :after #'my/customize-theme-bespoke)
@@ -516,7 +519,7 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
               ("s-p" . projectile-command-map)
               ("C-c p" . projectile-command-map))
   :config
-  (setq projectile-project-search-path '("~/Dropbox/org/gtd" ("~/" . 1)))
+  (setq projectile-project-search-path '(("~/Dropbox/org/gtd" . 3) ("~/" . 1)))
 )
 #+END_SRC
 
@@ -563,6 +566,16 @@ Feature name different from package name; see https://github.com/raxod502/straig
   #+BEGIN_SRC emacs-lisp
 (use-package magit)
   #+END_SRC
+
+* Terminal
+#+BEGIN_SRC emacs-lisp
+(use-package vterm
+  :commands vterm
+  :config
+  (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
+  ;;(setq vterm-shell "zsh")                       ;; Set this to customize the shell to launch
+  (setq vterm-max-scrollback 10000))
+#+END_SRC
 
 * imenu
 #+BEGIN_SRC emacs-lisp
