@@ -500,7 +500,9 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
 #+BEGIN_SRC emacs-lisp
 (use-package undo-tree
   :commands global-undo-tree-mode
-  :init (global-undo-tree-mode 1))
+  :init (global-undo-tree-mode 1)
+  :config
+  (setq undo-tree-auto-save-history nil))
 #+END_SRC
 
 
@@ -519,7 +521,7 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
               ("s-p" . projectile-command-map)
               ("C-c p" . projectile-command-map))
   :config
-  (setq projectile-project-search-path '(("~/Dropbox/org/gtd" . 3) ("~/" . 1)))
+  (setq projectile-project-search-path '(("~/Dropbox/org/gtd" . 3) ("~/" . 1) ("~/openfoam/" . 1)))
 )
 #+END_SRC
 
@@ -575,6 +577,8 @@ Feature name different from package name; see https://github.com/raxod502/straig
   (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
   ;;(setq vterm-shell "zsh")                       ;; Set this to customize the shell to launch
   (setq vterm-max-scrollback 10000))
+
+(use-package multi-vterm)
 #+END_SRC
 
 * imenu
