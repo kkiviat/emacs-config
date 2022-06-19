@@ -628,30 +628,30 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
         '(("d" "default" plain
            "%?"
            :if-new (file+head
-		    "%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n#+startup: latexpreview\n#+startup: indent\n#+filetags: \n")
+		    "pages/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n#+startup: indent\n#+filetags: \n")
            :unnarrowed t)
 	  ("p" "person" plain
            "%?"
            :if-new (file+head
-		    "%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n#+startup: latexpreview\n#+filetags: :person: \n")
+		    "pages/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n#+startup: indent\n#+filetags: :person: \n")
            :unnarrowed t)
 	  ("e" "podcast episode" plain
            "Episode of %?"
            :if-new (file+head
-		    "%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n#+startup: latexpreview\n#+filetags: :podcast:episode:\n ")
+		    "pages/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n##+startup: indent\n+filetags: :podcast:episode:\n ")
            :unnarrowed t)
 	  ("o" "organization" plain
            "%?"
            :if-new (file+head
-		    "%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n#+startup: latexpreview\n#+filetags: :organization: \n")
+		    "pages/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n#+startup: indent\n#+filetags: :organization: \n")
            :unnarrowed t)
 	  ("r" "bibliography reference" plain "%?"
            :if-new
-           (file+head "references/${citekey}.org" "#+title: ${title}\n#+author: ${author}\n#+date: ${date}\n#+filetags: :reference:\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ${file}\n:END:\n")
+           (file+head "pages/references/${citekey}.org" "#+title: ${title}\n#+author: ${author}\n#+date: ${date}\n#+filetags: :reference:\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ${file}\n:END:\n")
 	   :unnarrowed t)))
 (setq org-roam-dailies-directory "dailies/")
 (setq org-roam-dailies-capture-templates
@@ -943,4 +943,5 @@ Slightly easier way to interact with krita or xournal++ files in buffers. Still 
   :straight (org-xournalpp :host gitlab :repo "vherrmann/org-xournalpp" :files ("*.el" "resources"))
   :config
   (add-hook 'org-mode-hook 'org-xournalpp-mode))
+  ;; (setq 'org-xournalpp-image-type 'png)
 #+END_SRC
