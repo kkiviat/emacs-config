@@ -168,6 +168,42 @@ Create ids for links so they will work even if you move them across files.
 (global-set-key "\C-cC" 'klk/open-calendar)
 #+END_SRC
 
+* Tables
+Functions to jump between tables in a buffer. Taken from [[https://www.reddit.com/r/orgmode/comments/ot8g0j/orgnexttable_and_orgprevioustable_jump_to/][reddit]].
+#+BEGIN_SRC emacs-lisp
+(defun org-next-table (&optional arg)
+  "Jump to the next table.
+
+With a prefix argument ARG, jump forward ARG many tables."
+  (interactive "p")
+  (cl-loop
+     for n below (abs arg)
+     with backward = (< arg 0)
+     with search-fn = (if backward #'re-search-backward #'re-search-forward)
+     do
+       (setq pt (point))
+       (when (org-at-table-p)
+         (funcall search-fn org-table-border-regexp nil :move))
+     if (funcall search-fn org-table-line-regexp nil t) do
+       (when (org-invisible-p)
+         (org-reveal t)
+         (org-show-entry)
+         (unless (org-at-table-p)
+           (cl-decf n)))
+     else return (goto-char pt)
+     finally (when backward
+               (when (funcall search-fn org-table-border-regexp nil :move)
+                 (next-line))
+               (forward-char))))
+
+(defun org-previous-table (&optional arg)
+  "Jump to the previous table.
+
+With a prefix argument ARG, jump backward ARG many tables."
+  (interactive "p")
+  (org-next-table (- arg)))
+#+END_SRC
+
 * Images
 Make files start with inline images loaded, and add a hook to display them after executing a code block to display resulting graphs.
 #+BEGIN_SRC emacs-lisp
@@ -641,7 +677,7 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
            "Episode of %?"
            :if-new (file+head
 		    "pages/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n##+startup: indent\n+filetags: :podcast:episode:\n ")
+		    "#+title: ${title}\n#+startup: indent\n#+filetags: :podcast:episode:\n ")
            :unnarrowed t)
 	  ("o" "organization" plain
            "%?"
