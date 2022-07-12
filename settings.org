@@ -544,8 +544,8 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
 (use-package persp-projectile
   :after projectile)
 #+END_SRC
-
-* Yasnippet
+* Completion
+** Yasnippet
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
   :config
@@ -555,7 +555,15 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
   (yas-reload-all)'
   :diminish yas-minor-mode)
 #+END_SRC
-
+** Company
+#+BEGIN_SRC emacs-lisp
+(add-hook 'after-init-hook 'global-company-mode)
+#+END_SRC
+** Hippie Expand
+Insert proposed expansion with =M-/=. Can be used to, e.g., repeat previous lines.
+#+BEGIN_SRC emacs-lisp
+(global-set-key [remap dabbrev-expand] 'hippie-expand)
+#+END_SRC
 
 * Latex
 Feature name different from package name; see https://github.com/raxod502/straight.el/issues/516
