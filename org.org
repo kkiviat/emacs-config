@@ -381,6 +381,14 @@ Some agenda view tweaks.
 (setq org-deadline-warning-days 7)
 #+END_SRC
 
+Add lines between days in weekly view. Taken from [[https://www.reddit.com/r/orgmode/comments/e4stk2/adding_a_separator_line_between_days_in_emacs/][reddit]].
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-format-date (lambda (date) (concat "\n"
+                                                    (make-string (window-width) 9472)
+                                                    "\n"
+                                                    (org-agenda-format-date-aligned date))))
+#+END_SRC
+
 Add more space for the category in the agenda.
 #+BEGIN_SRC emacs-lisp
 (setq org-agenda-prefix-format '((agenda . " %i %-15:c%?-12t% s")
