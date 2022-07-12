@@ -108,7 +108,7 @@ Emacs 29 has smooth scrolling natively.
 * Text
 Make the text bigger by default. (sensible-defaults binds font resize to C-- and C-+)
 #+BEGIN_SRC emacs-lisp
-(set-face-attribute 'default nil :height 140)
+(set-face-attribute 'default nil :height 130)
 #+END_SRC
 
 Default to visual line mode for some modes.
