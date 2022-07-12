@@ -982,10 +982,16 @@ Slightly easier way to interact with krita or xournal++ files in buffers. Still 
 #+END_SRC
 ** org-xournalpp
 #+BEGIN_SRC emacs-lisp
+(defun get-xournal-template ()
+  (let ((template-file "~/Dropbox/org/org-xournalpp/resources/"))
+    (read-file-name nil template-file)))
+
 (use-package org-xournalpp
   :ensure t
   :straight (org-xournalpp :host gitlab :repo "vherrmann/org-xournalpp" :files ("*.el" "resources"))
   :config
-  (add-hook 'org-mode-hook 'org-xournalpp-mode))
+  (add-hook 'org-mode-hook 'org-xournalpp-mode)
+  (setq org-xournalpp-template-getter 'get-xournal-template)
+)
   ;; (setq 'org-xournalpp-image-type 'png)
 #+END_SRC
