@@ -695,7 +695,7 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
            :unnarrowed t)
 	  ("r" "bibliography reference" plain "%?"
            :if-new
-           (file+head "pages/references/${citekey}.org" "#+title: ${title}\n#+author: ${author}\n#+date: ${date}\n#+filetags: :reference:\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ${file}\n:END:\n")
+           (file+head "pages/references/${citekey}.org" "#+title: ${author} (${year}). ${title}\n#+filetags: :reference:\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ${file}\n:END:\n")
 	   :unnarrowed t)))
 (setq org-roam-dailies-directory "dailies/")
 (setq org-roam-dailies-capture-templates
@@ -705,12 +705,11 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
                         "%<%Y%m%d>.org"
                         "#+startup: indent\n#+title: %<%Y-%m-%d (%A)>\n")
                :unnarrowed t))))
-#+END_SRC
 
-  Handy config from https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/ to add roam files with the =Project= tag to the agenda list, so I can track TODOs within a project.
 
-Add existing projects to agenda list on startup:
-#+BEGIN_SRC emacs-lisp
+;; Handy config from https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/ to add roam files with the Project tag to the agenda list, so I can track TODOs within a project.
+
+;; Add existing projects to agenda list on startup:
 (defun my/org-roam-filter-by-tag (tag-name)
   (lambda (node)
     (member tag-name (org-roam-node-tags node))))
@@ -727,10 +726,9 @@ Add existing projects to agenda list on startup:
 
 ;; Build the agenda list the first time for the session
 (my/org-roam-refresh-agenda-list)
-#+END_SRC
 
-And add new projects to agenda list after capture.
-#+BEGIN_SRC emacs-lisp
+
+;; And add new projects to agenda list after capture.
 (defun my/org-roam-project-finalize-hook ()
   "Adds the captured project file to `org-agenda-files' if the
 capture was not aborted."
@@ -758,10 +756,9 @@ capture was not aborted."
 	       "%<%Y%m%d%H%M%S>-${slug}"
 	       "#+title: ${title}\n#+category: ${title}\n#+filetags: :project:")
       :unnarrowed t))))
-#+END_SRC
 
-Set key bindings and end =use-package= =org-roam= config.
-#+BEGIN_SRC emacs-lisp
+
+;; Set key bindings and end =use-package= =org-roam= config.
 (global-set-key (kbd "C-c n p") #'my/org-roam-find-project)
 :bind (("C-c j" . org-roam-dailies-goto-today)
        ("C-c t" . org-roam-dailies-goto-tomorrow)
