@@ -673,29 +673,29 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
            "%?"
            :if-new (file+head
 		    "pages/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n#+startup: indent\n#+filetags: \n")
+		    "#+title: ${title}\n")
            :unnarrowed t)
 	  ("p" "person" plain
            "%?"
            :if-new (file+head
-		    "pages/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n#+startup: indent\n#+filetags: :person: \n")
+		    "pages/people/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n")
            :unnarrowed t)
 	  ("e" "podcast episode" plain
            "Episode of %?"
            :if-new (file+head
-		    "pages/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n#+startup: indent\n#+filetags: :podcast:episode:\n ")
+		    "pages/sources/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n")
            :unnarrowed t)
-	  ("o" "organization" plain
-           "%?"
+	  ("s" "source" plain
+           "Source: %?"
            :if-new (file+head
-		    "pages/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n#+startup: indent\n#+filetags: :organization: \n")
+		    "pages/sources/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n")
            :unnarrowed t)
 	  ("r" "bibliography reference" plain "%?"
            :if-new
-           (file+head "pages/references/${citekey}.org" "#+title: ${author} (${year}). ${title}\n#+filetags: :reference:\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ${file}\n:END:\n")
+           (file+head "pages/references/${citekey}.org" "#+title: ${author} (${year}). ${title}\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ${file}\n:END:\n")
 	   :unnarrowed t)))
 (setq org-roam-dailies-directory "dailies/")
 (setq org-roam-dailies-capture-templates
