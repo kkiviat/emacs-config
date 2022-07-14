@@ -54,7 +54,7 @@
  ("markdown-mode" . "1f709778ac7990f4a07fdf11fe37bc6541810b29")
  ("melpa" . "33213ca9e98ba41787d1617e6effb4c228d6c8f4")
  ("multi-vterm" . "a3df7218c1ecadef779e2c47815201052283f9ea")
- ("org" . "45174d62b9462172fdc8c2ba7dc8cae4a8935318")
+ ("org" . "69c588947d1be9bca1eb8c773f2a8ff117d264ba")
  ("org-anki" . "c084599a199f794b7e25d5ca4d58f0c0ad87c160")
  ("org-appear" . "60ba267c5da336e75e603f8c7ab3f44e6f4e4dac")
  ("org-auctex" . "e1271557b9f36ca94cabcbac816748e7d0dc989c")
