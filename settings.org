@@ -318,6 +318,7 @@ Install the nice bespoke theme, but set it to color source code blocks as well.
 #+END_SRC
 
 ** Modeline
+*** COMMENT Bespoke
 #+BEGIN_SRC emacs-lisp
 (use-package bespoke-modeline
   :straight (:type git :host github :repo "mclear-tools/bespoke-modeline")
@@ -336,6 +337,22 @@ Install the nice bespoke theme, but set it to color source code blocks as well.
   (setq  bespoke-modeline-vc-symbol "G:")
   :config
   (bespoke-modeline-mode))
+#+END_SRC
+
+*** Doom modeline
+Try using this instead since it can show the current perspective. The following config is probably not the right way to do this, but it works to put the modeline at the top like the bespoke modeline.
+#+BEGIN_SRC emacs-lisp
+(use-package doom-modeline
+  :init
+  (doom-modeline-mode 1)
+  (setq-default header-line-format mode-line-format)
+  (setq-default mode-line-format nil)
+  (setq mode-line-format nil)
+  :custom
+  (setq doom-modeline-buffer-encoding nil)
+  (setq doom-modeline-buffer-file-name-style 'relative-from-project)
+  (setq doom-modeline-height 35)
+  )
 #+END_SRC
 
 ** toggle themes
