@@ -446,10 +446,8 @@ Include their config to add padding to buffers and tweak a few other things.
 
 (use-package all-the-icons-dired
   :if (display-graphic-p)
-  :hook (dired-mode-hook . all-the-icons-dired-mode))
-  ;; :hook (dired-mode . (lambda () (interactive)
-  ;;                       (unless (file-remote-p default-directory)
-  ;;                         (all-the-icons-dired-mode)))))
+  :hook (dired-mode . all-the-icons-dired-mode)
+  :config (setq all-the-icons-dired-monochrome nil))
 #+END_SRC
 
 * Flyspell
