@@ -231,6 +231,29 @@ This package uses AucTeX's preview library for org mode LaTeX previews, which is
   :config (add-hook 'org-mode-hook 'org-auctex-mode))
 #+END_SRC
 
+** Screenshots
+Based on https://sachachua.com/blog/2020/12/org-mode-create-a-quick-timestamped-note-and-capture-a-screenshot-by-prefilling-a-capture-template-via-emacs-lisp/ and https://stackoverflow.com/a/46268816.
+#+BEGIN_SRC emacs-lisp
+(defun klk/capture-screenshot (time &optional title)
+  "Capture screenshot and save it to a file labeled with TIME and NOTE. Return the filename."
+  (interactive (list (current-time) (read-string "Title: ")))
+  (let* ((filename (expand-file-name
+                        (concat (format-time-string "%Y%0m%d_%H%M%S" time)
+                                (if title (concat "_" title) "")
+                                ".png")
+                        "./images"))
+         (cmd (concat "gnome-screenshot -a -f "
+                      (shell-quote-argument filename))))
+    (shell-command cmd)
+    filename))
+
+(defun klk/insert-screenshot (time &optional title)
+  (interactive (list (current-time) (read-string "Title: ")))
+  (insert (concat "[[" (klk/capture-screenshot time title) "]]"))
+  (org-display-inline-images))
+
+(global-set-key [f10] 'klk/insert-screenshot)
+#+END_SRC
 * Tasks
 
 ** General
