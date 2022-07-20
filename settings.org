@@ -122,26 +122,6 @@ Default to visual line mode for some modes.
 (add-hook 'LaTeX-mode-hook #'visual-line-mode)
 #+END_SRC
 
-** Helm
-#+BEGIN_SRC emacs-lisp
-  (use-package helm
-    :diminish helm-mode
-    :demand
-     :bind (("M-x" . helm-M-x)
-     	 ("M-y" . helm-show-kill-ring)
-     	 ("C-x b" . helm-mini)
-     	 ("C-x C-f" . helm-find-files))
-     :init
-     (helm-mode 1)
-     :config
-     (setq helm-split-window-in-side-p t
-     	helm-move-to-line-cycle-in-source t
-     	helm-autoresize-mode t
-     	helm-ff-file-name-history-use-recentf t)
-    )
-#+END_SRC
-
-
 ** Themes
 #+BEGIN_SRC emacs-lisp
 (setq custom-theme-directory "~/.emacs.d/themes")
@@ -576,9 +556,6 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
   (yas-reload-all)'
   :diminish yas-minor-mode)
 #+END_SRC
-*** Company
-#+BEGIN_SRC emacs-lisp
-(add-hook 'after-init-hook 'global-company-mode)
 #+END_SRC
 *** Yasnippet Company Integration
 Taken from [[https://emacs.stackexchange.com/a/7909. Use =C-o= for yasnippet expansion to avoid conflict with company-mode.
@@ -605,6 +582,71 @@ move to the next field. Call `open-line' if nothing else applies."
 Insert proposed expansion with =M-/=. Can be used to, e.g., repeat previous lines. Good for expanding file names.
 #+BEGIN_SRC emacs-lisp
 (global-set-key [remap dabbrev-expand] 'hippie-expand)
+#+END_SRC
+*** Vertico
+#+BEGIN_SRC emacs-lisp
+(use-package vertico
+  :init
+  (vertico-mode))
+#+END_SRC
+
+*** Orderless
+#+BEGIN_SRC emacs-lisp
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+#+END_SRC
+*** Marginalia
+Provides nice annotations for minibuffer completion options (like command descriptions and keyboard shortcuts).
+#+BEGIN_SRC emacs-lisp
+(use-package marginalia
+  ;; Either bind `marginalia-cycle` globally or only in the minibuffer
+  :bind (:map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+  :init
+  ;; Must be in the :init section of use-package such that the mode gets
+  ;; enabled right away. Note that this forces loading the package.
+  (marginalia-mode))
+#+END_SRC
+*** Consult
+#+BEGIN_SRC emacs-lisp
+(use-package consult
+  :bind (
+	 ("M-s r" . consult-ripgrep)
+	 ("M-g o" . consult-org-heading)
+  )
+  :config
+  (autoload 'projectile-project-root "projectile"))
+#+END_SRC
+*** COMMENT Embark
+#+BEGIN_SRC emacs-lisp
+(use-package embark
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+  :init
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  :config
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+
+(use-package embark-consult
+  :after (embark consult)
+  :demand t ; only necessary if you have the hook below
+  ;; if you want to have consult previews as you move around an
+  ;; auto-updating embark collect buffer
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
 #+END_SRC
 
 ** Latex
@@ -1238,21 +1280,6 @@ Note: this causes some annoyances because it seems to trigger auto-saves in org-
 	    (format "%s" file))))))
 #+END_SRC
 
-**** ripgrep
-An alternative to =deft=, using =ripgrep=. Nice in that it actually shows the matches, not just the beginning of the file containing a match.
-Config based on https://renatgalimov.github.io/org-basb-code/. Note that I had to add the =defvar= line per the comment on [[https://stackoverflow.com/a/20967895][this answer]], since =helm-rg-default-directory= is a lexical variable.
-#+BEGIN_SRC emacs-lisp
-(use-package helm-rg
-  :init
-  (defun helm-rg-roam-directory (&optional query)
-    "Search with rg in your roam directory, QUERY."
-    (interactive)
-    (defvar helm-rg-default-directory)
-    (let ((helm-rg-default-directory "~/Dropbox/org/roam"))
-      (helm-rg query nil)))
-  :bind (("C-c n R" . helm-rg-roam-directory)))
-#+END_SRC
-
 **** random note
 Random note, for looking at a random past entry.
 #+BEGIN_SRC emacs-lisp
@@ -1498,29 +1525,32 @@ Emacs 29's =pixel-scroll-precision-mode= doesn't seem to work with pdf-tools ([[
 Set paths that will be used by multiple packages.
 #+BEGIN_SRC emacs-lisp
 (setq bib-files (directory-files "~/Dropbox/Zotero" t "^[A-Z|a-z].+.bib$")
+      bibtex-files (directory-files "~/Dropbox/Zotero" t "^[A-Z|a-z].+.bib$")
       pdf-files-directory "~/Dropbox/papers/bibtex")
-#+END_SRC
-
-*** helm-bibtex
-Set up =helm-bibtex= to use the Zotero =.bib= file and store notes in the =org-roam= directory.
-#+BEGIN_SRC emacs-lisp
-(use-package helm-bibtex
-  :config
-  (require 'helm-config)
-  (setq bibtex-completion-bibliography bib-files
-        bibtex-completion-library-path pdf-files-directory
-        bibtex-completion-pdf-field "File"
-        bibtex-completion-notes-path org-roam-directory))
 #+END_SRC
 
 *** org-ref
 Manage references in org mode.
 #+BEGIN_SRC emacs-lisp
 (use-package org-ref
-  :after helm-bibtex
   :bind (:map org-mode-map ("C-c ]" . org-ref-insert-link))
   :config
   (setq org-latex-prefer-user-labels t)
+  (setq bibtex-completion-bibliography bib-files
+	bibtex-completion-library-path '("~/Dropbox/Zotero/storage/")
+	bibtex-completion-notes-path "~/Dropbox/org/roam/references/"
+	bibtex-completion-notes-template-multiple-files "* ${author-or-editor}, ${title}, ${journal}, (${year}) :${=type=}: \n\nSee [[cite:&${=key=}]]\n"
+
+	bibtex-completion-additional-search-fields '(keywords)
+	bibtex-completion-display-formats
+	'((article       . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${journal:40}")
+	  (inbook        . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+	  (incollection  . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+	  (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+	  (t             . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*}"))
+	bibtex-completion-pdf-open-function
+	(lambda (fpath)
+	  (call-process "open" nil 0 nil fpath)))
   :demand
   )
 #+END_SRC
@@ -1529,7 +1559,7 @@ Manage references in org mode.
 Integrate bibtex with =org-roam=.
 #+BEGIN_SRC emacs-lisp
 (use-package org-roam-bibtex
-  :after (org-roam helm-bibtex)
+  :after org-roam
   :bind (:map org-mode-map ("C-c n b" . orb-note-actions))
   :config
   (require 'org-ref) ; optional: if Org Ref is not loaded anywhere else, load it here
@@ -1688,7 +1718,7 @@ Slightly easier way to interact with krita or xournal++ files in buffers. Still 
   :commands lsp)
 
 (use-package lsp-ui :commands lsp-ui-mode)
-(use-package helm-lsp :commands helm-lsp-workspace-symbol)
+;; (use-package helm-lsp :commands helm-lsp-workspace-symbol)
 
 (use-package dap-mode)
 ;; (use-package dap-LANGUAGE) to load the dap adapter for your language
