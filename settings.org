@@ -1411,7 +1411,6 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
   (org-roam-directory "~/Dropbox/org/roam")
   :config
   (org-roam-db-autosync-mode)
-  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (add-hook 'org-roam-mode-hook #'visual-line-mode)
   (define-key org-roam-mode-map [mouse-1] #'org-roam-preview-visit)
   (add-to-list 'display-buffer-alist
@@ -1448,6 +1447,12 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
 		    "pages/sources/%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n")
            :unnarrowed t)
+	  ("j" "project" plain
+	   "%?"
+           :if-new (file+head
+		    "pages/projects/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n#+filetags: :project:\n")
+           :unnarrowed t)
 	  ("r" "bibliography reference" plain "%?"
            :if-new
            (file+head "pages/references/${citekey}.org" "#+title: ${author} (${year}). ${title}\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ${file}\n:END:\n")
@@ -1461,9 +1466,22 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
                         "#+startup: indent\n#+title: %<%Y-%m-%d (%A)>\n")
                :unnarrowed t))))
 
+;; From https://jethrokuan.github.io/org-roam-guide/. Use subdirectories to define properties of nodes.
+(cl-defmethod org-roam-node-type ((node org-roam-node))
+  "Return the TYPE of NODE."
+  (condition-case nil
+      (file-name-nondirectory
+       (directory-file-name
+        (file-name-directory
+         (file-relative-name (org-roam-node-file node) org-roam-directory))))
+    (error "")))
+
+(setq org-roam-node-display-template
+      (concat "${type:15} ${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+
 
 ;; Handy config from https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/ to add roam files with the Project tag to the agenda list, so I can track TODOs within a project.
-
+;; I could switch to just adding everything in the new projects directory, but I like being able to exclude old projects from the agenda list by just removing the tag.
 ;; Add existing projects to agenda list on startup:
 (defun my/org-roam-filter-by-tag (tag-name)
   (lambda (node)
