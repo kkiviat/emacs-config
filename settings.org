@@ -566,7 +566,10 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
   :bind (:map projectile-mode-map
               ("s-p" . projectile-command-map)
               ("C-c p" . projectile-command-map))
-  :config
+  :general
+  (klk/leader-keys
+    "p" '(:keymap projectile-command-map :which-key "project"))
+    :config
   (setq projectile-project-search-path '(("~/Dropbox/org/gtd" . 3) ("~/" . 1) ("~/openfoam/" . 1)))
 )
 #+END_SRC
@@ -705,6 +708,8 @@ Provides nice annotations for minibuffer completion options (like command descri
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
   (corfu-separator ?\s)          ;; Orderless field separator
+  (corfu-min-width 80)
+  (corfu-max-width corfu-min-width) ;; Always have the same width
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
   ;; (corfu-preview-current nil)    ;; Disable current candidate preview
@@ -729,6 +734,16 @@ Provides nice annotations for minibuffer completion options (like command descri
   ;; Enable indentation+completion using the TAB key.
   ;; `completion-at-point' is often bound to M-TAB.
   (setq tab-always-indent 'complete))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package kind-icon
+  :ensure t
+  :after corfu
+  :custom
+  (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 #+END_SRC
 ** Latex
 Feature name different from package name; see https://github.com/raxod502/straight.el/issues/516
@@ -1857,10 +1872,18 @@ Slightly easier way to interact with krita or xournal++ files in buffers. Still 
 (use-package dap-mode)
 ;; (use-package dap-LANGUAGE) to load the dap adapter for your language
 #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-pyright
+  :hook (python-mode . (lambda ()
+                        (require 'lsp-pyright)
+                        (lsp-deferred))))
+#+END_SRC
 *** python
 Install the python language server.
 #+BEGIN_SRC sh
 pip install python-lsp-server[all]
+pip install pyright
 #+END_SRC
 ** Flycheck
   Syntax checking support
@@ -1873,7 +1896,7 @@ pip install python-lsp-server[all]
   (define-key flycheck-mode-map (kbd "C-c ! !") 'org-time-stamp-inactive))
 #+END_SRC
 
-** Company
+** COMMENT Company
   Auto-completion support
 #+BEGIN_SRC emacs-lisp
 (use-package company
@@ -1892,12 +1915,15 @@ pip install python-lsp-server[all]
   Basic elpy config from the docs. Deferring loading to improve emacs startup time.
   Use system virtualenv-path where black is installed.
 #+BEGIN_SRC emacs-lisp
-  (use-package elpy
-    :defer t
-    :init
-    (advice-add 'python-mode :before 'elpy-enable)
-    :config
-    (setq elpy-rpc-virtualenv-path 'system))
+;; Remove guess indent python message
+(setq python-indent-guess-indent-offset-verbose nil)
+
+(use-package elpy
+  :defer t
+  :init
+  (advice-add 'python-mode :before 'elpy-enable)
+  :config
+  (setq elpy-rpc-virtualenv-path 'system))
 #+END_SRC
 
 Auto-format code on save.
