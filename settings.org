@@ -7,7 +7,7 @@ Enable lexical binding (needed for some of the org-roam config). *This must be a
 ;; -*- lexical-binding: t; -*-
 #+END_SRC
 
-* General
+* Basics
 ** Sensible Defaults
 sensible-defaults.el is from [[https://github.com/hrs/sensible-defaults.el][here]].
 Enable everything, but disable the visual bell function.
@@ -495,7 +495,31 @@ Include their config to add padding to buffers and tweak a few other things.
     (add-hook 'prog-mode-hook #'highlight-symbol-nav-mode))
   #+END_SRC
 
+** Keybindings
 
+*** General
+Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
+#+BEGIN_SRC emacs-lisp
+(use-package general
+  :demand t
+  :config
+  (general-auto-unbind-keys)
+  (general-create-definer klk/leader-keys :prefix "<f12>")
+  (klk/leader-keys
+    ;; Window management
+    "w" '(:ignore t :which-key "window")
+    "wl"  'windmove-right
+    "wh"  'windmove-left
+    "wk"  'windmove-up
+    "wj"  'windmove-down
+    "wr" 'winner-redo
+    "wd"  'delete-window
+    "w=" 'balance-windows-area
+    "wD" 'kill-buffer-and-window
+    "wu" 'winner-undo
+    "wr" 'winner-redo
+    "wm"  '(delete-other-windows :which-key "maximize")))
+#+END_SRC
 ** Backups / saves
 From [[https://www.emacswiki.org/emacs/BackupDirectory][emacswiki]]
 #+BEGIN_SRC emacs-lisp
@@ -633,10 +657,13 @@ Provides nice annotations for minibuffer completion options (like command descri
 *** Consult
 #+BEGIN_SRC emacs-lisp
 (use-package consult
-  :bind (
-	 ("M-s r" . consult-ripgrep)
-	 ("M-g o" . consult-org-heading)
-  )
+  :general
+  (klk/leader-keys
+    "s s" 'consult-line
+    "s o" '(consult-outline :which-key "outline")
+    "s h" '(consult-org-heading :which-key "org heading")
+    "s p" '(consult-ripgrep :which-key "ripgrep project")
+    "b b" 'consult-buffer)
   :config
   (autoload 'projectile-project-root "projectile"))
 #+END_SRC
@@ -727,7 +754,7 @@ Feature name different from package name; see https://github.com/raxod502/straig
 #+END_SRC
 
 * Org-mode
-** General
+** Basics
 
 Save all org buffers periodically to reduce conflicts between desktop and orgzly on mobile.
 #+BEGIN_SRC emacs-lisp
@@ -976,7 +1003,7 @@ Based on https://sachachua.com/blog/2020/12/org-mode-create-a-quick-timestamped-
 #+END_SRC
 ** Tasks
 
-*** General
+*** Basics
 Stop parent tasks from being marked as complete if they have incomplete children.
 #+BEGIN_SRC emacs-lisp
 (setq org-enforce-todo-dependencies t)
@@ -1362,7 +1389,7 @@ Use variable font sizes for headings
 #+END_SRC
 
 ** Code
-*** General
+*** Basics
 Make TAB act as if it were issued in a buffer of the language's major mode.
 #+BEGIN_SRC emacs-lisp
   (setq org-src-tab-acts-natively t)
