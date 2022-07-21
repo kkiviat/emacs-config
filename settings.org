@@ -1429,10 +1429,10 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
 		    "pages/%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n")
            :unnarrowed t)
-	  ("p" "person" plain
+	  ("n" "name" plain ;; people, organizations, etc.
            "%?"
            :if-new (file+head
-		    "pages/people/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "pages/names/%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n")
            :unnarrowed t)
 	  ("e" "podcast episode" plain
@@ -1441,13 +1441,13 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
 		    "pages/sources/%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n")
            :unnarrowed t)
-	  ("s" "source" plain
+	  ("s" "source" plain ;; non-academic references
            "Source: %?"
            :if-new (file+head
 		    "pages/sources/%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n")
            :unnarrowed t)
-	  ("j" "project" plain
+	  ("p" "project" plain
 	   "%?"
            :if-new (file+head
 		    "pages/projects/%<%Y%m%d%H%M%S>-${slug}.org"
