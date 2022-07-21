@@ -351,14 +351,13 @@ Try using this instead since it can show the current perspective. The following 
 #+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
   :init
+  (setq doom-modeline-buffer-encoding nil)
+  (setq doom-modeline-buffer-file-name-style 'relative-from-project)
+  (setq doom-modeline-height 40)
   (doom-modeline-mode 1)
   (setq-default header-line-format mode-line-format)
   (setq-default mode-line-format nil)
   (setq mode-line-format nil)
-  :custom
-  (setq doom-modeline-buffer-encoding nil)
-  (setq doom-modeline-buffer-file-name-style 'relative-from-project)
-  (setq doom-modeline-height 40)
   )
 #+END_SRC
 
