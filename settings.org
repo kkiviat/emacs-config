@@ -660,11 +660,12 @@ Provides nice annotations for minibuffer completion options (like command descri
 (use-package consult
   :general
   (klk/leader-keys
+    "s" '(:ignore t :which-key "search")
     "s s" 'consult-line
     "s o" '(consult-outline :which-key "outline")
     "s h" '(consult-org-heading :which-key "org heading")
     "s p" '(consult-ripgrep :which-key "ripgrep project")
-    "b b" 'consult-buffer)
+    "b" 'consult-buffer :which-key "consult buffer")
   :config
   (autoload 'projectile-project-root "projectile"))
 #+END_SRC
@@ -1014,6 +1015,7 @@ Note: need =xclip= installed for =org-download-clipboard=.
 (use-package org-download
   :general
   (klk/leader-keys
+    "d" '(:ignore t :which-key "org-download")
     "d s" '(org-download-screenshot :which-key "screenshot")
     "d c" '(org-download-clipboard :which-key "clipboard"))
   :custom
@@ -1597,6 +1599,8 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
 
   :general
   (klk/leader-keys
+    "n" '(:ignore t :which-key "org-roam")
+    "n f" '(:ignore t :which-key "find")
     "n f A" '(org-roam-node-find :wk "all")
     "n f f" '((lambda () (interactive) (klk/org-roam-find-excluding-type "dailies")) :wk "all but dailies")
     "n f a" '((lambda () (interactive) (klk/org-roam-find-by-type "advice")) :wk "main")
