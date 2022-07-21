@@ -1414,14 +1414,14 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
   (add-hook 'org-roam-mode-hook #'visual-line-mode)
   (define-key org-roam-mode-map [mouse-1] #'org-roam-preview-visit)
   (add-to-list 'display-buffer-alist
-                 '("\\*org-roam\\*"
-                   (display-buffer-in-side-window)
-                   (dedicated . t)
-                   (side . right)
-                   (slot . 0)
-                   (window-width . 0.33)
-                   (window-parameters . ((no-other-window . t)
-                                         (no-delete-other-windows . t)))))
+               '("\\*org-roam\\*"
+                 (display-buffer-in-side-window)
+                 (dedicated . t)
+                 (side . right)
+                 (slot . 0)
+                 (window-width . 0.33)
+                 (window-parameters . ((no-other-window . t)
+                                       (no-delete-other-windows . t)))))
   (setq org-roam-capture-templates
         '(("d" "default" plain
            "%?"
@@ -1447,6 +1447,18 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
 		    "pages/sources/%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n")
            :unnarrowed t)
+	  ("t" "technical" plain ;; general mathy / factual information
+	   "%?"
+           :if-new (file+head
+		    "pages/technical/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n")
+           :unnarrowed t)
+	  ("a" "advice" plain ;; collections of tips / advice
+	   "%?"
+           :if-new (file+head
+		    "pages/advice/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n")
+           :unnarrowed t)
 	  ("p" "project" plain
 	   "%?"
            :if-new (file+head
@@ -1457,91 +1469,126 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
            :if-new
            (file+head "pages/references/${citekey}.org" "#+title: ${author} (${year}). ${title}\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ${file}\n:END:\n")
 	   :unnarrowed t)))
-(setq org-roam-dailies-directory "dailies/")
-(setq org-roam-dailies-capture-templates
-      (quote (("d" "daily" plain
-               "%?"
-               :if-new (file+head
-                        "%<%Y%m%d>.org"
-                        "#+startup: indent\n#+title: %<%Y-%m-%d (%A)>\n")
-               :unnarrowed t))))
+  (setq org-roam-dailies-directory "dailies/")
+  (setq org-roam-dailies-capture-templates
+	(quote (("d" "daily" plain
+		 "%?"
+		 :if-new (file+head
+                          "%<%Y%m%d>.org"
+                          "#+startup: indent\n#+title: %<%Y-%m-%d (%A)>\n")
+		 :unnarrowed t))))
 
-;; From https://jethrokuan.github.io/org-roam-guide/. Use subdirectories to define properties of nodes.
-(cl-defmethod org-roam-node-type ((node org-roam-node))
-  "Return the TYPE of NODE."
-  (condition-case nil
-      (file-name-nondirectory
-       (directory-file-name
-        (file-name-directory
-         (file-relative-name (org-roam-node-file node) org-roam-directory))))
-    (error "")))
+  ;; Set key bindings.
+  (global-set-key (kbd "C-c n p") #'my/org-roam-find-project)
+  :bind (("C-c j" . org-roam-dailies-goto-today)
+	 ("C-c t" . org-roam-dailies-goto-tomorrow)
+	 ("C-c y" . org-roam-dailies-goto-yesterday)
+	 ("C-c n d" . org-roam-dailies-goto-date)
+	 ("C-c n f" . org-roam-node-find)
+	 ("C-c n l" . org-roam-buffer-toggle)
+	 ("C-c n i" . org-roam-node-insert)
+	 ("C-c f" . org-roam-dailies-goto-next-note)
+	 ("C-c b" . org-roam-dailies-goto-previous-note)))
+  #+END_SRC
 
-(setq org-roam-node-display-template
-      (concat "${type:15} ${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+Handy config from https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/ to add roam files with the Project tag to the agenda list, so I can track TODOs within a project. I could switch to just adding everything in the new projects directory, but I like being able to exclude old projects from the agenda list by just removing the tag.
+  #+BEGIN_SRC emacs-lisp
+(use-package org-roam
+  :config
+  ;; Add existing projects to agenda list on startup:
+  (defun my/org-roam-filter-by-tag (tag-name)
+    (lambda (node)
+      (member tag-name (org-roam-node-tags node))))
+
+  (defun my/org-roam-list-notes-by-tag (tag-name)
+    (mapcar #'org-roam-node-file
+            (seq-filter
+             (my/org-roam-filter-by-tag tag-name)
+             (org-roam-node-list))))
+
+  (defun my/org-roam-refresh-agenda-list ()
+    (interactive)
+    (setq org-agenda-files (append org-agenda-files (my/org-roam-list-notes-by-tag "project"))))
+
+  ;; Build the agenda list the first time for the session
+  (my/org-roam-refresh-agenda-list)
 
 
-;; Handy config from https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/ to add roam files with the Project tag to the agenda list, so I can track TODOs within a project.
-;; I could switch to just adding everything in the new projects directory, but I like being able to exclude old projects from the agenda list by just removing the tag.
-;; Add existing projects to agenda list on startup:
-(defun my/org-roam-filter-by-tag (tag-name)
-  (lambda (node)
-    (member tag-name (org-roam-node-tags node))))
-
-(defun my/org-roam-list-notes-by-tag (tag-name)
-  (mapcar #'org-roam-node-file
-          (seq-filter
-           (my/org-roam-filter-by-tag tag-name)
-           (org-roam-node-list))))
-
-(defun my/org-roam-refresh-agenda-list ()
-  (interactive)
-  (setq org-agenda-files (append org-agenda-files (my/org-roam-list-notes-by-tag "project"))))
-
-;; Build the agenda list the first time for the session
-(my/org-roam-refresh-agenda-list)
-
-
-;; And add new projects to agenda list after capture.
-(defun my/org-roam-project-finalize-hook ()
-  "Adds the captured project file to `org-agenda-files' if the
+  ;; And add new projects to agenda list after capture.
+  (defun my/org-roam-project-finalize-hook ()
+    "Adds the captured project file to `org-agenda-files' if the
 capture was not aborted."
-  ;; Remove the hook since it was added temporarily
-  (remove-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
+    ;; Remove the hook since it was added temporarily
+    (remove-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
 
-  ;; Add project file to the agenda list if the capture was confirmed
-  (unless org-note-abort
-    (with-current-buffer (org-capture-get :buffer)
-      (add-to-list 'org-agenda-files (buffer-file-name)))))
+    ;; Add project file to the agenda list if the capture was confirmed
+    (unless org-note-abort
+      (with-current-buffer (org-capture-get :buffer)
+	(add-to-list 'org-agenda-files (buffer-file-name)))))
 
-(defun my/org-roam-find-project ()
-  (interactive)
-  ;; Add the project file to the agenda after capture is finished
-  (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
+  (defun my/org-roam-find-project ()
+    (interactive)
+    ;; Add the project file to the agenda after capture is finished
+    (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
 
-  ;; Select a project file to open, creating it if necessary
-  (org-roam-node-find
-   nil
-   nil
-   (my/org-roam-filter-by-tag "project")
-   :templates
-   '(("p" "project" plain "* Goals\n\n%?\n\n* Tasks\n\n** TODO Add initial tasks\n\n"
-      :if-new (file+head
-	       "%<%Y%m%d%H%M%S>-${slug}"
-	       "#+title: ${title}\n#+category: ${title}\n#+filetags: :project:")
-      :unnarrowed t))))
+    ;; Select a project file to open, creating it if necessary
+    (org-roam-node-find
+     nil
+     nil
+     (my/org-roam-filter-by-tag "project")
+     :templates
+     '(("p" "project" plain "* Goals\n\n%?\n\n* Tasks\n\n** TODO Add initial tasks\n\n"
+	:if-new (file+head
+		 "%<%Y%m%d%H%M%S>-${slug}"
+		 "#+title: ${title}\n#+category: ${title}\n#+filetags: :project:")
+	:unnarrowed t))))
+)
+#+END_SRC
 
 
-;; Set key bindings and end =use-package= =org-roam= config.
-(global-set-key (kbd "C-c n p") #'my/org-roam-find-project)
-:bind (("C-c j" . org-roam-dailies-goto-today)
-       ("C-c t" . org-roam-dailies-goto-tomorrow)
-       ("C-c y" . org-roam-dailies-goto-yesterday)
-       ("C-c n d" . org-roam-dailies-goto-date)
-       ("C-c n f" . org-roam-node-find)
-       ("C-c n l" . org-roam-buffer-toggle)
-       ("C-c n i" . org-roam-node-insert)
-       ("C-c f" . org-roam-dailies-goto-next-note)
-       ("C-c b" . org-roam-dailies-goto-previous-note)))
+Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/org-roam-guide/. Use subdirectories to define properties of nodes.
+#+BEGIN_SRC emacs-lisp
+(use-package org-roam
+  :config
+  (cl-defmethod org-roam-node-type ((node org-roam-node))
+    "Return the TYPE of NODE."
+    (condition-case nil
+	(file-name-nondirectory
+	 (directory-file-name
+          (file-name-directory
+           (file-relative-name (org-roam-node-file node) org-roam-directory))))
+      (error "")))
+
+  ;; Display the type as a column.
+  (setq org-roam-node-display-template
+	(concat "${type:15} ${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+
+  (defun klk/org-roam-find-by-type (type-name)
+    (interactive)
+    (org-roam-node-find
+     nil nil
+     (lambda (node)
+       (string-equal type-name (org-roam-node-type node)))))
+
+  (defun klk/org-roam-find-excluding-type (type-name)
+    (interactive)
+    (org-roam-node-find
+     nil nil
+     (lambda (node)
+       (not (string-equal type-name (org-roam-node-type node))))))
+
+  :general
+  (klk/leader-keys
+    "n f A" '(org-roam-node-find :wk "all")
+    "n f f" '((lambda () (interactive) (klk/org-roam-find-excluding-type "dailies")) :wk "all but dailies")
+    "n f a" '((lambda () (interactive) (klk/org-roam-find-by-type "advice")) :wk "main")
+    "n f m" '((lambda () (interactive) (klk/org-roam-find-by-type "pages")) :wk "main")
+    "n f p" '((lambda () (interactive) (klk/org-roam-find-by-type "projects")) :wk "project")
+    "n f n" '((lambda () (interactive) (klk/org-roam-find-by-type "names")) :wk "name")
+    "n f s" '((lambda () (interactive) (klk/org-roam-find-by-type "sources")) :wk "source")
+    "n f r" '((lambda () (interactive) (klk/org-roam-find-by-type "references")) :wk "reference")
+    "n f t" '((lambda () (interactive) (klk/org-roam-find-by-type "technical")) :wk "technical"))
+  )
 #+END_SRC
 
 
