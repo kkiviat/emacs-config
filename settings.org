@@ -585,6 +585,7 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
   (persp-mode)
   :config
   (setq persp-state-default-file "~/Dropbox/org/.persp")
+  (setq persp-modestring-short t) ;; only show current persp in modeline
   (add-hook 'kill-emacs-hook #'persp-state-save))
 
 (use-package persp-projectile
