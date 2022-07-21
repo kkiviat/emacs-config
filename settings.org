@@ -18,6 +18,28 @@ Enable everything, but disable the visual bell function.
 (setq ring-bell-function 'ignore)
 #+END_SRC
 
+** Help
+*** which-key
+Show possible command completions after typing a prefix.
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :diminish which-key-mode
+  :init
+  (which-key-mode)
+  (setq which-key-separator " ")
+  (setq which-key-idle-delay 0.5)
+ )
+#+END_SRC
+*** helpful
+Get more information about functions, etc.
+#+BEGIN_SRC emacs-lisp
+(use-package helpful
+    :bind
+    ([remap describe-function] . helpful-callable)
+    ([remap describe-command] . helpful-command)
+    ([remap describe-variable] . helpful-variable)
+    ([remap describe-key] . helpful-key))
+#+END_SRC
 
 ** Windows
 Hide window chrome
@@ -556,7 +578,6 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
   (yas-reload-all)'
   :diminish yas-minor-mode)
 #+END_SRC
-#+END_SRC
 *** Yasnippet Company Integration
 Taken from [[https://emacs.stackexchange.com/a/7909. Use =C-o= for yasnippet expansion to avoid conflict with company-mode.
 #+BEGIN_SRC emacs-lisp
@@ -620,7 +641,7 @@ Provides nice annotations for minibuffer completion options (like command descri
   :config
   (autoload 'projectile-project-root "projectile"))
 #+END_SRC
-*** COMMENT Embark
+*** Embark
 #+BEGIN_SRC emacs-lisp
 (use-package embark
   :bind
