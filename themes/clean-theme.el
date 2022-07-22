@@ -47,7 +47,7 @@
 
  '(org-block ((t (:extend t :background "gray85" :foreground "#000000"))))
  '(org-block-begin-line ((t (:inherit org-block :extend t :background "black" :foreground "white"))))
- '(org-block-end-line ((t (:inherit org-block-begin-line :extend t :background "black" :foreground "white"))))
+ '(org-block-end-line ((t (:inherit org-block-begin-line :extend t :background "white" :foreground "black"))))
 
  '(org-drawer ((t (:foreground "gray55"))))
  '(org-special-keyword ((t (:foreground "MediumOrchid4"))))
@@ -78,8 +78,8 @@
    '(("sh"
       (:extend t :background "gray90"))
      ("jupyter-python"
-      (:extend t :background "light yellow"))
+      (:extend t :background "mint cream"))
      ("python"
-      (:extend t :background "light yellow")))))
+      (:extend t :background "ghost white")))))
 
 (provide-theme 'clean)
