@@ -388,32 +388,38 @@ Spring theme uses fonts from https://www.ishouldbemoppingthefloor.com/2015/02/20
   )
 #+END_SRC
 
-Set up hook for theme changes. Refreshes $\LaTeX$ previews in all open org buffers, and toggles =org-bullets-mode= to update bullets.
+Set up hook for theme changes that resets some faces.
+
+Also add a method to refresh $\LaTeX$ previews in all open org buffers, but don't call it on the hook because it's too slow. Call it manually if needed.
 =org-latex-preview= needs a =C-u C-u= prefix argument to reload for the whole buffer. =C-u= corresponds to 4, =C-u= corresponds to 16.
 #+BEGIN_SRC emacs-lisp
-(defun klk-refresh-org-buffer-colors (&rest args)
+(defun klk/refresh-latex-previews ()
+  (interactive)
   (mapc (lambda (buffer)
           (with-current-buffer buffer
 	    (when (eq major-mode 'org-mode)
 	      (let ((current-prefix-arg '(16))) ; C-u C-u
 		(call-interactively 'org-latex-preview))
 	      (org-bullets-mode))))
-  (buffer-list))
+  (buffer-list)))
+
+(defun klk-refresh-org-buffer-colors (&rest args)
+  ;; (klk/refresh-latex-previews)
   ;; Reset colors of window divider
   (dolist (face '(window-divider
                 window-divider-first-pixel
                 window-divider-last-pixel))
   (face-spec-reset-face face)
-  (set-face-foreground face (face-attribute 'default :background)))
+  (set-face-foreground face (face-attribute 'default :background))
   (set-face-background 'fringe (face-attribute 'default :background))
-  )
+  ))
 
 (advice-add 'load-theme :after 'klk-refresh-org-buffer-colors)
 #+END_SRC
 
 *** Set up current theme
 #+BEGIN_SRC emacs-lisp
-(load-theme 'bespoke t)
+(load-theme 'clean t)
 (klk-set-org-block-fixed-pitch) ; default
 #+END_SRC
 
@@ -881,12 +887,17 @@ Indent org files by default
 (setq org-startup-indented t)
 #+END_SRC
 
+This draws vertical lines under heading bullets. Add a function here to reset the pipe faces when loading a theme, since otherwise they won't change and it will look bad.
 #+BEGIN_SRC emacs-lisp
 (use-package org-visual-indent
   :straight (org-visual-outline :type git :host github :repo "legalnonsense/org-visual-outline")
   :hook (org-mode . org-visual-indent-mode)
   :config
-  (setq org-visual-indent-color-indent '((1 (:background "darkgray" :foreground "darkgray" :height .1)))))
+  (defun klk/refresh-pipe-colors (&rest args)
+    (set-face-background 'org-visual-indent-blank-pipe-face (face-attribute 'default :background))
+    (set-face-background 'org-visual-indent-pipe-face (face-attribute 'default :foreground)))
+
+  (advice-add 'load-theme :after 'klk/refresh-pipe-colors))
 #+END_SRC
 
 Don't hide stars since this gets rid of bullets as well, and I have leading stars hidden anyway.
