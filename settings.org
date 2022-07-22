@@ -1224,6 +1224,8 @@ Set files to be included in the agenda. Includes archive because I like to see o
 #+BEGIN_SRC emacs-lisp
 (setq org-agenda-files `(,(org-file-path "inbox.org")
 			 ,(org-file-path "mobile inbox.org")
+			 ,(org-file-path "writing_inbox.org")
+			 ,(org-file-path "reading_inbox.org")
 			 ,(org-file-path "gcal.org")
 			 ,(org-file-path "gcal-school.org")
 			 ,(org-file-path "gtd.org")
@@ -1233,8 +1235,7 @@ Set files to be included in the agenda. Includes archive because I like to see o
 			 ,(org-file-path "school.org")
 			 ,(org-file-path "p-financial.org")
 			 ,(org-file-path "p-health.org")
-			 ,(org-file-path "p-garden.org")
-			 ,(org-file-path "journal/daily.org")))
+			 ,(org-file-path "p-garden.org")))
 #+END_SRC
 
 Enable inline tasks.
