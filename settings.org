@@ -478,6 +478,13 @@ Include their config to add padding to buffers and tweak a few other things.
   :hook (dired-mode . all-the-icons-dired-mode)
   :config (setq all-the-icons-dired-monochrome nil))
 #+END_SRC
+*** Colors
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-mode
+  :defer t
+  :hook (org-mode
+         emacs-lisp-mode))
+#+END_SRC
 
 ** Flyspell
   #+BEGIN_SRC emacs-lisp
