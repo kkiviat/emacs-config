@@ -98,6 +98,7 @@
  ("projectile" . "4d6da873ae54dbf6043b015efd9b737e2ce152c6")
  ("pyvenv" . "31ea715f2164dd611e7fc77b26390ef3ca93509b")
  ("queue" . "130c2d656cd5d7376552272fab9e50a7c37d0c4a")
+ ("rainbow-mode" . "55a8c15782197cd9db8950d2f5ed1b9caca08dae")
  ("rg.el" . "51596cb516d7af1737d964ffdbb4c4d416d6dfaf")
  ("s.el" . "08661efb075d1c6b4fa812184c1e5e90c08795a9")
  ("shrink-path.el" . "c14882c8599aec79a6e8ef2d06454254bb3e1e41")
