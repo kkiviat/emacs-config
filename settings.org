@@ -896,15 +896,17 @@ Indent org files by default
 
 This draws vertical lines under heading bullets. Add a function here to reset the pipe faces when loading a theme, since otherwise they won't change and it will look bad.
 #+BEGIN_SRC emacs-lisp
-(use-package org-visual-indent
-  :straight (org-visual-outline :type git :host github :repo "legalnonsense/org-visual-outline")
-  :hook (org-mode . org-visual-indent-mode)
-  :config
-  (defun klk/refresh-pipe-colors (&rest args)
-    (set-face-background 'org-visual-indent-blank-pipe-face (face-attribute 'default :background))
-    (set-face-background 'org-visual-indent-pipe-face (face-attribute 'default :foreground)))
+  (use-package org-visual-indent
+    :straight (org-visual-outline :type git :host github :repo "legalnonsense/org-visual-outline")
+    :hook
+    (org-mode . org-visual-indent-mode)
+    (org-mode . org-dynamic-bullets-mode)
+    :config
+    (defun klk/refresh-pipe-colors (&rest args)
+      (set-face-background 'org-visual-indent-blank-pipe-face (face-attribute 'default :background))
+      (set-face-background 'org-visual-indent-pipe-face (face-attribute 'default :foreground)))
 
-  (advice-add 'load-theme :after 'klk/refresh-pipe-colors))
+    (advice-add 'load-theme :after 'klk/refresh-pipe-colors))
 #+END_SRC
 
 Don't hide stars since this gets rid of bullets as well, and I have leading stars hidden anyway.
