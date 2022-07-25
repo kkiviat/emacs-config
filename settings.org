@@ -517,21 +517,21 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
   :demand t
   :config
   (general-auto-unbind-keys)
-  (general-create-definer klk/leader-keys :prefix "<f12>")
-  (klk/leader-keys
+  (general-create-definer klk/leader-key-def :prefix "M-SPC")
+  (klk/leader-key-def
     ;; Window management
     "w" '(:ignore t :which-key "window")
-    "wl"  'windmove-right
-    "wh"  'windmove-left
-    "wk"  'windmove-up
-    "wj"  'windmove-down
+    "wl" 'windmove-right
+    "wh" 'windmove-left
+    "wk" 'windmove-up
+    "wj" 'windmove-down
     "wr" 'winner-redo
-    "wd"  'delete-window
+    "wd" 'delete-window
     "w=" 'balance-windows-area
     "wD" 'kill-buffer-and-window
     "wu" 'winner-undo
     "wr" 'winner-redo
-    "wm"  '(delete-other-windows :which-key "maximize")))
+    "wm" '(delete-other-windows :which-key "maximize")))
 #+END_SRC
 ** Backups / saves
 From [[https://www.emacswiki.org/emacs/BackupDirectory][emacswiki]]
@@ -580,7 +580,7 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
               ("s-p" . projectile-command-map)
               ("C-c p" . projectile-command-map))
   :general
-  (klk/leader-keys
+  (klk/leader-key-def
     "p" '(:keymap projectile-command-map :which-key "project"))
     :config
   (setq projectile-project-search-path '(("~/Dropbox/org/gtd" . 3) ("~/" . 1) ("~/openfoam/" . 1)))
@@ -675,7 +675,7 @@ Provides nice annotations for minibuffer completion options (like command descri
 #+BEGIN_SRC emacs-lisp
 (use-package consult
   :general
-  (klk/leader-keys
+  (klk/leader-key-def
     "s" '(:ignore t :which-key "search")
     "s s" 'consult-line
     "s o" '(consult-outline :which-key "outline")
@@ -1049,7 +1049,7 @@ Note: need =xclip= installed for =org-download-clipboard=.
 #+BEGIN_SRC emacs-lisp
 (use-package org-download
   :general
-  (klk/leader-keys
+  (klk/leader-key-def
     "d" '(:ignore t :which-key "org-download")
     "d s" '(org-download-screenshot :which-key "screenshot")
     "d c" '(org-download-clipboard :which-key "clipboard"))
@@ -1192,6 +1192,14 @@ Bind a system shortcut to =emacsclient -n -e '(yequake-toggle "org-capture")'= t
 #+END_SRC
 
 *** Agenda
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :general
+  (klk/leader-key-def
+    "a" '(org-agenda :wk "agenda")
+    "c" '(org-capture :wk "capture")))
+#+END_SRC
+
 Make agenda full screen.
 #+BEGIN_SRC emacs-lisp
 (add-hook 'org-agenda-finalize-hook (lambda () (delete-other-windows)))
@@ -1634,7 +1642,7 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
        (not (string-equal type-name (org-roam-node-type node))))))
 
   :general
-  (klk/leader-keys
+  (klk/leader-key-def
     "n" '(:ignore t :which-key "org-roam")
     "n f" '(:ignore t :which-key "find")
     "n f A" '(org-roam-node-find :wk "all")
@@ -1804,6 +1812,17 @@ Attach notes to locations in the pdf.
 				    (,(klk/get-gcal-id-school) . "~/Dropbox/org/gtd/gcal-school.org"))))
 #+END_SRC
 ** babel
+
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :general
+  (klk/leader-key-def
+    :keymaps 'org-mode-map
+    "'" '(org-edit-special :wk "edit")
+    "-" '(org-babel-demarcate-block :wk "split block")
+    "z" '(org-babel-hide-result-toggle :wk "fold result")
+    "Z" '(org-babel-result-hide-all :wk "fold all results")))
+#+END_SRC
 
 *** venv
 #+BEGIN_SRC emacs-lisp
