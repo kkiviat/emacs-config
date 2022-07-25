@@ -1625,7 +1625,7 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
 
   ;; Display the type as a column.
   (setq org-roam-node-display-template
-	(concat "${type:15} ${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+	(concat "${type:15} ${title:150} " (propertize "${tags:10}" 'face 'org-tag)))
 
   (defun klk/org-roam-find-by-type (type-name)
     (interactive)
