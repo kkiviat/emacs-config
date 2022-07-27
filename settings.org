@@ -88,6 +88,11 @@ By default, undo is bound to *C-c <left>* and redo to *C-c <right>*.
   :config (winner-mode 1))
 #+END_SRC
 
+Set up keybinding for =ace-window= to quickly jump to a window.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-o") 'ace-window)
+#+END_SRC
+
 ** Scrolling
 Emacs 29 has smooth scrolling natively.
 #+BEGIN_SRC emacs-lisp
