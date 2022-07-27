@@ -304,6 +304,7 @@ Config for quiet theme from https://github.com/quiettheme/emacs.
 #+BEGIN_SRC emacs-lisp
 (setq doom-quiet-dark-padded-modeline t)
 (setq doom-quiet-dark-brighter-modeline t)
+(setq doom-quiet-light-padded-modeline t)
 #+END_SRC
 
 Install the nice bespoke theme, but set it to color source code blocks as well.

@@ -88,7 +88,7 @@ Can be an integer to determine the exact padding."
    (strings        green)
    (variables      (doom-lighten magenta 0.4))
    (numbers        orange)
-   (region         `(,(doom-lighten (car bg-alt) 0.15) ,@(doom-lighten (cdr base1) 0.35)))
+   (region         `(,(doom-darken (car bg-alt) 0.1) ,@(doom-darken (cdr base1) 0.5)))
    (error          red)
    (warning        yellow)
    (success        green)
@@ -126,6 +126,11 @@ Can be an integer to determine the exact padding."
     :background modeline-bg-inactive :foreground modeline-fg-alt
     :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg-inactive)))
    (mode-line-emphasis :foreground (if doom-quiet-light-brighter-modeline base8 highlight))
+
+   ;;;; org block
+   (org-block :background (doom-lighten bg 0.8) :extend t)
+   (org-block-begin-line :background bg  :foreground comments)
+   (org-block-end-line   :inherit 'org-block-begin-line)
 
    ;;;; css-mode <built-in> / scss-mode
    (css-proprietary-property :foreground orange)

@@ -117,8 +117,6 @@ Can be an integer to determine the exact padding."
   ;;;; Base theme face overrides
   (((line-number &override) :foreground base4)
    ((line-number-current-line &override) :foreground fg)
-   ((font-lock-comment-face &override)
-    :background (if doom-quiet-dark-brighter-comments (doom-lighten bg 0.05)))
    (mode-line
     :background modeline-bg :foreground modeline-fg
     :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg)))
@@ -126,6 +124,11 @@ Can be an integer to determine the exact padding."
     :background modeline-bg-inactive :foreground modeline-fg-alt
     :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg-inactive)))
    (mode-line-emphasis :foreground (if doom-quiet-dark-brighter-modeline base8 highlight))
+
+   ;;;; org block
+   (org-block :background base6 :extend t)
+   (org-block-begin-line :background bg  :foreground comments)
+   (org-block-end-line   :inherit 'org-block-begin-line)
 
    ;;;; css-mode <built-in> / scss-mode
    (css-proprietary-property :foreground orange)
