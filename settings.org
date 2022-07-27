@@ -770,10 +770,16 @@ Feature name different from package name; see https://github.com/raxod502/straig
   :straight auctex)
 #+END_SRC
 
-** Magit
+** Git
+*** Magit
   #+BEGIN_SRC emacs-lisp
 (use-package magit)
   #+END_SRC
+*** Git Gutter
+#+BEGIN_SRC emacs-lisp
+(use-package git-gutter
+  :init (global-git-gutter-mode +1))
+#+END_SRC
 
 ** Terminal
 #+BEGIN_SRC emacs-lisp
