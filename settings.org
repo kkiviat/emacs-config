@@ -1563,6 +1563,18 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
 		    "pages/advice/%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n")
            :unnarrowed t)
+	  ("o" "outline" plain ;; files that start to link ideas together
+	   "%?"
+           :if-new (file+head
+		    "pages/outline/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n")
+           :unnarrowed t)
+	  ("i" "index" plain ;; broad topics that function like tags
+	   "%?"
+           :if-new (file+head
+		    "pages/index/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n")
+           :unnarrowed t)
 	  ("p" "project" plain
 	   "%?"
            :if-new (file+head
@@ -1692,6 +1704,8 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
     "n f p" '((lambda () (interactive) (klk/org-roam-find-by-type "projects")) :wk "project")
     "n f n" '((lambda () (interactive) (klk/org-roam-find-by-type "names")) :wk "name")
     "n f s" '((lambda () (interactive) (klk/org-roam-find-by-type "sources")) :wk "source")
+    "n f o" '((lambda () (interactive) (klk/org-roam-find-by-type "outline")) :wk "outline")
+    "n f i" '((lambda () (interactive) (klk/org-roam-find-by-type "index")) :wk "index")
     "n f r" '((lambda () (interactive) (klk/org-roam-find-by-type "references")) :wk "reference")
     "n f t" '((lambda () (interactive) (klk/org-roam-find-by-type "technical")) :wk "technical"))
   )
