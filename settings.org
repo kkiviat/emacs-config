@@ -304,7 +304,9 @@ Config for quiet theme from https://github.com/quiettheme/emacs.
 #+BEGIN_SRC emacs-lisp
 (setq doom-quiet-dark-padded-modeline t)
 (setq doom-quiet-dark-brighter-modeline t)
+(setq doom-quiet-dark-brighter-comments t)
 (setq doom-quiet-light-padded-modeline t)
+(setq doom-quiet-light-brighter-comments t)
 #+END_SRC
 
 Install the nice bespoke theme, but set it to color source code blocks as well.
@@ -393,7 +395,8 @@ Spring theme uses fonts from https://www.ishouldbemoppingthefloor.com/2015/02/20
 		   ("White"  . (lambda () (load-theme 'white t)))
 		   ("Clean"  . (lambda () (load-theme 'clean t)))
                    ("Nier" . (lambda () (load-theme 'nier t)))
-		   ("Dark" . (lambda () (load-theme 'doom-palenight t)))
+		   ("Dark" . (lambda () (load-theme 'doom-quiet-dark t)))
+		   ("Light" . (lambda () (load-theme 'doom-quiet-light t)))
 		   ("Dark Yellow" . (lambda () (load-theme 'dark-yellow t)))
                    ("DefaultPlus"  . (lambda () (load-theme 'defaultplus t))))))
     (let ((choice (alist-get
@@ -549,7 +552,9 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
     "wD" 'kill-buffer-and-window
     "wu" 'winner-undo
     "wr" 'winner-redo
-    "wm" '(delete-other-windows :which-key "maximize")))
+    "wm" '(delete-other-windows :which-key "maximize")
+
+    "t" 'klk-choose-theme :which-key "themes"))
 #+END_SRC
 ** Backups / saves
 From [[https://www.emacswiki.org/emacs/BackupDirectory][emacswiki]]
