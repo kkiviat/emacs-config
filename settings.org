@@ -139,7 +139,7 @@ Emacs 29 has smooth scrolling natively.
 ** Selection
 #+BEGIN_SRC emacs-lisp
 (use-package expand-region
-  :bind ("C-=" . er/expand-region))
+  :general ("C-'"  'er/expand-region))
 #+END_SRC
 
 ** Text
@@ -854,6 +854,11 @@ Save all org buffers periodically to reduce conflicts between desktop and orgzly
 Don't show blank lines between headings in folded view.
 #+BEGIN_SRC emacs-lisp
 (setq org-cycle-separator-lines 0)
+#+END_SRC
+
+Unbind this from cycling through the agenda so I can use it with =expand-region=.
+#+BEGIN_SRC emacs-lisp
+(define-key org-mode-map (kbd "C-'") nil)
 #+END_SRC
 
 Most of this is from [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][this]] guide:
