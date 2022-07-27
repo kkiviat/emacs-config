@@ -234,7 +234,7 @@ Functions to change fonts. "default" includes org buffers when =fixed-pitch-mode
 (defun klk/change-fixed-font-family (choice)
   "Change the font used for fixed width (including default) text"
   (interactive
-   (let ((choices '("DejaVu Sans Mono" "Free Mono" "Source Code Pro")))
+   (let ((choices '("DejaVu Sans Mono" "Free Mono" "Source Code Pro" "Iosevka Fixed Slab")))
      (list (completing-read "Choose: " choices nil t))))
   (custom-theme-set-faces
    'user
@@ -244,7 +244,7 @@ Functions to change fonts. "default" includes org buffers when =fixed-pitch-mode
 (defun klk/change-default-font-family (choice)
   "Change the font used for default text (used in org buffers when not variable pitch)"
   (interactive
-   (let ((choices '("DejaVu Sans Mono" "Source Sans Mono" "FreeMono" "Source Code Pro" "Hack")))
+   (let ((choices '("DejaVu Sans Mono" "Source Sans Mono" "FreeMono" "Source Code Pro" "Hack" "Iosevka Fixed Slab")))
      (list (completing-read "Choose: " choices nil t))))
   (custom-theme-set-faces
    'user
