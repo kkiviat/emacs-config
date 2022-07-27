@@ -161,7 +161,15 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
     "wr" 'winner-redo
     "wm" '(delete-other-windows :which-key "maximize")
 
-    "t" 'klk-choose-theme :which-key "themes"))
+    ;; Themes
+    "t" 'klk-choose-theme :which-key "themes"
+
+    ;; Jump around
+    "jh" #'ap/avy-org-goto-to-heading-timer
+    "jj" #'avy-goto-char-timer
+    "jl" #'avy-goto-line
+    "jp" #'avy-pop-mark))
+
 #+END_SRC
 ** Selection
 #+BEGIN_SRC emacs-lisp
@@ -603,7 +611,8 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
               ("C-c p" . projectile-command-map))
   :general
   (klk/leader-key-def
-    "p" '(:keymap projectile-command-map :which-key "project"))
+    "p" '(:keymap projectile-command-map :which-key "project")
+    "pe" '(projectile-run-eshell :which-key "project eshell"))
     :config
   (setq projectile-project-search-path '(("~/Dropbox/org/gtd" . 3) ("~/" . 1) ("~/openfoam/" . 1)))
 )
