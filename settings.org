@@ -136,6 +136,33 @@ Emacs 29 has smooth scrolling natively.
 (global-display-line-numbers-mode)
 #+END_SRC
 
+** Keybindings
+
+*** General
+Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
+#+BEGIN_SRC emacs-lisp
+(use-package general
+  :demand t
+  :config
+  (general-auto-unbind-keys)
+  (general-create-definer klk/leader-key-def :prefix "M-SPC")
+  (klk/leader-key-def
+    ;; Window management
+    "w" '(:ignore t :which-key "window")
+    "wl" 'windmove-right
+    "wh" 'windmove-left
+    "wk" 'windmove-up
+    "wj" 'windmove-down
+    "wr" 'winner-redo
+    "wd" 'delete-window
+    "w=" 'balance-windows-area
+    "wD" 'kill-buffer-and-window
+    "wu" 'winner-undo
+    "wr" 'winner-redo
+    "wm" '(delete-other-windows :which-key "maximize")
+
+    "t" 'klk-choose-theme :which-key "themes"))
+#+END_SRC
 ** Selection
 #+BEGIN_SRC emacs-lisp
 (use-package expand-region
@@ -529,33 +556,6 @@ Include their config to add padding to buffers and tweak a few other things.
     (add-hook 'prog-mode-hook #'highlight-symbol-nav-mode))
   #+END_SRC
 
-** Keybindings
-
-*** General
-Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
-#+BEGIN_SRC emacs-lisp
-(use-package general
-  :demand t
-  :config
-  (general-auto-unbind-keys)
-  (general-create-definer klk/leader-key-def :prefix "M-SPC")
-  (klk/leader-key-def
-    ;; Window management
-    "w" '(:ignore t :which-key "window")
-    "wl" 'windmove-right
-    "wh" 'windmove-left
-    "wk" 'windmove-up
-    "wj" 'windmove-down
-    "wr" 'winner-redo
-    "wd" 'delete-window
-    "w=" 'balance-windows-area
-    "wD" 'kill-buffer-and-window
-    "wu" 'winner-undo
-    "wr" 'winner-redo
-    "wm" '(delete-other-windows :which-key "maximize")
-
-    "t" 'klk-choose-theme :which-key "themes"))
-#+END_SRC
 ** Backups / saves
 From [[https://www.emacswiki.org/emacs/BackupDirectory][emacswiki]]
 #+BEGIN_SRC emacs-lisp
