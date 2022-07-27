@@ -25,3 +25,5 @@ org-gcal/*
 persist/
 projectile-bookmarks.eld
 projectile.cache
+projects
+.cache
