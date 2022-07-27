@@ -466,7 +466,7 @@ Also add a method to refresh $\LaTeX$ previews in all open org buffers, but don'
 
 *** Set up current theme
 #+BEGIN_SRC emacs-lisp
-(load-theme 'clean t)
+(load-theme 'doom-quiet-light t)
 (klk-set-org-block-fixed-pitch) ; default
 #+END_SRC
 
