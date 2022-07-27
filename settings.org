@@ -447,8 +447,7 @@ Also add a method to refresh $\LaTeX$ previews in all open org buffers, but don'
           (with-current-buffer buffer
 	    (when (eq major-mode 'org-mode)
 	      (let ((current-prefix-arg '(16))) ; C-u C-u
-		(call-interactively 'org-latex-preview))
-	      (org-bullets-mode))))
+		(call-interactively 'org-latex-preview)))))
   (buffer-list)))
 
 (defun klk-refresh-org-buffer-colors (&rest args)
@@ -875,17 +874,6 @@ Set the org directory and method for getting the full path to an org file from i
 (defun org-file-path (filename)
   "Return the absolute address of an org file, given its relative name."
   (concat (file-name-as-directory org-directory) filename))
-#+END_SRC
-
-Prettier bullets
-#+BEGIN_SRC emacs-lisp
-(use-package org-bullets
-  :hook
-  (org-mode . org-bullets-mode))
-    ;; :custom
-    ;; (org-bullets-bullet-list '("\u200b"))) ;; 0 width space for no bullets
-    ;; (org-bullets-bullet-list '("|" "\u200b" "|" "|" "|" "|" "|" "|"))) ;; vertical bar
-    ;; (org-bullets-bullet-list '("\u200b" "✜" "◉" "○" "✸" "✿" "◆" "▶" "✸")))
 #+END_SRC
 
 Increase list indentation
