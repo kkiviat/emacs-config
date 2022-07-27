@@ -52,10 +52,10 @@ Can be an integer to determine the exact padding."
    (base2      '("#181e23"))
    (base3      '("#181e23"))
    (base4      '("#384149"))
-   (base5      '("#384149"))
-   (base6      '("#384149"))
-   (base7      '("#384149"))
-   (base8      '("#384149"))
+   (base5      '("#515151"))
+   (base6      '("#6d6d6d"))
+   (base7      '("#777778"))
+   (base8      '("f4f4f4"))
 
    (grey       base5)
    (red        '("#FF8080"))
@@ -126,7 +126,7 @@ Can be an integer to determine the exact padding."
    (mode-line-emphasis :foreground (if doom-quiet-dark-brighter-modeline base8 highlight))
 
    ;;;; org block
-   (org-block :background base6 :extend t)
+   (org-block :background base4 :extend t)
    (org-block-begin-line :background bg  :foreground comments)
    (org-block-end-line   :inherit 'org-block-begin-line)
 
