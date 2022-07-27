@@ -39,13 +39,5 @@
  '(org-table-header ((t (:inherit org-table :background "#454138" :foreground "#bab5a1"))))
  '(region ((t (:extend t :background "#bab5a1"))))
  )
-(custom-set-variables
- '(org-src-block-faces
-   '(("sh"
-      (:inherit org-block))
-     ("jupyter-python"
-      (:inherit org-block))
-     ("python"
-      (:inherit org-block)))))
 
 (provide-theme 'nier)

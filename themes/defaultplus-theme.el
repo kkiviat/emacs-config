@@ -70,15 +70,5 @@
  '(org-table ((t (:background "#303030"))))
  '(org-table-header ((t (:inherit org-table :background "#454138" :foreground "#bab5a1"))))
  )
-(custom-set-variables
- '(org-src-block-faces
-   '(("sh"
-      (:extend t :background "#383838"))
-     ("emacs-lisp"
-      (:extend t :background "#2e2e2e"))
-     ("jupyter-python"
-      (:extend t :background "#2e2e2e"))
-     ("python"
-      (:extend t :background "#2e2e2e")))))
 
 (provide-theme 'defaultplus)

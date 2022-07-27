@@ -79,13 +79,5 @@
  '(region ((t (:extend t :background "grey25"))))
  )
 )
-(custom-set-variables
- '(org-src-block-faces
-   '(("sh"
-      (:extend t :background "grey12"))
-     ("jupyter-python"
-      (:extend t :background "grey10"))
-     ("python"
-      (:extend t :background "grey10")))))
 
 (provide-theme 'dark-yellow)

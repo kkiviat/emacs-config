@@ -84,13 +84,5 @@
  '(helm-match ((t (:foreground "deep pink"))))
  )
 )
-(custom-set-variables
- '(org-src-block-faces
-   '(("sh"
-      (:extend t :background "papaya whip"))
-     ("jupyter-python"
-      (:extend t :background "MistyRose1"))
-     ("python"
-      (:extend t :background "thistle")))))
 
 (provide-theme 'Spring)
