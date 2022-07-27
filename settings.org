@@ -707,6 +707,15 @@ Provides nice annotations for minibuffer completion options (like command descri
   :config
   (autoload 'projectile-project-root "projectile"))
 #+END_SRC
+
+Quickly select another directory in minibuffer.
+#+BEGIN_SRC emacs-lisp
+(use-package consult-dir
+  :bind (("C-x C-d" . consult-dir)
+         :map vertico-map
+         ("C-x C-d" . consult-dir)
+         ("C-x C-j" . consult-dir-jump-file)))
+#+END_SRC
 *** Embark
 #+BEGIN_SRC emacs-lisp
 (use-package embark
