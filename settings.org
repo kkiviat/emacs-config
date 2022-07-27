@@ -299,6 +299,13 @@ Add more padding in text buffers.  Based on https://lepisma.xyz/2017/10/28/ricin
   (use-package doom-themes :defer t)
 #+END_SRC
 
+
+Config for quiet theme from https://github.com/quiettheme/emacs.
+#+BEGIN_SRC emacs-lisp
+(setq doom-quiet-dark-padded-modeline t)
+(setq doom-quiet-dark-brighter-modeline t)
+#+END_SRC
+
 Install the nice bespoke theme, but set it to color source code blocks as well.
 #+BEGIN_SRC emacs-lisp
   (use-package bespoke-themes
