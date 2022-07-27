@@ -73,13 +73,5 @@
  '(helm-match ((t (:foreground "blue"))))
  )
 )
-(custom-set-variables
- '(org-src-block-faces
-   '(("sh"
-      (:extend t :background "gray90"))
-     ("jupyter-python"
-      (:extend t :background "mint cream"))
-     ("python"
-      (:extend t :background "ghost white")))))
 
 (provide-theme 'clean)
