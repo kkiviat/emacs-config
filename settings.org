@@ -380,27 +380,6 @@ Install the nice bespoke theme, but set it to color source code blocks as well.
 #+END_SRC
 
 *** Modeline
-**** COMMENT Bespoke
-#+BEGIN_SRC emacs-lisp
-(use-package bespoke-modeline
-  :straight (:type git :host github :repo "mclear-tools/bespoke-modeline")
-  :init
-  ;; Set header line
-  (setq bespoke-modeline-position 'top)
-  ;; Set mode-line height
-  (setq bespoke-modeline-size 3)
-  ;; Show diff lines in mode-line
-  (setq bespoke-modeline-git-diff-mode-line t)
-  ;; Set mode-line cleaner
-  (setq bespoke-modeline-cleaner t)
-  ;; Use mode-line visual bell
-  (setq bespoke-modeline-visual-bell t)
-  ;; Set vc symbol
-  (setq  bespoke-modeline-vc-symbol "G:")
-  :config
-  (bespoke-modeline-mode))
-#+END_SRC
-
 **** Doom modeline
 Try using this instead since it can show the current perspective. The following config is probably not the right way to do this, but it works to put the modeline at the top like the bespoke modeline.
 #+BEGIN_SRC emacs-lisp
@@ -411,8 +390,7 @@ Try using this instead since it can show the current perspective. The following 
   (setq doom-modeline-height 40)
   (doom-modeline-mode 1)
   (setq-default header-line-format mode-line-format)
-  (setq-default mode-line-format nil)
-  (setq mode-line-format nil)
+  (setq-default mode-line-format " ")
   )
 #+END_SRC
 
@@ -467,6 +445,9 @@ Also add a method to refresh $\LaTeX$ previews in all open org buffers, but don'
   (face-spec-reset-face face)
   (set-face-foreground face (face-attribute 'default :background))
   (set-face-background 'fringe (face-attribute 'default :background))
+  ;; reset thin modeline
+  (set-face-attribute 'mode-line nil :height 10)
+  (set-face-attribute 'header-line nil :height 128)
   ))
 
 (advice-add 'load-theme :after 'klk-refresh-org-buffer-colors)
