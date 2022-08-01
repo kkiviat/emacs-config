@@ -62,7 +62,7 @@ Can be an integer to determine the exact padding."
    (orange     '("#e3595d"))
    (green      '("#3a783f"))
    (teal       '("#4c9e53"))
-   (yellow     '("#ccc625"))
+   (yellow     '("#e6bc3e"))
    (blue       '("#4663f2"))
    (dark-blue  '("#3b53cc"))
    (magenta    '("#9445cc"))
@@ -73,7 +73,7 @@ Can be an integer to determine the exact padding."
    ;; These are the "universal syntax classes" that doom-themes establishes.
    ;; These *must* be included in every doom themes, or your theme will throw an
    ;; error, as they are used in the base theme defined in doom-themes-base.
-   (highlight      blue)
+   (highlight      (doom-lighten blue 0.2))
    (vertical-bar   (doom-darken base1 0.1))
    (selection      dark-blue)
    (builtin        magenta)
@@ -84,7 +84,7 @@ Can be an integer to determine the exact padding."
    (keywords       blue)
    (methods        cyan)
    (operators      blue)
-   (type           yellow)
+   (type           violet)
    (strings        green)
    (variables      (doom-lighten magenta 0.4))
    (numbers        orange)
@@ -117,8 +117,6 @@ Can be an integer to determine the exact padding."
   ;;;; Base theme face overrides
   (((line-number &override) :foreground base4)
    ((line-number-current-line &override) :foreground fg)
-   ((font-lock-comment-face &override)
-    :background (if doom-quiet-light-brighter-comments (doom-lighten bg 0.05)))
    (mode-line
     :background modeline-bg :foreground modeline-fg
     :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg)))
@@ -132,6 +130,9 @@ Can be an integer to determine the exact padding."
    (org-block-begin-line :background bg  :foreground comments)
    (org-block-end-line   :inherit 'org-block-begin-line)
 
+   ;;;; org-ref
+   (org-ref-ref-face        :inherit 'link :foreground orange)
+   (org-ref-cite-face       :inherit 'link :foreground teal)
    ;;;; css-mode <built-in> / scss-mode
    (css-proprietary-property :foreground orange)
    (css-property             :foreground green)
