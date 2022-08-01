@@ -595,7 +595,7 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
     "p" '(:keymap projectile-command-map :which-key "project")
     "pe" '(projectile-run-eshell :which-key "project eshell"))
     :config
-  (setq projectile-project-search-path '(("~/Dropbox/org/gtd" . 3) ("~/" . 1) ("~/openfoam/" . 1)))
+  (setq projectile-project-search-path '(("~/Dropbox/org/gtd" . 3) ("~/" . 1) ("~/openfoam/" . 2)))
 )
 #+END_SRC
 
