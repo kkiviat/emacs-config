@@ -200,14 +200,20 @@ Default to visual line mode for some modes.
 *** fonts
 Enable changing font face per buffer. From https://www.emacswiki.org/emacs/FacesPerBuffer.
 
-ETBookOT font is installed from https://github.com/edwardtufte/et-book (by downloading the .otf files in =et-book-ligatures-enabled= and putting them in =~/.local/share/fonts= and running =fc-cache -f -v=). (Font name obtained from =fc-list=.)
+ETbb font from https://ctan.org/pkg/etbb
+
+Office Code Pro from https://github.com/nathco/Office-Code-Pro
 
 Set the default variable and fixed-pitch fonts.
 #+BEGIN_SRC emacs-lisp
-(custom-theme-set-faces
-   'user
-   '(variable-pitch ((t (:family "Source Sans 3"))))
-   '(fixed-pitch ((t ( :family "Hack")))))
+(when (member "Office Code Pro" (font-family-list))
+  (set-face-attribute 'default nil :font "Office Code Pro"))
+
+(when (member "SF Pro Rounded" (font-family-list))
+  (set-face-attribute 'variable-pitch nil :font "SF Pro Rounded"))
+
+(when (member "Office Code Pro" (font-family-list))
+  (set-face-attribute 'fixed-pitch nil :font "Office Code Pro"))
 #+END_SRC
 
 Functions to change fonts. "default" includes org buffers when =fixed-pitch-mode= is not enabled. "fixed" controls code blocks, etc. "variable" controls the font in org buffers when =fixed-pitch-mode= is enabled.
@@ -226,31 +232,25 @@ Functions to change fonts. "default" includes org buffers when =fixed-pitch-mode
 (defun klk/change-variable-font-family (choice)
   "Change the font used for variable width text"
   (interactive
-   (let ((choices '("boldfont" "Source Sans 3" "ETBookOT" "KG Part of Me")))
+   (let ((choices '("Source Sans 3" "ETbb" "SF Pro Rounded")))
      (list (completing-read "Choose: " choices nil t))))
-  (custom-theme-set-faces
-   'user
-   `(variable-pitch ((t (:family ,choice)))))
+  (set-face-attribute 'variable-pitch nil :family choice)
   choice)
 
 (defun klk/change-fixed-font-family (choice)
   "Change the font used for fixed width (including default) text"
   (interactive
-   (let ((choices '("DejaVu Sans Mono" "Free Mono" "Source Code Pro" "Iosevka Fixed Slab")))
+   (let ((choices '("DejaVu Sans Mono" "Free Mono" "Source Code Pro" "Iosevka Fixed Slab" "Office Code Pro")))
      (list (completing-read "Choose: " choices nil t))))
-  (custom-theme-set-faces
-   'user
-   `(fixed-pitch ((t (:family ,choice)))))
+  (set-face-attribute 'fixed-pitch nil :family choice)
   choice)
 
 (defun klk/change-default-font-family (choice)
   "Change the font used for default text (used in org buffers when not variable pitch)"
   (interactive
-   (let ((choices '("DejaVu Sans Mono" "Source Sans Mono" "FreeMono" "Source Code Pro" "Hack" "Iosevka Fixed Slab")))
+   (let ((choices '("DejaVu Sans Mono" "Source Sans Mono" "FreeMono" "Source Code Pro" "Office Code Pro" "Hack" "Iosevka Fixed Slab")))
      (list (completing-read "Choose: " choices nil t))))
-  (custom-theme-set-faces
-   'user
-   `(default ((t (:family ,choice)))))
+  (set-face-attribute 'default nil :family choice)
   choice)
 #+END_SRC
 
@@ -311,24 +311,24 @@ Use monospace font in code blocks and tables.  From https://github.com/jparcill/
   )
 #+END_SRC
 
-*** COMMENT general customizations
-Disabled for now because I'm using the config from org-modern to add padding
-
-Add more padding in text buffers.  Based on https://lepisma.xyz/2017/10/28/ricing-org-mode/index.html.
+*** Mixed pitch mode
 #+BEGIN_SRC emacs-lisp
-(defun klk-text-file-spacing ()
-  (setq line-spacing 0.1)
-  ;; (setq header-line-format " ") ; add top margin
-  (setq display-line-numbers nil)
-  (setq left-fringe-width 0) ; disable fringe
-  (setq right-fringe-width 0)
-  (progn
-  (setq left-margin-width 2) ; add side margins
-  (setq right-margin-width 2)
-  (set-window-buffer nil (current-buffer)))
-  )
+(use-package mixed-pitch
+  :hook (org-mode . mixed-pitch-mode)
+  :config
+  (setq mixed-pitch-set-height t)
+  (set-face-attribute 'variable-pitch nil :height 1.2))
+#+END_SRC
 
-(add-hook 'text-mode-hook 'klk-text-file-spacing)
+*** Olivetti mode
+#+BEGIN_SRC emacs-lisp
+(use-package olivetti
+    :general
+    (klk/leader-key-def
+      "m o" '(olivetti-mode :wk "olivetti"))
+    :init
+    (setq olivetti-body-width 80)
+    (setq olivetti-recall-visual-line-mode-entry-state t))
 #+END_SRC
 
 *** Load themes
