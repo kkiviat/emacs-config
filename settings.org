@@ -1162,6 +1162,13 @@ Set the =TODO= states.
 			("nr" "Research related"
 			 entry (file+olp+datetree ,(org-file-path "research.org") "Notes")
 			 "* %?")
+			("g" "Goal")
+			("gw" "Weekly goal"
+			 entry (file+headline ,(org-file-path "goals.org") "Weekly")
+			 "* TODO %^{title}\n:PROPERTIES:\n:CREATED: %U\n:END:\n%?")
+			("gm" "Monthly goal"
+			 entry (file+headline ,(org-file-path "goals.org") "Monthly")
+			 "* TODO %^{title}\n:PROPERTIES:\n:CREATED: %U\n:END:\n%?")
 			("p" "Project"
 			 entry (file ,(org-file-path "gtd.org"))
 			 "* PROJECT %^{name} \n:PROPERTIES:\n:CREATED: %U\n:PROJECT: %\\1\n:OUTCOME: %?\n:END:\n")
@@ -1262,6 +1269,7 @@ Set files to be included in the agenda. Includes archive because I like to see o
 			 ,(org-file-path "gcal.org")
 			 ,(org-file-path "gcal-school.org")
 			 ,(org-file-path "gtd.org")
+			 ,(org-file-path "goals.org")
 			 ,(org-file-path "research.org")
 			 ,(org-file-path "recurring.org")
 			 ,(org-file-path "archive.org")
@@ -1335,6 +1343,12 @@ Super Agenda
                        (org-super-agenda-groups
                         `((:name "Tomorrow" :scheduled (on ,(timestamp-in-n-days 1)))
 			  (:name "In Two Days" :scheduled (on ,(timestamp-in-n-days 2)))
+			  (:discard (:anything t))
+			  ))))
+	  (alltodo "" ((org-agenda-overriding-header "Goals")
+                       (org-super-agenda-groups
+                        `((:name "This month" :and (:tag "goal" :tag "monthly"))
+			  (:name "This week" :and (:tag "goal" :tag "weekly"))
 			  (:discard (:anything t))
 			  ))))
 	  ;; (todo "NEXT"
