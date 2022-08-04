@@ -1838,12 +1838,17 @@ Manage references in org mode.
 
 *** org-roam-bibtex
 Integrate bibtex with =org-roam=.
+
+At some point the file keyword stopped being processed correctly. Possibly related to [[https://org-roam.discourse.group/t/orb-process-file-field-not-working-in-orb-templates/795/11][this]]. So for now I set =orb-process-file-keyword= to =nil=, which means the whole contents of the file field are input. Sometimes this includes an extra file (web snapshot), but it's easier to deal with than inserting nothing.
 #+BEGIN_SRC emacs-lisp
 (use-package org-roam-bibtex
   :after org-roam
   :bind (:map org-mode-map ("C-c n b" . orb-note-actions))
   :config
   (require 'org-ref) ; optional: if Org Ref is not loaded anywhere else, load it here
+  (setq orb-preformat-keywords
+      '("citekey" "title" "url" "author-or-editor" "keywords" "file" "author" "year")
+      orb-process-file-keyword nil) ;; files don't appear otherwise
   (org-roam-bibtex-mode)
   :demand)
 #+END_SRC
