@@ -1155,73 +1155,89 @@ Set the =TODO= states.
 *** Capture
 
 **** Templates
+[[https://github.com/progfolio/doct][doct]] provides a nicer syntax for defining capture templates.
 #+BEGIN_SRC emacs-lisp
-(setq org-capture-templates `(
-			("t" "Tasks")
-			("tt" "Todo"
-			 entry (file ,(org-file-path "inbox.org"))
-			 "* TODO %?\n:PROPERTIES:\n:CREATED: %U\n:END:\n  %i\n")
-			("tn" "Next task"
-			 entry (file ,(org-file-path "inbox.org"))
-			 "* NEXT %?\n:PROPERTIES:\n:CREATED: %U\n:END:\n  %i\n")
-			("ts" "Scheduled Todo"
-			 entry (file ,(org-file-path "inbox.org"))
-			 "* TODO %? \nSCHEDULED: %^{scheduled}t\n:PROPERTIES:\n:CREATED: %U\n:END:\n  %i\n")
-			("td" "Todo with Deadline"
-			 entry (file ,(org-file-path "inbox.org"))
-			 "* TODO %? \nDEADLINE: %^{deadline}t\n:PROPERTIES:\n:CREATED: %U\n:END:\n  %i\n")
-			("n" "Notes")
-			("ng" "Gardening related"
-			 entry (file+headline ,(org-file-path "p-garden.org") "Notes")
-			 "* %^{title}\n:PROPERTIES:\n:CREATED: %U\n:END:\n%?")
-			("nh" "Health related"
-			 entry (file+headline ,(org-file-path "p-health.org") "Notes")
-			 "* %^{title}\n:PROPERTIES:\n:CREATED: %U\n:END:\n\n%?")
-			("nf" "Finance related"
-			 entry (file+headline ,(org-file-path "p-financial.org") "Notes")
-			 "* %^{title}\n:PROPERTIES:\n:CREATED: %U\n:END:\n%?")
-			("nr" "Research related"
-			 entry (file+olp+datetree ,(org-file-path "research.org") "Notes")
-			 "* %?")
-			("g" "Goal")
-			("gw" "Weekly goal"
-			 entry (file+headline ,(org-file-path "goals.org") "Weekly")
-			 "* TODO %^{title}\n:PROPERTIES:\n:CREATED: %U\n:END:\n%?")
-			("gm" "Monthly goal"
-			 entry (file+headline ,(org-file-path "goals.org") "Monthly")
-			 "* TODO %^{title}\n:PROPERTIES:\n:CREATED: %U\n:END:\n%?")
-			("p" "Project"
-			 entry (file ,(org-file-path "gtd.org"))
-			 "* PROJECT %^{name} \n:PROPERTIES:\n:CREATED: %U\n:PROJECT: %\\1\n:OUTCOME: %?\n:END:\n")
-			("T" "Troubleshooting"
-			 entry (file ,(org-file-path "troubleshooting.org"))
-			 "* %^{problem} \n:PROPERTIES:\n:CREATED: %U\n:END:\n** Solution\n%^{solution}\n** Details\n%?")
-			("w" "Weekly" entry
-			 (file ,(org-file-path "journal/weekly2022.org"))
-			 "** Week %^{week number}
-[[file:~/Dropbox/org/roam/dailies/%^{start of week (yyyymmdd).org}]]
-,*** Goals / priorities :goals:
-- %?
-,*** Review :weekly:
-,*** Key Ideas :keyideas:\n")
-			("m" "Monthly" entry
-			 (file ,(org-file-path "journal/weekly2022.org"))
-			 "* %^{month}
-,** %\\1 Goals / priorities :goals:
-- %?
-,** %\\1 Review :monthly:
-,** %\\1 Key Ideas :monthlykeyideas:
-,** %\\1 Highlights :highlights:\n" :empty-lines 1)
-			("a" "Accomplishments" entry
-			 (file+olp+datetree ,(org-file-path "accomplishments.org"))
-			 "* %?")
-			("D" "Daily" entry
-			 (file+olp+datetree ,(org-file-path "journal/daily.org"))
-			 "* NOTE %? \nSCHEDULED: %t\nCLOSED: %t")
-			("N" "Daily Note" entry
-			 (file+olp+datetree ,(org-file-path "journal/daily.org"))
-			 "* NOTE %? \nSCHEDULED: %^{Date}t\nCLOSED: %^{Same date again}t")
-			))
+(use-package doct)
+#+END_SRC
+
+This automatically adds a created timestamp to new captured items, but I'm not using it because I don't always want that.
+#+BEGIN_SRC emacs-lisp
+;; (use-package org-expiry
+;;   :straight (:type built-in)
+;;   :config
+;;   (setq
+;;    org-expiry-created-property-name "CREATED"
+;;    org-expiry-inactive-timestamps t
+;;    )
+;;   (add-hook 'org-capture-before-finalize-hook
+;;           (lambda()
+;;                (save-excursion
+;;                     (org-back-to-heading)
+;;                     (org-expiry-insert-created)))))
+#+END_SRC
+
+Define a function to go to the last top-level heading in an org file. For my weekly capture template I want to add the heading as a child under the last month heading.
+#+BEGIN_SRC emacs-lisp
+(defun klk/org-last-top-level-heading ()
+  (goto-char (point-max))
+  (search-backward-regexp "^* " nil t))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(setq
+ org-capture-templates
+ (doct `((:group
+          :empty-lines 1
+          :children
+          (("TODO" :keys "t"
+            :file ,(org-file-path "inbox.org")
+	    :template ("* %{todo-state} %?"
+                          ":PROPERTIES:"
+                          ":CREATED: %U"
+                          ":END:"
+                          "%{body}")
+            :children (
+		       ("todo" :keys "t" :body nil :todo-state "TODO")
+		       ("scheduled" :keys "s" :body "SCHEDULED: %^{scheduled}t\n" :todo-state "TODO")
+		       ("next" :keys "n" :body nil :todo-state "NEXT")))
+	   ("Notes" :keys "n"
+	    :template ("* %?\n%i\n")
+            :children (
+		       ("health" :keys "h" :file ,(org-file-path "p-health.org") :headline "Notes")
+		       ("financial" :keys "f" :file ,(org-file-path "p-financial.org") :headline "Notes")
+		       ("garden" :keys "g" :file ,(org-file-path "p-garden.org") :headline "Notes")
+		       ("research" :keys "r" :file ,(org-file-path "research.org") :olp ("Notes") :datetree t :template "* %?\n")))
+	   ("Goal" :keys "g"
+	    :immediate-finish t
+	    :template ("* TODO %^{Goal}"
+		       ":PROPERTIES:"
+		       ":CREATED: %U"
+		       ":END:")
+            :children (
+		       ("weekly" :keys "w" :file ,(org-file-path "goals.org") :headline "Weekly")
+		       ("monthly" :keys "m" :file ,(org-file-path "goals.org") :headline "Monthly")))
+	   ("Weekly" :keys "w"
+	    :empty-lines 1
+	    :function (lambda () (klk/org-last-top-level-heading))
+	    :file ,(org-file-path "journal/weekly2022.org")
+	    :refile-targets ,(org-file-path "journal/weekly2022.org")
+	    :template ("** Week %^{week number}"
+		       "[[file:~/Dropbox/org/roam/dailies/%^{start of week (yyyymmdd).org}]]"
+		       "*** Goals / priorities :goals:"
+		       "- %?"
+		       "*** Review :weekly:"
+		       "*** Key Ideas :keyideas:"))
+	   ("Monthly" :keys "m"
+	    :empty-lines 1
+	    :file ,(org-file-path "journal/weekly2022.org")
+	    :template ("* %^{Month}"
+		       "** %\\1 Goals / priorities :goals:"
+		       "- %?"
+		       "** %\\1 Review :monthly:"
+		       "** %\\1 Key Ideas :monthlykeyideas:"
+		       "** %\\1 Highlights :highlights:" ))
+	   )))))
+
 #+END_SRC
 
 **** Capture from outside emacs

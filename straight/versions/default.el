@@ -18,6 +18,7 @@
  ("corfu" . "d79e4e412a729fde9e143028cf3d588e802203dd")
  ("dap-mode" . "50c2a99059da03ac5274d6794ea4758ddf253dc1")
  ("dash.el" . "0ac1ecf6b56eb67bb81a3cf70f8d4354b5782341")
+ ("doct" . "15974ad8d4d7baa071b5ea33877e9dc117c4153e")
  ("doom-modeline" . "85bdd9ed8674710f6b9815e9a1c41ad4b5a45ace")
  ("el-get" . "bf3dba444dcd240b8cb358a0850c8c5a92606134")
  ("elisp-refs" . "af73739084637c8ebadad337a8fe58ff4f1d2ec1")
