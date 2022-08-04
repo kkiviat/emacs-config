@@ -418,7 +418,7 @@ Spring theme uses fonts from https://www.ishouldbemoppingthefloor.com/2015/02/20
 		   (completing-read "Choose: " choices) choices nil nil 'equal)))
       (klk-disable-all-themes)
       (funcall choice)
-      (klk-set-org-block-fixed-pitch)
+      ;; (klk-set-org-block-fixed-pitch)
       )
     )
   )
@@ -458,7 +458,7 @@ Also add a method to refresh $\LaTeX$ previews in all open org buffers, but don'
 *** Set up current theme
 #+BEGIN_SRC emacs-lisp
 (load-theme 'doom-quiet-light t)
-(klk-set-org-block-fixed-pitch) ; default
+;; (klk-set-org-block-fixed-pitch) ; default
 #+END_SRC
 
 ** Prettify
