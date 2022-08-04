@@ -523,6 +523,27 @@ Include their config to add padding to buffers and tweak a few other things.
   :hook (org-mode
          emacs-lisp-mode))
 #+END_SRC
+*** Prettify symbols
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :config
+  (setq-default prettify-symbols-alist '(
+				 ("[#A]" . "⚑")
+				 ("[#B]" . "⚐")
+				 ("#+BEGIN_QUOTE" . "❝")
+				 ("#+END_QUOTE" . "❞")
+				 ("#+begin_quote" . "❝")
+				 ("#+end_quote" . "❞")
+				 ("#+BEGIN_SRC" . "❯")
+				 ("#+END_SRC" . "❮")
+				 ("#+begin_src" . "❯")
+				 ("#+end_src" . "❮")
+				 (":END:" . "―")
+				 ("#+TITLE: " . "")
+				 ("#+title: " . "")
+				 ("#+RESULTS:" . "🠶")))
+  :hook (org-mode . prettify-symbols-mode))
+#+END_SRC
 
 ** Flyspell
   #+BEGIN_SRC emacs-lisp
