@@ -607,6 +607,15 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
 #+BEGIN_SRC emacs-lisp
 (use-package rg) ;; ripgrep for searching in projectile
 
+(defun klk/org-project-notes-file ()
+  (expand-file-name "notes.org" (projectile-project-root)))
+
+(defun klk/open-org-project-notes-file ()
+  (interactive)
+  (find-file (klk/org-project-notes-file))
+  (goto-char (point-min))
+  (search-forward-regexp "^* Notes" nil t))
+
 (use-package projectile
   :init
   (projectile-mode +1)
@@ -616,7 +625,8 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
   :general
   (klk/leader-key-def
     "p" '(:keymap projectile-command-map :which-key "project")
-    "pe" '(projectile-run-eshell :which-key "project eshell"))
+    "pe" '(projectile-run-eshell :which-key "project eshell")
+    "pn" '(klk/open-org-project-notes-file :which-key "project notes"))
     :config
   (setq projectile-project-search-path '(("~/Dropbox/org/gtd" . 3) ("~/" . 1) ("~/openfoam/" . 2)))
 )
@@ -1183,6 +1193,7 @@ Define a function to go to the last top-level heading in an org file. For my wee
   (search-backward-regexp "^* " nil t))
 #+END_SRC
 
+Define capture templates. Config for capturing project-specific tasks / notes based on [[https://www.reddit.com/r/emacs/comments/fs7tk3/how_to_manage_todo_tasks_in_my_project/][this thread]].
 #+BEGIN_SRC emacs-lisp
 (setq
  org-capture-templates
@@ -1207,6 +1218,10 @@ Define a function to go to the last top-level heading in an org file. For my wee
 		       ("financial" :keys "f" :file ,(org-file-path "p-financial.org") :headline "Notes")
 		       ("garden" :keys "g" :file ,(org-file-path "p-garden.org") :headline "Notes")
 		       ("research" :keys "r" :file ,(org-file-path "research.org") :olp ("Notes") :datetree t :template "* %?\n")))
+	   ("Projects" :keys "p"
+            :file klk/org-project-notes-file
+            :children (("note" :keys "n" :datetree t :prepend t :olp ("Notes") :template ("* %^{Title}" "%?"))
+                       ("task" :keys "t" :headline "Tasks" :template ("* TODO %^{Title}" "%?"))))
 	   ("Goal" :keys "g"
 	    :immediate-finish t
 	    :template ("* TODO %^{Goal}"
