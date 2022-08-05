@@ -170,7 +170,11 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
     ;; Themes
     "t" 'klk-choose-theme :which-key "themes"
 
-    "r" '(:keymap bookmark-map :which-key "bookmarks")
+    "r"'(:ignore t :which-key "refile")
+    "rr" '(org-refile :which-key "choose heading")
+    "rd" '((lambda () (interactive) (org-reverse-datetree--refile-to-file (buffer-file-name))) :which-key "datetree")
+
+    "k" '(:keymap bookmark-map :which-key "bookmarks")
 
     ;; Jump around
     "jh" #'ap/avy-org-goto-to-heading-timer
@@ -997,7 +1001,8 @@ Add support for Elsevier article format. From https://write.as/dani/writing-a-ph
 ** Refiling
 Set targets for refiling. Use =C-c C-w= to refile. This determines what options you're prompted with. Includes everything in all the agenda files, plus the someday file and various list files.
 #+BEGIN_SRC emacs-lisp
-(setq org-refile-targets '((org-agenda-files :maxlevel . 3)
+(setq org-refile-targets '((nil :maxlevel . 9) ;; refile in current file
+			   (org-agenda-files :maxlevel . 3)
                            ("someday.org" :level . 1)
 			   ("l-media.org" :maxlevel . 2)
 			   ("l-ideas.org" :maxlevel . 2)))
