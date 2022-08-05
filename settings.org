@@ -115,6 +115,12 @@ Emacs 29 has smooth scrolling natively.
     )
 #+END_SRC
 
+** beacon
+#+BEGIN_SRC emacs-lisp
+(use-package beacon
+  :init
+  (beacon-mode 1))
+#+END_SRC
 
 ** Line numbers
   Display line numbers except in certain modes. From https://www.emacswiki.org/emacs/LineNumbers
@@ -345,42 +351,6 @@ Config for quiet theme from https://github.com/quiettheme/emacs.
 (setq doom-quiet-light-padded-modeline t)
 (setq doom-quiet-light-brighter-comments t)
 #+END_SRC
-
-Install the nice bespoke theme, but set it to color source code blocks as well.
-#+BEGIN_SRC emacs-lisp
-  (use-package bespoke-themes
-    :straight (:type git :host github :repo "mclear-tools/bespoke-themes" :branch "main")
-    :config
-    ;; Set use of italics
-    (setq bespoke-set-italic-comments t
-	  bespoke-set-italic-keywords t)
-    ;; Set variable pitch
-    (setq bespoke-set-variable-pitch t)
-    ;; Set initial theme variant
-    (setq bespoke-set-theme 'light)
-    )
-
-  (add-hook 'bespoke-after-load-theme-hook 'my/customize-theme-bespoke)
-
-
-  (defun my/customize-theme-bespoke (_theme &rest _args)
-    (when (member 'bespoke custom-enabled-themes)
-      (custom-theme-set-faces
-       'bespoke
-
-       '(org-block-begin-line
-	 ((t (:underline "#A7A6AA" :foreground "white" :background "#30608C" :extend t))))
-       '(org-block
-	 ((t (:background "#EFF0F1" :extend t))))
-       '(org-block-end-line
-	 ((t (:overline "#A7A6AA" :foreground "white" :background "#30608C" :extend t))))
-       '(highlight-symbol-face
-	 ((t (:background "#DBE1EB"))))
-       )))
-
-  (advice-add 'load-theme :after #'my/customize-theme-bespoke)
-#+END_SRC
-
 *** Modeline
 **** Doom modeline
 Try using this instead since it can show the current perspective. The following config is probably not the right way to do this, but it works to put the modeline at the top like the bespoke modeline.

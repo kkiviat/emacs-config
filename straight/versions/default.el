@@ -6,7 +6,7 @@
  ("all-the-icons.el" . "ca1ef30004d3fb76aaa70bd47cb83e9fe017a7f7")
  ("auctex" . "53b82804c9dd9dbea306876f3be84ebacbeb7e74")
  ("avy" . "ba5f035be33693d1a136a5cbeedb24327f551a92")
- ("bespoke-themes" . "21eeaf0adf7e4db4bbffdfb1ab1ba823c57645db")
+ ("beacon" . "85261a928ae0ec3b41e639f05291ffd6bf7c231c")
  ("biblio.el" . "517ec18f00f91b61481214b178f7ae0b8fbc499b")
  ("bui.el" . "f3a137628e112a91910fd33c0cff0948fa58d470")
  ("cfrs" . "f3a21f237b2a54e6b9f8a420a9da42b4f0a63121")
