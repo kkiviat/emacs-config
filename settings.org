@@ -903,6 +903,20 @@ Stop org files from being opened in new windows.
 (setq org-link-frame-setup '((file . find-file)))
 #+END_SRC
 
+** Navigation
+#+BEGIN_SRC emacs-lisp
+(defun klk/goto-last-heading ()
+  "Interactively jump to end of current subtree"
+  (interactive)
+  (org-end-of-subtree))
+
+(use-package org
+  :general
+  (:keymaps 'org-mode-map "M-n" 'org-forward-paragraph "M-p" 'org-backward-paragraph)
+  (klk/leader-key-def
+    :keymaps 'org-mode-map
+    "jl" '(klk/goto-last-heading :wk "last heading")))
+#+END_SRC
 ** Sidebar
 The tree sidebar provides an outline on the left that you can use to jump around the file. The regular sidebar on the right shows TODO items in the file.
 #+BEGIN_SRC emacs-lisp
