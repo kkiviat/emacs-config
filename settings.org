@@ -584,8 +584,12 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
   (interactive)
   (find-file (klk/org-project-notes-file))
   (goto-char (point-min))
-  (search-forward-regexp "^* Notes" nil t))
+  ;; Jump to first heading consisting of the current year
+  ;; (this should be where the most recent entries are in the reverse datetree)
+  (search-forward-regexp (format "^\\*+ [0-9][0-9][0-9][0-9]$")))
+#+END_SRC
 
+#+BEGIN_SRC emacs-lisp
 (use-package projectile
   :init
   (projectile-mode +1)
@@ -1147,6 +1151,10 @@ Set the =TODO= states.
  #+END_SRC
 
 *** Capture
+**** Reverse datetree
+#+BEGIN_SRC emacs-lisp
+(use-package org-reverse-datetree)
+#+END_SRC
 
 **** Templates
 [[https://github.com/progfolio/doct][doct]] provides a nicer syntax for defining capture templates.
@@ -1204,7 +1212,9 @@ Define capture templates. Config for capturing project-specific tasks / notes ba
 		       ("research" :keys "r" :file ,(org-file-path "research.org") :olp ("Notes") :datetree t :template "* %?\n")))
 	   ("Projects" :keys "p"
             :file klk/org-project-notes-file
-            :children (("note" :keys "n" :datetree t :prepend t :olp ("Notes") :template ("* %^{Title}" "%?"))
+            :children (("note" :keys "n" :template ("* %^{Title}" "%?") :function (lambda ()
+                          (org-reverse-datetree-goto-date-in-file
+                           nil :olp '("Notes"))))
                        ("task" :keys "t" :headline "Tasks" :template ("* TODO %^{Title}" "%?"))))
 	   ("Goal" :keys "g"
 	    :immediate-finish t

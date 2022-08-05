@@ -81,6 +81,7 @@
  ("org-ql" . "bacdacb1b233e4199ccda810152484edd59fa091")
  ("org-randomnote" . "ea8cf4385970637efffff8f79e14576ba6d7ad13")
  ("org-ref" . "21c7b6f20a6b263df3fd40a0a168ed8ec2715021")
+ ("org-reverse-datetree" . "e53d0fde875d137eeb03eddd6b50d3c827f9947f")
  ("org-roam" . "171a8db32f5b51d3ddb4a31356e1d9c581b4bbd2")
  ("org-roam-bibtex" . "201262a839db20af2a49165a80f85f82dad159d1")
  ("org-roam-ui" . "9474a254390b1e42488a1801fed5826b32a8030b")
