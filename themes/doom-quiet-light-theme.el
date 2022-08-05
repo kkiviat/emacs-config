@@ -47,15 +47,15 @@ Can be an integer to determine the exact padding."
    ;; These should represent a spectrum from bg to fg, where base0 is a starker
    ;; bg and base8 is a starker fg. For example, if bg is light grey and fg is
    ;; dark grey, base0 should be white and base8 should be black.
-   (base0      '("#181e23"))
-   (base1      '("#181e23"))
-   (base2      '("#181e23"))
-   (base3      '("#181e23"))
+   (base0      '("#fbf8ef"))
+   (base1      '("#fbf8ef"))
+   (base2      '("#bbbbbb"))
+   (base3      '("#bbbbbb"))
    (base4      '("#bbbbbb"))
    (base5      '("#bbbbbb"))
-   (base6      '("#bbbbbb"))
-   (base7      '("#bbbbbb"))
-   (base8      '("#bbbbbb"))
+   (base6      '("#181e23"))
+   (base7      '("#181e23"))
+   (base8      '("#181e23"))
 
    (grey       base5)
    (red        '("#c74e52"))

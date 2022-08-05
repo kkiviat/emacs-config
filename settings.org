@@ -533,7 +533,7 @@ Include their config to add padding to buffers and tweak a few other things.
   (use-package highlight-symbol
     :config
     (set-face-attribute 'highlight-symbol-face nil
-			:background "#858585"
+			:background "#A5A5A5"
 			:foreground "default")
     (setq highlight-symbol-idle-delay 0)
     (setq highlight-symbol-on-navigation-p t)
