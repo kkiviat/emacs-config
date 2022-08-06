@@ -1905,13 +1905,15 @@ Attach notes to locations in the pdf.
   :after org-roam
   :config
   (setq org-noter-notes-window-location 'horizontal-split
-	org-noter-always-create-frame t
+	org-noter-always-create-frame nil
 	org-noter-hide-other nil
 	org-noter-kill-frame-at-session-end nil
 	org-noter-notes-search-path 'org-roam-directory
 	org-noter-doc-split-fraction '(0.66 . 0.5)
    )
-  :bind (:map org-mode-map ("C-c n n" . org-noter))
+  (klk/leader-key-def
+    :keymaps 'org-mode-map
+    "nn" '(org-noter :wk "noter"))
   )
 #+END_SRC
 
