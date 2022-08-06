@@ -574,23 +574,57 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
 
 ** Projects
 *** Projectile
-+ =C-c p p= to switch to a project
-+ =C-c p s r= to ripgrep through current project
-+ =C-c p S= save all project buffers
-+ =C-c p f= select file in project
+Define some helper methods to support my current project notes workflow. I like to have roam files corresponding to projects for high-level information, but often there will be a separate (projectile-managed) directory for various project-related files, including a file for notes and tasks. I put a property in the roam file with the projectile project root, and define here a method to jump to the appropriate notes file. That uses the =PROJECT_ROOT= property if it exists, otherwise the current project root. There is also a method to insert the root of a chosen project as a property in the current file.
 #+BEGIN_SRC emacs-lisp
 (use-package rg) ;; ripgrep for searching in projectile
 
+(defvar klk/org-project-file-base "notes.org")
+
+(defun klk/get-project-from-property ()
+  (interactive)
+  "Attempts to read the project root path from a property."
+  (save-excursion
+    (goto-char (point-min))
+    (let ((root (org-entry-get nil "PROJECT_ROOT")))
+      (when (and root (not (string= "" root)))
+	root))))
+
 (defun klk/org-project-notes-file ()
-  (expand-file-name "notes.org" (projectile-project-root)))
+  "Get the project notes file path from a property if it is defined. Otherwise use the current projectile project"
+  (let ((project-root
+	 (or (klk/get-project-from-property) (projectile-project-root))))
+    (expand-file-name klk/org-project-file-base project-root)))
+
+(defun klk/get-project-root ()
+  "User selects a project, and the root of that project is returned"
+  (let ((current-project (projectile-project-root)))
+    ;; Don't use persp in case the open file in the perspective is not in the project,
+    ;; even though this kind of messes up an existing project perspective.
+    (projectile-switch-project)
+    (let ((path (projectile-project-root)))
+      (projectile-persp-switch-project current-project)
+      path)))
+
+(defun klk/yank-project-root ()
+  (interactive)
+  (kill-new (klk/get-project-root)))
+
+(defun klk/insert-project-root-property ()
+  "Insert the root of the selected project as a property in current file."
+  (interactive)
+  (save-excursion
+    (let ((root (klk/get-project-root)))
+      (goto-char (point-min))
+      (org-entry-put nil "PROJECT_ROOT" root))))
 
 (defun klk/open-org-project-notes-file ()
+  "Finds the notes file for the project, and opens it to the beginning of a reverse datetree if it exists"
   (interactive)
   (find-file (klk/org-project-notes-file))
   (goto-char (point-min))
   ;; Jump to first heading consisting of the current year
   ;; (this should be where the most recent entries are in the reverse datetree)
-  (search-forward-regexp (format "^\\*+ [0-9][0-9][0-9][0-9]$")))
+  (search-forward-regexp (format "^\\*+ [0-9][0-9][0-9][0-9]$") nil t))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -604,9 +638,10 @@ More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
   (klk/leader-key-def
     "p" '(:keymap projectile-command-map :which-key "project")
     "pe" '(projectile-run-eshell :which-key "project eshell")
-    "pn" '(klk/open-org-project-notes-file :which-key "project notes"))
+    "pn" '(klk/open-org-project-notes-file :which-key "project notes")
+    "py" '(klk/yank-project-root :which-key "yank root"))
     :config
-  (setq projectile-project-search-path '(("~/Dropbox/org/gtd" . 3) ("~/" . 1) ("~/openfoam/" . 2)))
+  (setq projectile-project-search-path '(("~/Dropbox/org/" . 3) ("~/" . 1) ("~/openfoam/" . 2)))
 )
 #+END_SRC
 
