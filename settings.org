@@ -602,14 +602,10 @@ Define some helper methods to support my current project notes workflow. I like 
     (expand-file-name klk/org-project-file-base project-root)))
 
 (defun klk/get-project-root ()
-  "User selects a project, and the root of that project is returned"
-  (let ((current-project (projectile-project-root)))
-    ;; Don't use persp in case the open file in the perspective is not in the project,
-    ;; even though this kind of messes up an existing project perspective.
-    (projectile-switch-project)
-    (let ((path (projectile-project-root)))
-      (projectile-persp-switch-project current-project)
-      path)))
+  "Returns root of selected project."
+  (projectile-load-known-projects)
+  (let ((choices projectile-known-projects))
+    (completing-read "Choose: " choices)))
 
 (defun klk/yank-project-root ()
   (interactive)
