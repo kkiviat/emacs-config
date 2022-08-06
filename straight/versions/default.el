@@ -77,7 +77,7 @@
  ("org-gcal.el" . "f8075bd8eac7288eea1060077ca103d5fd01fb65")
  ("org-krita" . "7e334951b8de8f2f1c8cbe5068e7dfe6b9e9808f")
  ("org-modern" . "d0f13dc88781f51368c479c83d00753b78f55d46")
- ("org-noter" . "9ead81d42dd4dd5074782d239b2efddf9b8b7b3d")
+ ("org-noter" . "340b60e7810a06d50fb619ff5384468998d94675")
  ("org-ql" . "bacdacb1b233e4199ccda810152484edd59fa091")
  ("org-randomnote" . "ea8cf4385970637efffff8f79e14576ba6d7ad13")
  ("org-ref" . "21c7b6f20a6b263df3fd40a0a168ed8ec2715021")

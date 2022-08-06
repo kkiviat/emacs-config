@@ -1895,11 +1895,13 @@ At some point the file keyword stopped being processed correctly. Possibly relat
 Attach notes to locations in the pdf.
 #+BEGIN_SRC emacs-lisp
 (use-package org-noter
+  :straight (org-noter :type git :host github :repo "aagon/org-noter")
   :after org-roam
   :config
   (setq org-noter-notes-window-location 'horizontal-split
-	org-noter-always-create-frame nil
+	org-noter-always-create-frame t
 	org-noter-hide-other nil
+	org-noter-kill-frame-at-session-end nil
 	org-noter-notes-search-path 'org-roam-directory
 	org-noter-doc-split-fraction '(0.66 . 0.5)
    )
