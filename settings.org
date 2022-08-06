@@ -214,13 +214,17 @@ ETbb font from https://ctan.org/pkg/etbb
 
 Office Code Pro from https://github.com/nathco/Office-Code-Pro
 
+SF Pro font from https://github.com/sahibjotsaggu/San-Francisco-Pro-Fonts
+
+Put fonts in =~/.local/share/fonts= and run =fc-cache -f -v= to install.
+
 Set the default variable and fixed-pitch fonts.
 #+BEGIN_SRC emacs-lisp
 (when (member "Office Code Pro" (font-family-list))
   (set-face-attribute 'default nil :font "Office Code Pro"))
 
-(when (member "SF Pro Rounded" (font-family-list))
-  (set-face-attribute 'variable-pitch nil :font "SF Pro Rounded"))
+(when (member "SF Pro" (font-family-list))
+  (set-face-attribute 'variable-pitch nil :font "SF Pro"))
 
 (when (member "Office Code Pro" (font-family-list))
   (set-face-attribute 'fixed-pitch nil :font "Office Code Pro"))
@@ -242,7 +246,7 @@ Functions to change fonts. "default" includes org buffers when =fixed-pitch-mode
 (defun klk/change-variable-font-family (choice)
   "Change the font used for variable width text"
   (interactive
-   (let ((choices '("Source Sans 3" "ETbb" "SF Pro Rounded")))
+   (let ((choices '("Source Sans 3" "ETbb" "SF Pro Display")))
      (list (completing-read "Choose: " choices nil t))))
   (set-face-attribute 'variable-pitch nil :family choice)
   choice)
@@ -338,7 +342,8 @@ Use monospace font in code blocks and tables.  From https://github.com/jparcill/
       "m o" '(olivetti-mode :wk "olivetti"))
     :init
     (setq olivetti-body-width 80)
-    (setq olivetti-recall-visual-line-mode-entry-state t))
+    (setq olivetti-recall-visual-line-mode-entry-state t)
+    :hook (text-mode . (lambda () (olivetti-mode 1))))
 #+END_SRC
 
 *** Load themes
@@ -470,6 +475,7 @@ Include their config to add padding to buffers and tweak a few other things.
  org-hide-emphasis-markers t
  org-pretty-entities t
  org-ellipsis "…"
+ org-fontify-quote-and-verse-blocks t
 
  ;; Agenda styling
  org-agenda-block-separator ?─
