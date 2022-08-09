@@ -1264,14 +1264,15 @@ Define capture templates. Config for capturing project-specific tasks / notes ba
           (("TODO" :keys "t"
             :file ,(org-file-path "inbox.org")
 	    :template ("* %{todo-state} %?"
-                          ":PROPERTIES:"
-                          ":CREATED: %U"
-                          ":END:"
-                          "%{body}")
+		       "%{scheduled}"
+                       ":PROPERTIES:"
+                       ":CREATED: %U"
+                       ":END:"
+                       "%{body}")
             :children (
-		       ("todo" :keys "t" :body nil :todo-state "TODO")
-		       ("scheduled" :keys "s" :body "SCHEDULED: %^{scheduled}t\n" :todo-state "TODO")
-		       ("next" :keys "n" :body nil :todo-state "NEXT")))
+		       ("todo" :keys "t" :body nil :scheduled nil :todo-state "TODO")
+		       ("scheduled" :keys "s" :body nil :scheduled "SCHEDULED: %^{scheduled}t" :todo-state "TODO")
+		       ("next" :keys "n" :body nil :scheduled nil :todo-state "NEXT")))
 	   ("Notes" :keys "n"
 	    :template ("* %?\n%i\n")
             :children (
