@@ -1697,7 +1697,7 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
            :unnarrowed t)
 	  ("r" "bibliography reference" plain "%?"
            :if-new
-           (file+head "pages/references/${citekey}.org" "#+title: ${author} (${year}). ${title}\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ${file}\n:END:\n")
+           (file+head "pages/references/${citekey}.org" "#+title: ${author} (${year}). ${title}\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ~/Dropbox/Zotero/${file}\n:END:\n")
 	   :unnarrowed t)))
   (setq org-roam-dailies-directory "dailies/")
   (setq org-roam-dailies-capture-templates
