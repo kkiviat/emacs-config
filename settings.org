@@ -97,7 +97,7 @@ Set up keybinding for =ace-window= to quickly jump to a window.
 Install https://github.com/karthink/popper to be able to quickly bring up and dismiss certain buffers as popups.
 #+BEGIN_SRC emacs-lisp
 (use-package popper
-  :ensure t ; or :straight t
+  :after projectile
   :bind (("C-`"   . popper-toggle-latest)
          ("M-`"   . popper-cycle)
          ("C-M-`" . popper-toggle-type))
