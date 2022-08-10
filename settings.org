@@ -352,7 +352,9 @@ Use monospace font in code blocks and tables.  From https://github.com/jparcill/
 *** Mixed pitch mode
 #+BEGIN_SRC emacs-lisp
 (use-package mixed-pitch
-  :hook (org-mode . mixed-pitch-mode)
+  :hook
+  (org-mode . mixed-pitch-mode)
+  (org-roam-mode . mixed-pitch-mode)
   :config
   (setq mixed-pitch-set-height t)
   (set-face-attribute 'variable-pitch nil :height 1.2))
@@ -1181,6 +1183,7 @@ Set the =TODO= states.
 (setq org-todo-keywords '((sequence
 			   "TODO(t!)"
 			   "NEXT(n)"
+			   "COLLECTING(c)"
 			   "WAITING(w@)"
 			   "PROJECT(p)"
 			   "INP(i!)"
@@ -2149,3 +2152,10 @@ Auto-format code on save.
                             (add-hook 'before-save-hook
                                       'elpy-black-fix-code nil t)))
 #+END_SRC
+
+** COMMENT C / C++
+#+BEGIN_SRC emacs-lisp
+(use-package ccls
+  :hook ((c-mode c++-mode objc-mode cuda-mode) .
+         (lambda () (require 'ccls) (lsp))))
+#+END_SRCg
