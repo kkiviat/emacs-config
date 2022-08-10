@@ -1183,7 +1183,6 @@ Set the =TODO= states.
 (setq org-todo-keywords '((sequence
 			   "TODO(t!)"
 			   "NEXT(n)"
-			   "COLLECTING(c)"
 			   "WAITING(w@)"
 			   "PROJECT(p)"
 			   "INP(i!)"
@@ -1267,14 +1266,13 @@ Define capture templates. Config for capturing project-specific tasks / notes ba
           (("TODO" :keys "t"
             :file ,(org-file-path "inbox.org")
 	    :template ("* %{todo-state} %?"
-		       "%{scheduled}"
-                       ":PROPERTIES:"
+                       "%{scheduled}:PROPERTIES:"
                        ":CREATED: %U"
                        ":END:"
                        "%{body}")
             :children (
 		       ("todo" :keys "t" :body nil :scheduled nil :todo-state "TODO")
-		       ("scheduled" :keys "s" :body nil :scheduled "SCHEDULED: %^{scheduled}t" :todo-state "TODO")
+		       ("scheduled" :keys "s" :body nil :scheduled "SCHEDULED: %^{scheduled}t\n" :todo-state "TODO")
 		       ("next" :keys "n" :body nil :scheduled nil :todo-state "NEXT")))
 	   ("Notes" :keys "n"
 	    :template ("* %?\n%i\n")
@@ -2152,10 +2150,3 @@ Auto-format code on save.
                             (add-hook 'before-save-hook
                                       'elpy-black-fix-code nil t)))
 #+END_SRC
-
-** COMMENT C / C++
-#+BEGIN_SRC emacs-lisp
-(use-package ccls
-  :hook ((c-mode c++-mode objc-mode cuda-mode) .
-         (lambda () (require 'ccls) (lsp))))
-#+END_SRCg
