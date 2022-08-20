@@ -1672,10 +1672,10 @@ After much struggling with getting the org-roam buffer to follow links reasonabl
 		    "pages/technical/%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n")
            :unnarrowed t)
-	  ("a" "advice" plain ;; collections of tips / advice
+	  ("h" "howto" plain ;; collections of tips / advice / procedures
 	   "%?"
            :if-new (file+head
-		    "pages/advice/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "pages/howto/%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n")
            :unnarrowed t)
 	  ("o" "outline" plain ;; files that start to link ideas together
