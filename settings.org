@@ -12,7 +12,7 @@ Enable lexical binding (needed for some of the org-roam config). *This must be a
 sensible-defaults.el is from [[https://github.com/hrs/sensible-defaults.el][here]].
 Enable everything, but disable the visual bell function.
 #+BEGIN_SRC emacs-lisp
-(load-file "~/.emacs.d/sensible-defaults.el")
+(load-file (expand-file-name "sensible-defaults.el" user-emacs-directory))
 (sensible-defaults/use-all-settings)
 (sensible-defaults/use-all-keybindings)
 (setq ring-bell-function 'ignore)
@@ -227,7 +227,7 @@ Default to visual line mode for some modes.
 
 ** Themes
 #+BEGIN_SRC emacs-lisp
-(setq custom-theme-directory "~/.emacs.d/themes")
+(setq custom-theme-directory (expand-file-name "themes" user-emacs-directory))
 (setq custom--inhibit-theme-enable nil)
 #+END_SRC
 
@@ -700,7 +700,7 @@ Define some helper methods to support my current project notes workflow. I like 
   :config
   (use-package yasnippet-snippets)
   (yas-global-mode t)
-  (add-to-list #'yas-snippet-dirs "~/.emacs.d/my-snippets")
+  (add-to-list #'yas-snippet-dirs (expand-file-name "my-snippets" user-emacs-directory))
   (yas-reload-all)'
   :diminish yas-minor-mode)
 #+END_SRC

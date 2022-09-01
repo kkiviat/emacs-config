@@ -21,6 +21,6 @@
 (straight-use-package '(org))
 
 (org-babel-load-file "~/Dropbox/org/private.org")
-(org-babel-load-file "~/.emacs.d/settings.org")
+(org-babel-load-file (expand-file-name "settings.org" user-emacs-directory))
 ;; (org-babel-load-file "~/.emacs.d/org.org")
 ;; (org-babel-load-file "~/.emacs.d/programming.org")
