@@ -1823,7 +1823,7 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
     "n f" '(:ignore t :which-key "find")
     "n f A" '(org-roam-node-find :wk "all")
     "n f f" '((lambda () (interactive) (klk/org-roam-find-excluding-type "dailies")) :wk "all but dailies")
-    "n f a" '((lambda () (interactive) (klk/org-roam-find-by-type "advice")) :wk "main")
+    "n f h" '((lambda () (interactive) (klk/org-roam-find-by-type "howto")) :wk "howto")
     "n f m" '((lambda () (interactive) (klk/org-roam-find-by-type "pages")) :wk "main")
     "n f p" '((lambda () (interactive) (klk/org-roam-find-by-type "projects")) :wk "project")
     "n f n" '((lambda () (interactive) (klk/org-roam-find-by-type "names")) :wk "name")
