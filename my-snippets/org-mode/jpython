@@ -2,6 +2,6 @@
 # name: jupyter-python
 # key: <jpy
 # --
-#+BEGIN_SRC jupyter-python :kernel python3 :async yes
+#+BEGIN_SRC jupyter-python
 $0
 #+END_SRC
