@@ -2019,7 +2019,16 @@ Attach notes to locations in the pdf.
   )
 #+END_SRC
 
-*** jupyter
+*** jupyter from scimax
+Make use of the jupyter customizations in [[https://github.com/jkitchin/scimax][scimax]].
+#+BEGIN_SRC emacs-lisp
+(use-package pretty-hydra)
+(use-package jupyter)
+(add-to-list 'load-path "~/.emacs.d.scimax/")
+(require 'scimax-jupyter)
+(setq org-confirm-babel-evaluate nil)
+#+END_SRC
+*** COMMENT jupyter
 [[https://github.com/nnicandro/emacs-jupyter][emacs-jupyter]] requires [[https://github.com/nnicandro/emacs-zmq][emacs-zmq]]. To install =emacs-zmq=, after running the following, go to =straight/build/zmq= and run =make=.
 
 May need to first run =sudo dnf install libstdc++-static zeromq-devel libtool=.
