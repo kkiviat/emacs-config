@@ -55,6 +55,8 @@
  ("kind-icon" . "cce18f777e2e6fedb09e50108ebb06810f436039")
  ("let-alist" . "592553db5929b54db40af0df90c5add0aaca045b")
  ("log4e" . "737d275eac28dbdfb0b26d28e99da148bfce9d16")
+ ("lsp-mode" . "6b0c94bd5eb133b0fc89542d9356cad10fb01868")
+ ("lsp-pyright" . "c745228f39fdb35372b29b909f25fa6c98dc7c88")
  ("magit" . "adf5848ea787401b09aa37b134aacaaaae3007f7")
  ("map" . "9f46b9c966505874d68d9036827a4f63b55ab846")
  ("marginalia" . "cc2a909a069c93a49c9253ceeb9e05ce9c5d36d6")

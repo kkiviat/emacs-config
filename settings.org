@@ -2157,6 +2157,12 @@ Simple python config based on https://gist.github.com/Nathan-Furnal/b327f14e861f
   (numpydoc-template-long nil)
   :bind (:map python-mode-map
               ("C-c C-n" . numpydoc-generate)))
+
+(use-package lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp-deferred))))
 #+END_SRC
 
 ** Typescript
