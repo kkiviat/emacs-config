@@ -126,8 +126,8 @@ Emacs 29 has smooth scrolling natively.
 	(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
 	(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 	(setq scroll-step 1) ;; keyboard scroll one line at a time
-
-					; stop emacs from recentering the buffer point when the point goes outside the window
+	(setq auto-window-vscroll nil)
+	(setq fast-but-imprecise-scrolling t)
 	(setq scroll-conservatively 101)
 	)
     (progn
@@ -902,7 +902,7 @@ Feature name different from package name; see https://github.com/raxod502/straig
   (setq org-imenu-depth 3))
 #+END_SRC
 
-** Dashboard
+** COMMENT Dashboard
 #+BEGIN_SRC emacs-lisp
 (use-package dashboard
   :config

@@ -23,7 +23,6 @@
  ("elisp-tree-sitter" . "3cfab8a0e945db9b3df84437f27945746a43cc71")
  ("emacs-async" . "c78bab7506a70a735d2c3deab13fa87bf44a83d3")
  ("emacs-calfw" . "03abce97620a4a7f7ec5f911e669da9031ab9088")
- ("emacs-dashboard" . "f4e8ed9f0dd2147d4f076948ff7f6c7333042c91")
  ("emacs-deferred" . "2239671d94b38d92e9b28d4e12fd79814cfb9c16")
  ("emacs-htmlize" . "dd27bc3f26efd728f2b1f01f9e4ac4f61f2ffbf9")
  ("emacs-jupyter" . "7d20c0aee2f9c896215f35232905b23532ef04c5")
