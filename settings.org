@@ -247,8 +247,8 @@ Set the default variable and fixed-pitch fonts.
 (when (member "Office Code Pro" (font-family-list))
   (set-face-attribute 'default nil :font "Office Code Pro"))
 
-(when (member "SF Pro" (font-family-list))
-  (set-face-attribute 'variable-pitch nil :font "SF Pro"))
+(when (member "SF Pro Display" (font-family-list))
+  (set-face-attribute 'variable-pitch nil :font "SF Pro Display"))
 
 (when (member "Office Code Pro" (font-family-list))
   (set-face-attribute 'fixed-pitch nil :font "Office Code Pro"))
