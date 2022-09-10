@@ -407,16 +407,13 @@ Config for quiet theme from https://github.com/quiettheme/emacs.
 #+END_SRC
 *** Modeline
 **** Doom modeline
-Try using this instead since it can show the current perspective. The following config is probably not the right way to do this, but it works to put the modeline at the top like the bespoke modeline.
 #+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
   :init
   (setq doom-modeline-buffer-encoding nil)
   (setq doom-modeline-buffer-file-name-style 'relative-from-project)
-  (setq doom-modeline-height 40)
+  (setq doom-modeline-height 30)
   (doom-modeline-mode 1)
-  (setq-default header-line-format mode-line-format)
-  (setq-default mode-line-format " ")
   )
 #+END_SRC
 
@@ -472,8 +469,8 @@ Also add a method to refresh $\LaTeX$ previews in all open org buffers, but don'
   (set-face-foreground face (face-attribute 'default :background))
   (set-face-background 'fringe (face-attribute 'default :background))
   ;; reset thin modeline
-  (set-face-attribute 'mode-line nil :height 10)
-  (set-face-attribute 'header-line nil :height 128)
+  ;; (set-face-attribute 'mode-line nil :height 10)
+  ;; (set-face-attribute 'header-line nil :height 128)
   ))
 
 (advice-add 'load-theme :after 'klk-refresh-org-buffer-colors)
@@ -498,8 +495,8 @@ Also add a method to refresh $\LaTeX$ previews in all open org buffers, but don'
 Include their config to add padding to buffers and tweak a few other things.
 #+BEGIN_SRC emacs-lisp
 (modify-all-frames-parameters
- '((right-divider-width . 40)
-   (internal-border-width . 40)))
+ '((right-divider-width . 20)
+   (internal-border-width . 20)))
 (dolist (face '(window-divider
                 window-divider-first-pixel
                 window-divider-last-pixel))
