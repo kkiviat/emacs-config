@@ -176,6 +176,7 @@ Emacs 29 has smooth scrolling natively.
   (setq evil-want-keybinding nil)
   (setq evil-want-C-u-scroll t)
   (setq evil-want-C-i-jump nil)
+  (setq evil-undo-system 'undo-tree)
   :config
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
@@ -685,7 +686,7 @@ Define some helper methods to support my current project notes workflow. I like 
     "pn" '(klk/open-org-project-notes-file :which-key "project notes")
     "py" '(klk/yank-project-root :which-key "yank root"))
     :config
-  (setq projectile-project-search-path '(("~/Dropbox/org/" . 3) ("~/" . 1) ("~/openfoam/" . 2)))
+  (setq projectile-project-search-path '(("~/Dropbox/org/" . 3) ("~/" . 2) ("~/openfoam/" . 2)))
 )
 #+END_SRC
 
