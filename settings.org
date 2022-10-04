@@ -190,6 +190,12 @@ Emacs 29 has smooth scrolling natively.
 #+END_SRC
 *** General
 Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
+
+#+BEGIN_SRC emacs-lisp
+(defun klk/yank-file-path ()
+  (interactive)
+  (kill-new (buffer-file-name)))
+#+END_SRC
 #+BEGIN_SRC emacs-lisp
 (use-package general
   :demand t
@@ -210,6 +216,9 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
     "wu" 'winner-undo
     "wr" 'winner-redo
     "wm" '(delete-other-windows :which-key "maximize")
+
+    ;; Files
+    "fy" 'klk/yank-file-path
 
     ;; Themes
     "t" 'klk-choose-theme :which-key "themes"
@@ -582,7 +591,7 @@ Include their config to add padding to buffers and tweak a few other things.
   (use-package highlight-symbol
     :config
     (set-face-attribute 'highlight-symbol-face nil
-			:background "#A5A5A5"
+			:background "#D0D0D0"
 			:foreground "default")
     (setq highlight-symbol-idle-delay 0)
     (setq highlight-symbol-on-navigation-p t)
