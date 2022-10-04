@@ -13,7 +13,7 @@
  ("compat" . "89aa1151aee8c99f4632f86b837e0a69849dbe18")
  ("consult" . "054143c3941f745fa0d950acc2cb0b68338e8b1c")
  ("consult-dir" . "88f1d7cce614fabbfb41dff5338399971835c48c")
- ("corfu" . "d79e4e412a729fde9e143028cf3d588e802203dd")
+ ("corfu" . "bd22eed082592f9b13f7d6e6398bca41897b7e28")
  ("dash.el" . "0ac1ecf6b56eb67bb81a3cf70f8d4354b5782341")
  ("doct" . "15974ad8d4d7baa071b5ea33877e9dc117c4153e")
  ("doom-modeline" . "85bdd9ed8674710f6b9815e9a1c41ad4b5a45ace")

@@ -841,10 +841,10 @@ Quickly select another directory in minibuffer.
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
-  (corfu-separator ?\s)          ;; Orderless field separator
+  (corfu-separator "*")          ;; Orderless field separator
   (corfu-min-width 80)
   (corfu-max-width corfu-min-width) ;; Always have the same width
-  (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+  (corfu-quit-at-boundary t)
   (corfu-quit-no-match t)      ;; Never quit, even if there is no match
   ;; (corfu-preview-current nil)    ;; Disable current candidate preview
   ;; (corfu-preselect-first nil)    ;; Disable candidate preselection
