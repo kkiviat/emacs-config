@@ -2141,6 +2141,14 @@ Slightly easier way to interact with krita or xournal++ files in buffers. Still 
 #+BEGIN_SRC emacs-lisp
 (use-package eglot)
 #+END_SRC
+** LSP
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-ui
+  :ensure t
+  :config
+  (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+  (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
+#+END_SRC
 ** Flycheck
   Syntax checking support
 #+BEGIN_SRC emacs-lisp
@@ -2223,6 +2231,20 @@ Taken from https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-
   :hook ((typescript-mode . tide-setup)
          (typescript-mode . tide-hl-identifier-mode)
          (before-save . tide-format-before-save)))
+#+END_SRC
+
+** code cells
+Allows defining separate cells in a code file using, e.g., =# %% Title=.
+#+BEGIN_SRC emacs-lisp
+(use-package code-cells
+  :hook ((python-mode . code-cells-mode-maybe))
+  :config
+  (let ((map code-cells-mode-map))
+    (define-key map (kbd "M-p") 'code-cells-backward-cell)
+    (define-key map (kbd "M-n") 'code-cells-forward-cell)
+    (define-key map (kbd "C-c C-c") 'code-cells-eval)
+    ;; Overriding other minor mode bindings requires some insistence...
+    (define-key map [remap jupyter-eval-line-or-region] 'code-cells-eval)))
 #+END_SRC
 
 ** COMMENT C / C++
