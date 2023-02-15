@@ -49,6 +49,11 @@ Hide window chrome
  (scroll-bar-mode -1)
  #+END_SRC
 
+ Use this to make the things actually maximized (see https://stackoverflow.com/questions/27758800/why-does-emacs-leave-a-gap-when-trying-to-maximize-the-frame)
+ #+BEGIN_SRC emacs-lisp
+(setq frame-resize-pixelwise t)
+ #+END_SRC
+
 Start with window maximized and partially transparent.
 Transparency toggling / setting code based on [[https://www.reddit.com/r/emacs/comments/9e98hp/translucent_background/e5pi7bl/][this reddit post]].
 #+BEGIN_SRC emacs-lisp
@@ -174,13 +179,15 @@ Emacs 29 has smooth scrolling natively.
   :init
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
-  (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-u-scroll nil)
   (setq evil-want-C-i-jump nil)
   (setq evil-undo-system 'undo-tree)
   :config
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
   (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+  (define-key evil-motion-state-map (kbd ":") 'evil-repeat-find-char)
+  (define-key evil-motion-state-map (kbd ";") 'evil-ex)
 
   ;; Use visual line motions even outside of visual-line-mode buffers
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
@@ -488,7 +495,7 @@ Also add a method to refresh $\LaTeX$ previews in all open org buffers, but don'
 
 *** Set up current theme
 #+BEGIN_SRC emacs-lisp
-(load-theme 'doom-quiet-light t)
+(load-theme 'modus-operandi t)
 ;; (klk-set-org-block-fixed-pitch) ; default
 #+END_SRC
 
