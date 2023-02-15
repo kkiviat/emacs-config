@@ -252,7 +252,7 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
 ** Text
 Make the text bigger by default. (sensible-defaults binds font resize to C-- and C-+)
 #+BEGIN_SRC emacs-lisp
-(set-face-attribute 'default nil :height 130)
+(set-face-attribute 'default nil :height 110)
 #+END_SRC
 
 Default to visual line mode for some modes.
@@ -702,7 +702,7 @@ Define some helper methods to support my current project notes workflow. I like 
     "pn" '(klk/open-org-project-notes-file :which-key "project notes")
     "py" '(klk/yank-project-root :which-key "yank root"))
     :config
-  (setq projectile-project-search-path '(("~/Dropbox/org/" . 3) ("~/" . 2) ("~/openfoam/" . 2)))
+  (setq projectile-project-search-path '(("~/Dropbox/org/" . 3) ("~/" . 2) ("~/openfoam/" . 2) ("~/Dropbox/classes/" . 3)))
 )
 #+END_SRC
 
@@ -1209,6 +1209,7 @@ Note: need =xclip= installed for =org-download-clipboard=.
     "d s" '(org-download-screenshot :which-key "screenshot")
     "d c" '(org-download-clipboard :which-key "clipboard"))
   :custom
+  (org-download-screenshot-method "spectacle -br -o %s")
   (org-download-image-dir "images"))
 #+END_SRC
 ** Tasks
