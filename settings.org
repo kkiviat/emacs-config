@@ -2241,12 +2241,33 @@ Taken from https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-
          (before-save . tide-format-before-save)))
 #+END_SRC
 
+
+** Julia
+
+Set =julia-snail-multimedia-enable= in a =.dir-locals.el= to enable displaying plots in buffer.
+#+BEGIN_SRC emacs-lisp
+(use-package julia-snail
+  :hook (julia-mode . julia-snail-mode))
+#+END_SRC
 ** code cells
+
 Allows defining separate cells in a code file using, e.g., =# %% Title=.
+Overwrite =code-cells-boundary-regexp= to also use =##= as a cell marker.
 #+BEGIN_SRC emacs-lisp
 (use-package code-cells
-  :hook ((python-mode . code-cells-mode-maybe))
+  :hook (
+	 (python-mode . code-cells-mode)
+	 (julia-mode . code-cells-mode))
+  :custom
+  (code-cells-boundary-regexp
+   (rx (+ (syntax comment-start))
+       (or (seq (* (syntax whitespace)) "%" (group-n 1 (+ "%")))
+           (group-n 1 (+ "*"))
+           (group-n 1 (+ "#"))
+           (seq " In[" (* (any space digit)) "]:")))
+   :type 'regexp)
   :config
+  (add-to-list 'code-cells-eval-region-commands '(julia-snail-mode . julia-snail-send-code-cell))
   (let ((map code-cells-mode-map))
     (define-key map (kbd "M-p") 'code-cells-backward-cell)
     (define-key map (kbd "M-n") 'code-cells-forward-cell)
