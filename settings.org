@@ -867,9 +867,13 @@ Quickly select another directory in minibuffer.
     ;; (setq-local corfu-auto nil) Enable/disable auto completion
     (corfu-mode 1)))
   (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
-
+  (evil-make-overriding-map corfu-map)
+  (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
+  (advice-add 'corfu--teardown :after 'evil-normalize-keymaps)
   :bind
   (:map corfu-map ("S-SPC" . corfu-insert-separator))
+  (:map corfu-map ("C-j" . corfu-next))
+  (:map corfu-map ("C-k" . corfu-previous))
 
   :init
   (global-corfu-mode))
