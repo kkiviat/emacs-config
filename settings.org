@@ -54,10 +54,10 @@ Hide window chrome
 (setq frame-resize-pixelwise t)
  #+END_SRC
 
-Start with window maximized and partially transparent.
+Start with window maximized and partially transparent. (Disable maximization now since I'm using window tiling.)
 Transparency toggling / setting code based on [[https://www.reddit.com/r/emacs/comments/9e98hp/translucent_background/e5pi7bl/][this reddit post]].
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
+;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (set-frame-parameter (selected-frame) 'alpha '(100 100))
 (add-to-list 'default-frame-alist '(alpha 100 100))
 
@@ -185,7 +185,7 @@ Emacs 29 has smooth scrolling natively.
   :config
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+  ;; (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
   (define-key evil-motion-state-map (kbd ":") 'evil-repeat-find-char)
   (define-key evil-motion-state-map (kbd ";") 'evil-ex)
 
@@ -193,6 +193,10 @@ Emacs 29 has smooth scrolling natively.
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
   (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
+  (evil-set-initial-state 'help-mode 'emacs)
+  (evil-set-initial-state 'helpful-mode 'emacs)
+  (evil-set-initial-state 'special-mode 'emacs)
+  (evil-set-initial-state 'vterm-mode 'emacs)
   (evil-set-initial-state 'messages-buffer-mode 'normal))
 #+END_SRC
 *** General
@@ -226,12 +230,17 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
 
     ;; Files
     "fy" 'klk/yank-file-path
+    "fb" 'previous-buffer
+    "ff" 'next-buffer
+    "fo" 'find-file
+    "b" 'switch-to-buffer
 
     ;; Themes
     "t" 'klk-choose-theme :which-key "themes"
 
     "r"'(:ignore t :which-key "refile")
     "rr" '(org-refile :which-key "choose heading")
+    "rf" '(klk/refile-in-same-file :which-key "same file")
     "rd" '((lambda () (interactive) (org-reverse-datetree--refile-to-file (buffer-file-name))) :which-key "datetree")
 
     "k" '(:keymap bookmark-map :which-key "bookmarks")
@@ -1032,9 +1041,21 @@ Stop org files from being opened in new windows.
 
 (use-package org
   :general
-  (:keymaps 'org-mode-map "M-n" 'org-forward-paragraph "M-p" 'org-backward-paragraph)
+  (:keymaps 'org-mode-map
+	    "M-n" 'org-next-visible-heading
+	    "M-p" 'org-previous-visible-heading
+	    "M-h" 'outline-up-heading
+	    "M-l" 'org-next-visible-heading
+	    "M-j" 'org-forward-heading-same-level
+	    "M-k" 'org-backward-heading-same-level
+	    "M-K" 'org-move-subtree-up
+	    "M-J" 'org-move-subtree-down
+	    "M-H" 'org-promote-subtree
+	    "M-L" 'org-demote-subtree)
   (klk/leader-key-def
     :keymaps 'org-mode-map
+    "ns" 'org-narrow-to-subtree :wk "narrow"
+    "nw" 'widen :wk "widen"
     "jl" '(klk/goto-last-heading :wk "last heading")))
 #+END_SRC
 ** Sidebar
