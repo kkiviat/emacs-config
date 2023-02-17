@@ -1133,6 +1133,15 @@ Add support for Elsevier article format. From https://write.as/dani/writing-a-ph
 
 ** Refiling
 Set targets for refiling. Use =C-c C-w= to refile. This determines what options you're prompted with. Includes everything in all the agenda files, plus the someday file and various list files.
+
+#+BEGIN_SRC emacs-lisp
+(defun klk/refile-in-same-file ()
+  "Refile under a heading in the current file."
+  (interactive)
+  (let ((org-refile-targets '((nil :maxlevel . 9))))
+    (org-refile)))
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp
 (setq org-refile-targets '((nil :maxlevel . 9) ;; refile in current file
 			   (org-agenda-files :maxlevel . 3)
