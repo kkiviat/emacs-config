@@ -431,6 +431,16 @@ Config for quiet theme from https://github.com/quiettheme/emacs.
 (setq doom-quiet-light-padded-modeline t)
 (setq doom-quiet-light-brighter-comments t)
 #+END_SRC
+
+*** Configure modus themes
+#+BEGIN_SRC emacs-lisp
+(setq modus-themes-region '(accented bg-only)
+      modus-themes-mode-line '(accented)
+      modus-themes-completions 'opinionated
+      modus-themes-org-blocks 'tinted-background
+      modus-themes-bold-constructs t
+      modus-themes-italic-constructs t)
+#+END_SRC
 *** Modeline
 **** Doom modeline
 #+BEGIN_SRC emacs-lisp
