@@ -196,8 +196,24 @@ Emacs 29 has smooth scrolling natively.
   (evil-set-initial-state 'help-mode 'emacs)
   (evil-set-initial-state 'helpful-mode 'emacs)
   (evil-set-initial-state 'special-mode 'emacs)
-  (evil-set-initial-state 'vterm-mode 'emacs)
+  (evil-set-initial-state 'vterm-mode 'insert)
   (evil-set-initial-state 'messages-buffer-mode 'normal))
+
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Use ESC to cancel everything
+#+END_SRC
+
+Additional evil keybindings for other parts of Emacs.
+#+BEGIN_SRC emacs-lisp
+(use-package evil-collection
+  :after evil
+  ;; :init
+  ;; (setq evil-collection-company-use-tng nil)  ;; Is this a bug in evil-collection?
+  ;; :custom
+  ;; (evil-collection-outline-bind-tab-p nil)
+  :config
+  ;; (setq evil-collection-mode-list
+  ;;       (remove 'lispy evil-collection-mode-list))
+  (evil-collection-init))
 #+END_SRC
 
 Avy-style jumping for evil motion commands. Type space followed by a motion key then type the letters corresponding to the desired candidate target.
@@ -448,7 +464,7 @@ Config for quiet theme from https://github.com/quiettheme/emacs.
       modus-themes-italic-constructs t)
 #+END_SRC
 *** Modeline
-**** Doom modeline
+**** COMMENT Doom modeline
 #+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
   :init
@@ -457,6 +473,14 @@ Config for quiet theme from https://github.com/quiettheme/emacs.
   (setq doom-modeline-height 30)
   (doom-modeline-mode 1)
   )
+#+END_SRC
+
+**** Doom Nano Modeline
+#+BEGIN_SRC emacs-lisp
+(use-package doom-nano-modeline
+  :straight (doom-nano-modeline :type git :host github :repo "ronisbr/doom-nano-modeline")
+  :config
+  (doom-nano-modeline-mode 1))
 #+END_SRC
 
 *** toggle themes
@@ -727,8 +751,17 @@ Define some helper methods to support my current project notes workflow. I like 
     "pn" '(klk/open-org-project-notes-file :which-key "project notes")
     "py" '(klk/yank-project-root :which-key "yank root"))
     :config
-  (setq projectile-project-search-path '(("~/Dropbox/org/" . 3) ("~/" . 2) ("~/openfoam/" . 2) ("~/Dropbox/classes/" . 3)))
+  (setq projectile-project-search-path '(("~/Dropbox/org/" . 3) ("~/" . 2) ("~/openfoam/" . 3) ("~/Dropbox/classes/" . 3)))
 )
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package consult-projectile
+  :straight (consult-projectile :type git :host gitlab :repo "OlMon/consult-projectile" :branch "master")
+  :general
+  (klk/leader-key-def
+    "pb" '(consult-projectile-switch-to-buffer :which-key "project buffer")
+    "pf" '(consult-projectile-find-file :which-key "project file")))
 #+END_SRC
 
 *** Perspective
@@ -792,7 +825,12 @@ Insert proposed expansion with =M-/=. Can be used to, e.g., repeat previous line
 #+BEGIN_SRC emacs-lisp
 (use-package vertico
   :init
-  (vertico-mode))
+  (vertico-mode)
+  :bind (:map vertico-map
+         ("C-j" . vertico-next)
+         ("C-k" . vertico-previous))
+  :custom
+  (vertico-cycle t))
 #+END_SRC
 
 *** Orderless
