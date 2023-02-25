@@ -199,6 +199,13 @@ Emacs 29 has smooth scrolling natively.
   (evil-set-initial-state 'vterm-mode 'emacs)
   (evil-set-initial-state 'messages-buffer-mode 'normal))
 #+END_SRC
+
+Avy-style jumping for evil motion commands. Type space followed by a motion key then type the letters corresponding to the desired candidate target.
+#+BEGIN_SRC emacs-lisp
+(use-package evil-easymotion
+  :config
+  (evilem-default-keybindings "SPC"))
+#+END_SRC
 *** General
 Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
 
@@ -229,11 +236,10 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
     "wm" '(delete-other-windows :which-key "maximize")
 
     ;; Files
-    "fy" 'klk/yank-file-path
-    "fb" 'previous-buffer
-    "ff" 'next-buffer
-    "fo" 'find-file
-    "b" 'switch-to-buffer
+    "yf" 'klk/yank-file-path
+    "b" 'previous-buffer
+    "f" 'next-buffer
+    "o" 'find-file
 
     ;; Themes
     "t" 'klk-choose-theme :which-key "themes"
@@ -819,7 +825,7 @@ Provides nice annotations for minibuffer completion options (like command descri
     "s o" '(consult-outline :which-key "outline")
     "s h" '(consult-org-heading :which-key "org heading")
     "s p" '(consult-ripgrep :which-key "ripgrep project")
-    "b" 'consult-buffer :which-key "consult buffer")
+    "B" 'consult-buffer :which-key "consult buffer")
   :config
   (autoload 'projectile-project-root "projectile"))
 #+END_SRC
