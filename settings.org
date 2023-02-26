@@ -829,13 +829,27 @@ Insert proposed expansion with =M-/=. Can be used to, e.g., repeat previous line
   (vertico-cycle t))
 #+END_SRC
 
-*** Orderless
+*** COMMENT Orderless
 #+BEGIN_SRC emacs-lisp
 (use-package orderless
   :init
   (setq completion-styles '(orderless basic)
+	orderless-matching-styles '(orderless-flex)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
+#+END_SRC
+
+*** Fussy
+#+BEGIN_SRC emacs-lisp
+(use-package fussy
+  :config
+  (push 'fussy completion-styles)
+  (setq
+   ;; For example, project-find-file uses 'project-files which uses
+   ;; substring completion by default. Set to nil to make sure it's using
+   ;; flx.
+   completion-category-defaults nil
+   completion-category-overrides nil))
 #+END_SRC
 *** Marginalia
 Provides nice annotations for minibuffer completion options (like command descriptions and keyboard shortcuts).
@@ -1080,6 +1094,26 @@ Copied from https://mstempl.netlify.app/post/beautify-org-mode/. Replace list da
 Stop org files from being opened in new windows.
 #+BEGIN_SRC emacs-lisp
 (setq org-link-frame-setup '((file . find-file)))
+#+END_SRC
+
+** Folding
+
+Org mode 9.6 switched to a different folding backend, and drawers are no longer folded after cycling folding in a file. This is supposed to do what I want, which is to set drawers folded by default, but it doesn't seem to be working.
+
+#+BEGIN_SRC emacs-lisp
+(setq org-hide-drawer-startup t)
+#+END_SRC
+
+ This restores the old behavior, although they warn there may be performance issues with large files.
+
+#+BEGIN_SRC emacs-lisp
+;; (add-hook 'org-cycle-hook #'org-cycle-hide-drawers)
+#+END_SRC
+
+Alternatively, set org files to be headings-only on startup. This will start with drawers folded.
+
+#+BEGIN_SRC emacs-lisp
+(setq org-startup-folded 'content)
 #+END_SRC
 
 ** Navigation
