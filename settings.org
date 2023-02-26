@@ -1133,7 +1133,7 @@ This draws vertical lines under heading bullets. Add a function here to reset th
     :straight (org-visual-outline :type git :host github :repo "legalnonsense/org-visual-outline")
     :hook
     (org-mode . org-visual-indent-mode)
-    (org-mode . org-dynamic-bullets-mode)
+    ;; (org-mode . org-dynamic-bullets-mode)
     :config
     (defun klk/refresh-pipe-colors (&rest args)
       (set-face-background 'org-visual-indent-blank-pipe-face (face-attribute 'default :background))
@@ -2113,7 +2113,15 @@ Attach notes to locations in the pdf.
 
 *** org-gcal
 #+BEGIN_SRC emacs-lisp
+; Install some dependencies first
+(use-package alert)
+(use-package request)
+(use-package request-deferred)
+(use-package persist)
+(use-package aio)
+
 (use-package org-gcal
+  :straight (org-gcal.el :host github :repo "kidd/org-gcal.el")
   :config
   (setq org-gcal-client-id (klk/get-gcal-client-id)
 	org-gcal-client-secret (klk/get-gcal-client-secret)
