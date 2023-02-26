@@ -206,13 +206,9 @@ Additional evil keybindings for other parts of Emacs.
 #+BEGIN_SRC emacs-lisp
 (use-package evil-collection
   :after evil
-  ;; :init
-  ;; (setq evil-collection-company-use-tng nil)  ;; Is this a bug in evil-collection?
-  ;; :custom
-  ;; (evil-collection-outline-bind-tab-p nil)
   :config
-  ;; (setq evil-collection-mode-list
-  ;;       (remove 'lispy evil-collection-mode-list))
+  (setq evil-collection-mode-list
+        (remove 'outline evil-collection-mode-list))
   (evil-collection-init))
 #+END_SRC
 
