@@ -123,6 +123,15 @@ Install https://github.com/karthink/popper to be able to quickly bring up and di
   (popper-echo-mode +1))                ; For echo area hints
 #+END_SRC
 
+*** Window rotation
+
+Use code from https://www.emacswiki.org/emacs/TransposeFrame, which enables flipping, transposing, and rotating frames.
+
+#+BEGIN_SRC emacs-lisp
+(load-file (expand-file-name "transpose-frame.el" user-emacs-directory))
+(require 'transpose-frame)
+#+END_SRC
+
 ** Scrolling
 Emacs 29 has smooth scrolling natively.
 #+BEGIN_SRC emacs-lisp
@@ -243,9 +252,12 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
     "wd" 'delete-window
     "w=" 'balance-windows-area
     "wD" 'kill-buffer-and-window
-    "wu" 'winner-undo
-    "wr" 'winner-redo
+    "wU" 'winner-undo
+    "wR" 'winner-redo
     "wm" '(delete-other-windows :which-key "maximize")
+    "wr" 'rotate-frame-clockwise
+    "wr" 'rotate-frame-clockwise
+    "wh" 'split-window-right
 
     ;; Files
     "yf" 'klk/yank-file-path
