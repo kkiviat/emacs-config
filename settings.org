@@ -211,6 +211,13 @@ Emacs 29 has smooth scrolling natively.
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Use ESC to cancel everything
 #+END_SRC
 
+Unbind RET from evil mode so it can still be used to follow org links. See https://emacs.stackexchange.com/a/46377
+#+BEGIN_SRC emacs-lisp
+(with-eval-after-load 'evil-maps
+  (define-key evil-normal-state-map (kbd "C-.") nil)
+  (define-key evil-motion-state-map (kbd "RET") nil))
+#+END_SRC
+
 Additional evil keybindings for other parts of Emacs.
 #+BEGIN_SRC emacs-lisp
 (use-package evil-collection
@@ -1163,6 +1170,12 @@ The tree sidebar provides an outline on the left that you can use to jump around
 	 ("<f6>" . org-sidebar-toggle))
   )
 #+END_SRC
+** Bullets
+#+BEGIN_SRC emacs-lisp
+(use-package org-bullets
+  :hook
+  ('org-mode . (lambda () (org-bullets-mode 1))))
+#+END_SRC
 ** Indentation
 Indent org files by default
 #+BEGIN_SRC emacs-lisp
@@ -1324,9 +1337,10 @@ Scale up latex preview images.
 
 This package uses AucTeX's preview library for org mode LaTeX previews, which is faster. Especially important since I'm regenerating previews in all open buffers when I change themes.
 #+BEGIN_SRC emacs-lisp
-(use-package org-auctex
-  :straight (org-auctex :type git :host github :repo "karthink/org-auctex")
-  :config (add-hook 'org-mode-hook 'org-auctex-mode))
+;; Disable for now because it wasn't working
+;; (use-package org-auctex
+;;   :straight (org-auctex :type git :host github :repo "karthink/org-auctex")
+;;   :config (add-hook 'org-mode-hook 'org-auctex-mode))
 #+END_SRC
 
 *** org-download
@@ -1517,7 +1531,7 @@ Bind a system shortcut to =emacsclient -n -e '(yequake-toggle "org-capture")'= t
   :general
   (klk/leader-key-def
     "a" '(org-agenda :wk "agenda")
-    "c" '(org-capture :wk "capture")))
+    "c c" '(org-capture :wk "capture")))
 #+END_SRC
 
 Make agenda full screen.
@@ -1772,9 +1786,9 @@ This changes the context settings for sparse subtrees so that it will show the c
 Use variable font sizes for headings and a large font for titles.
 #+BEGIN_SRC emacs-lisp
 (custom-set-faces
-  '(org-level-1 ((t (:inherit outline-1 :height 1.4))))
-  '(org-level-2 ((t (:inherit outline-2 :height 1.25))))
-  '(org-level-3 ((t (:inherit outline-3 :height 1.2))))
+  '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
+  '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
+  '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
   '(org-level-4 ((t (:inherit outline-4 :height 1.1))))
   '(org-document-title ((t (:height 250))))
 )

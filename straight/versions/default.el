@@ -84,7 +84,7 @@
  ("org" . "351279ffaead08398002fd29801eaad688ccf239")
  ("org-anki" . "f043deffd87fa7d69b1df50139624bc3b6b464ef")
  ("org-appear" . "eb9f9db40aa529fe4b977235d86494b115281d17")
- ("org-auctex" . "e1271557b9f36ca94cabcbac816748e7d0dc989c")
+ ("org-bullets" . "767f55feb58b840a5a04eabfc3fbbf0d257c4792")
  ("org-contrib" . "223390ea2c2f728ca4bfd1c4a33cac25d003693a")
  ("org-download" . "19e166f0a8c539b4144cfbc614309d47a9b2a9b7")
  ("org-gcal.el" . "f8075bd8eac7288eea1060077ca103d5fd01fb65")
