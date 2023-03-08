@@ -2203,8 +2203,11 @@ Attach notes to locations in the pdf.
 #+END_SRC
 ** babel
 
+Set =org-babel-min-lines-for-block-output= to 1 to always wrap output in an example block, rather than prepending with =:=. Alternatively, could use =:results output drawer= in the code block header.
 #+BEGIN_SRC emacs-lisp
 (use-package org
+  :custom
+  (org-babel-min-lines-for-block-output 1)
   :general
   (klk/leader-key-def
     :keymaps 'org-mode-map
@@ -2256,6 +2259,9 @@ Fix for ansi color sequence issue from https://github.com/nnicandro/emacs-jupyte
 #+END_SRC
 
 *** load languages
+
+Load the languages to be recognized in code blocks, and also set default header args.
+
 #+BEGIN_SRC emacs-lisp
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -2264,6 +2270,9 @@ Fix for ansi color sequence issue from https://github.com/nnicandro/emacs-jupyte
    (octave . t)
    ;; other languages..
    ))
+
+(add-to-list 'org-babel-default-header-args:python
+             '(:results . "output"))
 #+END_SRC
 
 ** images
