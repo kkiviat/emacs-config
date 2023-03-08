@@ -74,6 +74,7 @@
  ("map" . "a0e501aede34f183a8baa5d3d41610a3ffa1728e")
  ("marginalia" . "ccf573e2145d9deb9d734432351eefc87fc1bc16")
  ("markdown-mode" . "76d46888d60078630a310dcd973ea931fbac5c75")
+ ("math-preview" . "dd41b03c64eca324558e6139699cacccfdd0efd2")
  ("melpa" . "2e40e3364a5dec38672753093c28ae97d85de189")
  ("mixed-pitch" . "519e05f74825abf04b7d2e0e38ec040d013a125a")
  ("multi-vterm" . "36746d85870dac5aaee6b9af4aa1c3c0ef21a905")

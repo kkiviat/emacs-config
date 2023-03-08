@@ -1328,20 +1328,50 @@ Set this to =nil= to allow customizing image preview size with something like:
 (setq org-image-actual-width nil)
 #+END_SRC
 
-Scale up latex preview images.
+*** LaTeX rendering with math-preview
+
+Taken from [[https://daryl.wakatara.com/emacs-gtd-flow-evolved/#science-stuff][this nice config]].
+
+[[https://gitlab.com/matsievskiysv/math-preview][math-preview]] uses MathJax to display LaTeX. It has an external dependency, but it makes rendering much faster.
+
 #+BEGIN_SRC emacs-lisp
-(setq org-format-latex-options (plist-put org-format-latex-options :scale 1.7))
-(setq org-preview-latex-image-directory "/tmp/ltximg/")
-(setq org-preview-latex-default-process 'imagemagick)
+(use-package math-preview
+	:custom
+    (math-preview-scale 1.5)
+    (math-preview-tex-marks-inline
+			'(("$" "$")))
+    (math-preview-tex-marks
+	 '(("\\begin{equation}" "\\end{equation}")
+		 ("\\begin{equation*}" "\\end{equation*}")
+		 ("\\begin{align}" "\\end{align}")
+		 ("\\begin{align*}" "\\end{align*}")
+		 ("$$" "$$")
+		 ))
+    ;; Remove labels to avoid error when re-evaluating
+    ;; This is supposed to be a list of functions, but it doesn't
+    ;; seem to work if there's more than one. But the default value
+    ;; doesn't seem important.
+    (math-preview-tex-preprocess-functions '((lambda (x)
+					       (puthash 'string
+							(s-replace-regexp "\\label{.+}" ""
+									  (gethash 'string x))
+							x)))))
+(add-hook 'org-mode-hook #'math-preview-all)
+(defalias #'org-latex-preview #'math-preview-at-point)
+(defalias #'org-clear-latex-preview #'math-preview-clear-region)
+(advice-add #'math-preview-at-point :after (lambda () (math-preview-stop-process 1)))
 #+END_SRC
 
-This package uses AucTeX's preview library for org mode LaTeX previews, which is faster. Especially important since I'm regenerating previews in all open buffers when I change themes.
+*** org-fragtog
+
+Automatically disable LaTeX images when the cursor is on them, and re-enable after leaving.
+
 #+BEGIN_SRC emacs-lisp
-;; Disable for now because it wasn't working
-;; (use-package org-auctex
-;;   :straight (org-auctex :type git :host github :repo "karthink/org-auctex")
-;;   :config (add-hook 'org-mode-hook 'org-auctex-mode))
+(use-package org-fragtog
+  :config
+  (add-hook 'org-mode-hook 'org-fragtog-mode))
 #+END_SRC
+
 
 *** org-download
 Note: need =xclip= installed for =org-download-clipboard=.
