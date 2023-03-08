@@ -255,7 +255,7 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
     "wh" 'windmove-left
     "wk" 'windmove-up
     "wj" 'windmove-down
-    "wr" 'winner-redo
+    "wR" 'winner-redo
     "wd" 'delete-window
     "w=" 'balance-windows-area
     "wD" 'kill-buffer-and-window
@@ -263,7 +263,7 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
     "wR" 'winner-redo
     "wm" '(delete-other-windows :which-key "maximize")
     "wr" 'rotate-frame-clockwise
-    "wr" 'rotate-frame-clockwise
+    "wv" 'split-window-below
     "wh" 'split-window-right
 
     ;; Files
@@ -2309,10 +2309,9 @@ Slightly easier way to interact with krita or xournal++ files in buffers. Still 
 #+BEGIN_SRC emacs-lisp
 ;; auto-format different source code files extremely intelligently
 ;; https://github.com/radian-software/apheleia
+;; Don't enable it globally since it messes up my openfoam files
 (use-package apheleia
-  :ensure t
-  :config
-  (apheleia-global-mode +1))
+  :hook (python-mode . apheleia-mode))
 #+END_SRC
 ** Tree-sitter
 #+BEGIN_SRC emacs-lisp
