@@ -848,28 +848,15 @@ Insert proposed expansion with =M-/=. Can be used to, e.g., repeat previous line
   (vertico-cycle t))
 #+END_SRC
 
-*** COMMENT Orderless
+*** Orderless
 #+BEGIN_SRC emacs-lisp
 (use-package orderless
   :init
   (setq completion-styles '(orderless basic)
-	orderless-matching-styles '(orderless-flex)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
 #+END_SRC
 
-*** Fussy
-#+BEGIN_SRC emacs-lisp
-(use-package fussy
-  :config
-  (push 'fussy completion-styles)
-  (setq
-   ;; For example, project-find-file uses 'project-files which uses
-   ;; substring completion by default. Set to nil to make sure it's using
-   ;; flx.
-   completion-category-defaults nil
-   completion-category-overrides nil))
-#+END_SRC
 *** Marginalia
 Provides nice annotations for minibuffer completion options (like command descriptions and keyboard shortcuts).
 #+BEGIN_SRC emacs-lisp
