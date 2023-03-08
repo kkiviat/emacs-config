@@ -88,6 +88,7 @@
  ("org-bullets" . "767f55feb58b840a5a04eabfc3fbbf0d257c4792")
  ("org-contrib" . "223390ea2c2f728ca4bfd1c4a33cac25d003693a")
  ("org-download" . "19e166f0a8c539b4144cfbc614309d47a9b2a9b7")
+ ("org-fragtog" . "c675563af3f9ab5558cfd5ea460e2a07477b0cfd")
  ("org-gcal.el" . "f8075bd8eac7288eea1060077ca103d5fd01fb65")
  ("org-krita" . "7e334951b8de8f2f1c8cbe5068e7dfe6b9e9808f")
  ("org-modern" . "42fdbd2d27f5a8652593577a200eeea96555d018")
