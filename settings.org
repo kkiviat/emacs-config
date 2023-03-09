@@ -2047,6 +2047,38 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
           org-roam-ui-update-on-save t
           org-roam-ui-open-on-start nil))
 #+END_SRC
+
+*** roam images
+
+I insert a lot of screenshots into org-roam notes, but I don't want to have to worry about where the links point, in case I decide to move a file to another directory. To solve this, I define a single directory for org-roam images, and set =org-link-abbrev-alist= so I can use links of the form =[[org-roam-images:myimage.png]]=.
+
+#+BEGIN_SRC emacs-lisp
+(setq org-link-abbrev-alist
+      `(("org-roam-images"  . ,org-roam-image-dir)))
+#+END_SRC
+
+Here I define a function that converts all png links in a file to use the =org-roam-images:= syntax (if in the org-roam directory), and add advice to call this after inserting a screenshot.
+
+#+BEGIN_SRC emacs-lisp
+(defun klk/convert-org-roam-image-links (&optional arg)
+  "Replace links to png files to be relative to the org-roam-images directory"
+  (interactive)
+  (when (string-prefix-p (file-truename org-roam-directory) (expand-file-name (buffer-file-name)))
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "\\[\\[file:[^\]]*/\\(.*\.png\\)" nil t)
+	(replace-match "[[org-roam-images:\\1"))
+      (org-redisplay-inline-images))))
+
+(advice-add 'org-download-screenshot :after 'klk/convert-org-roam-image-links)
+(advice-add 'org-download-clipboard :after 'klk/convert-org-roam-image-links)
+#+END_SRC
+
+Finally, I add the following to a =.dir-locals.el= in the root of the org roam directory, so org-download will save screenshots there.
+#+begin_example
+((nil . ((org-download-image-dir . "~/Dropbox/org-roam/images"))))
+#+end_example
+
 ** Reference management
 *** pdf-tools
 Better pdf interactions in Emacs.
