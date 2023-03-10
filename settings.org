@@ -2434,6 +2434,12 @@ Simple python config based on https://gist.github.com/Nathan-Furnal/b327f14e861f
 
 (use-package lsp-pyright
   :ensure t
+  :general
+  (klk/leader-key-def
+    "l" '(:ignore t :which-key "lsp")
+    "ld" '(lsp-find-definition :which-key "definition")
+    "lb" '(xref-pop-marker-stack :which-key "xref back")
+    "lr" '(lsp-find-references :which-key "references"))
   :hook (python-mode . (lambda ()
                           (require 'lsp-pyright)
                           (lsp-deferred))))
