@@ -154,7 +154,7 @@ Emacs 29 has smooth scrolling natively.
     )
 #+END_SRC
 
-** beacon
+** COMMENT beacon
 #+BEGIN_SRC emacs-lisp
 (use-package beacon
   :init
@@ -211,11 +211,12 @@ Emacs 29 has smooth scrolling natively.
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Use ESC to cancel everything
 #+END_SRC
 
-Unbind RET from evil mode so it can still be used to follow org links. See https://emacs.stackexchange.com/a/46377
+Unbind RET from evil mode so it can still be used to follow org links. See https://emacs.stackexchange.com/a/46377. Also unbind =evil-mouse-drag-region= as it causes unintended highlighting (see https://github.com/emacs-evil/evil/issues/936)
 #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'evil-maps
   (define-key evil-normal-state-map (kbd "C-.") nil)
-  (define-key evil-motion-state-map (kbd "RET") nil))
+  (define-key evil-motion-state-map (kbd "RET") nil)
+  (define-key evil-motion-state-map [down-mouse-1] nil))
 #+END_SRC
 
 Additional evil keybindings for other parts of Emacs.
@@ -648,7 +649,10 @@ Include their config to add padding to buffers and tweak a few other things.
   :hook (org-mode . prettify-symbols-mode))
 #+END_SRC
 
-** Flyspell
+** COMMENT Flyspell
+
+Disabled because it makes a huge difference in performance.
+
   #+BEGIN_SRC emacs-lisp
 (use-package flyspell
   :straight nil
@@ -1044,6 +1048,16 @@ Feature name different from package name; see https://github.com/raxod502/straig
            ))))
 #+END_SRC
 
+** Utilities
+
+*** explain pause mode
+#+BEGIN_SRC emacs-lisp
+(use-package explain-pause-mode
+  :straight (explain-pause-mode :type git :host github :repo "lastquestion/explain-pause-mode")
+  :config
+  (explain-pause-mode))
+#+END_SRC
+
 * Org-mode
 ** Basics
 
@@ -1119,7 +1133,7 @@ Org mode 9.6 switched to a different folding backend, and drawers are no longer 
 Alternatively, set org files to be headings-only on startup. This will start with drawers folded.
 
 #+BEGIN_SRC emacs-lisp
-(setq org-startup-folded 'content)
+;; (setq org-startup-folded 'content)
 #+END_SRC
 
 ** Navigation
@@ -1346,7 +1360,7 @@ Taken from [[https://daryl.wakatara.com/emacs-gtd-flow-evolved/#science-stuff][t
 (add-hook 'org-mode-hook #'math-preview-all)
 (defalias #'org-latex-preview #'math-preview-at-point)
 (defalias #'org-clear-latex-preview #'math-preview-clear-region)
-(advice-add #'math-preview-at-point :after (lambda () (math-preview-stop-process 1)))
+;; (advice-add #'math-preview-at-point :after (lambda () (math-preview-stop-process 1)))
 #+END_SRC
 
 *** org-fragtog
