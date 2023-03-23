@@ -1194,11 +1194,7 @@ Wrap =org-ql-view--format-element= to display reference notes matching a tag alo
 
 I use a top-level heading in each reference file with the paper name, and apply any project tags to that heading. That way I can use =org-ql= to list matching papers, even thought it doesn't currently support file-level properties.
 
-Turn off tag inheritance so the query doesn't return all subheadings.
-
 #+BEGIN_SRC emacs-lisp
-(setq org-use-tag-inheritance nil)
-
 (defun klk/org-ql-view-reference (orig-fun &rest args)
   "This function will intercept the original function and
    add the summary to the result as a new line.
@@ -1219,12 +1215,11 @@ Turn off tag inheritance so the query doesn't return all subheadings.
   (advice-add 'org-ql-view--format-element :around #'klk/org-ql-view-reference)
   (let ((tag (completing-read "Choose tag:" (org-get-buffer-tags))))
   (org-ql-search
-    (directory-files-recursively "~/Dropbox/org-roam/references" "\\.org$")
-    '(tags tag)
+    (directory-files-recursively (expand-file-name "references" org-roam-directory) "\\.org$")
+    `(tags-local ,tag)
     :sort nil
     :super-groups '((:auto-category t))))
   (advice-remove #'klk/org-ql-view-reference 'org-ql-view--format-element))
-
 #+END_SRC
 ** Sidebar
 The tree sidebar provides an outline on the left that you can use to jump around the file. The regular sidebar on the right shows TODO items in the file.
