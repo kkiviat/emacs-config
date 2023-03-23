@@ -1906,21 +1906,22 @@ Add more space for the category in the agenda.
 
 Set files to be included in the agenda. Includes archive because I like to see old completed tasks in the agenda, and also =daily.org= because I want to show my one-line daily summaries in the agenda.
 #+BEGIN_SRC emacs-lisp
-(setq org-agenda-files `(,(org-file-path "inbox.org")
-			 ,(org-file-path "mobile inbox.org")
-			 ,(org-file-path "writing_inbox.org")
-			 ,(org-file-path "reading_inbox.org")
-			 ,(org-file-path "gcal.org")
-			 ,(org-file-path "gcal-school.org")
-			 ,(org-file-path "gtd.org")
-			 ,(org-file-path "goals.org")
-			 ,(org-file-path "research.org")
-			 ,(org-file-path "recurring.org")
-			 ,(org-file-path "archive.org")
-			 ,(org-file-path "school.org")
-			 ,(org-file-path "p-financial.org")
-			 ,(org-file-path "p-health.org")
-			 ,(org-file-path "p-garden.org")))
+(setq org-agenda-files (append org-agenda-files
+			       `(,(org-file-path "inbox.org")
+				 ,(org-file-path "mobile inbox.org")
+				 ,(org-file-path "writing_inbox.org")
+				 ,(org-file-path "reading_inbox.org")
+				 ,(org-file-path "gcal.org")
+				 ,(org-file-path "gcal-school.org")
+				 ,(org-file-path "gtd.org")
+				 ,(org-file-path "goals.org")
+				 ,(org-file-path "research.org")
+				 ,(org-file-path "recurring.org")
+				 ,(org-file-path "archive.org")
+				 ,(org-file-path "school.org")
+				 ,(org-file-path "p-financial.org")
+				 ,(org-file-path "p-health.org")
+				 ,(org-file-path "p-garden.org"))))
 #+END_SRC
 
 Enable inline tasks.
@@ -2127,9 +2128,9 @@ Use variable font sizes for headings and a large font for titles.
 #+BEGIN_SRC emacs-lisp
 (custom-set-faces
   '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
-  '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
-  '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
-  '(org-level-4 ((t (:inherit outline-4 :height 1.1))))
+  '(org-level-2 ((t (:inherit outline-2 :height 1.15 :weight normal))))
+  '(org-level-3 ((t (:inherit outline-3 :height 1.1 :weight normal))))
+  '(org-level-4 ((t (:inherit outline-4 :height 1.1 :weight normal))))
   '(org-document-title ((t (:height 250))))
 )
 #+END_SRC
