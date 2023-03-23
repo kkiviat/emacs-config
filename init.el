@@ -18,7 +18,7 @@
                                     :repo "https://git.sr.ht/~bzg/org-contrib"
                                     :local-repo "org-contrib"))
 
-(straight-use-package '(org))
+;; (straight-use-package '(org))
 
 (org-babel-load-file "~/Dropbox/org/private.org")
 (org-babel-load-file (expand-file-name "settings.org" user-emacs-directory))

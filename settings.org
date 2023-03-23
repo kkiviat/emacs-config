@@ -1058,6 +1058,12 @@ Feature name different from package name; see https://github.com/raxod502/straig
   (explain-pause-mode))
 #+END_SRC
 
+** local variables
+Don't prompt me about local variables.
+#+BEGIN_SRC emacs-lisp
+(setq enable-local-variables t)
+#+END_SRC
+
 * Org-mode
 ** Basics
 
@@ -1387,6 +1393,226 @@ Note: need =xclip= installed for =org-download-clipboard=.
   (org-download-screenshot-method "spectacle -br -o %s")
   (org-download-image-dir "images"))
 #+END_SRC
+
+** Roam
+#+BEGIN_SRC emacs-lisp
+(defvar org-roam-dir "~/Dropbox/org/roam")
+(defvar org-roam-image-dir "~/Dropbox/org/roam/images/")
+(defvar org-roam-attachments-dir "~/Dropbox/org/roam/attachments/")
+(use-package org-roam
+  :straight (org-roam :type git :flavor melpa :host github :repo "org-roam/org-roam")
+  :demand t ; force this to be loaded
+  :custom
+  (org-roam-directory org-roam-dir)
+  :config
+  (org-roam-db-autosync-mode)
+  (add-hook 'org-roam-mode-hook #'visual-line-mode)
+  (define-key org-roam-mode-map [mouse-1] #'org-roam-preview-visit)
+(add-to-list 'display-buffer-alist
+             '("\\*org-roam\\*"
+               (display-buffer-in-direction)
+               (direction . right)
+               (window-width . 0.33)
+               (window-height . fit-window-to-buffer)))
+  (setq org-roam-capture-templates
+        '(("d" "default" plain
+           "%?"
+           :if-new (file+head
+		    "%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n#+created: %U\n")
+           :unnarrowed t)
+	  ("s" "source" plain ;; non-academic references
+           "Source: %?"
+           :if-new (file+head
+		    "references/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n#+created: %U\n")
+           :unnarrowed t)
+	  ("i" "index" plain ;; broad topics that function like tags
+	   "%?"
+           :if-new (file+head
+		    "index/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n#+created: %U\n")
+           :unnarrowed t)
+	  ("r" "bibliography reference" plain "%?"
+           :if-new
+           (file+head "references/@${citekey}.org" "#+title: @${citekey}\n${title}\n* Notes\n\n")
+           ;; (file+head "references/${citekey}.org" "#+title: ${author} (${year}). ${title}\n* Summary\n\n* Key Ideas\n\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ~/Dropbox/Zotero/${file}\n:END:\n")
+	   :unnarrowed t)))
+  (setq org-roam-dailies-directory "dailies/")
+  (setq org-roam-dailies-capture-templates
+	(quote (("d" "daily" plain
+		 "%?"
+		 :if-new (file+head
+                          "%<%Y%m%d>.org"
+                          "#+title: %<%Y-%m-%d (%A)>\n")
+		 :unnarrowed t)))))
+  #+END_SRC
+
+Handy config from https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/ to add roam files with the Project tag to the agenda list, so I can track TODOs within a project. I could switch to just adding everything in the new projects directory, but I like being able to exclude old projects from the agenda list by just removing the tag.
+  #+BEGIN_SRC emacs-lisp :lexical t
+;; Add existing projects to agenda list on startup:
+(defun my/org-roam-filter-by-tag (tag-name)
+  (lambda (node)
+    (member tag-name (org-roam-node-tags node))))
+
+(defun my/org-roam-list-notes-by-tag (tag-name)
+  (mapcar #'org-roam-node-file
+	  (seq-filter
+	   (my/org-roam-filter-by-tag tag-name)
+	   (org-roam-node-list))))
+
+(defun my/org-roam-refresh-agenda-list ()
+  (interactive)
+  (setq org-agenda-files (append org-agenda-files (my/org-roam-list-notes-by-tag "project"))))
+
+;; Build the agenda list the first time for the session
+(my/org-roam-refresh-agenda-list)
+
+;; And add new projects to agenda list after capture.
+(defun my/org-roam-project-finalize-hook ()
+  "Adds the captured project file to `org-agenda-files' if the
+capture was not aborted."
+  ;; Remove the hook since it was added temporarily
+  (remove-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
+
+  ;; Add project file to the agenda list if the capture was confirmed
+  (unless org-note-abort
+    (with-current-buffer (org-capture-get :buffer)
+      (add-to-list 'org-agenda-files (buffer-file-name)))))
+
+(defun my/org-roam-find-project ()
+  (interactive)
+  ;; Add the project file to the agenda after capture is finished
+  (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
+
+  ;; Select a project file to open, creating it if necessary
+  (org-roam-node-find
+   nil
+   nil
+   (my/org-roam-filter-by-tag "project")
+   nil
+   :templates
+   '(("p" "project" plain "* Goals\n\n%?\n\n* Tasks\n\n"
+      :if-new (file+head
+	       "%<%Y%m%d%H%M%S>-${slug}.org"
+	       "#+title: ${title}\n#+category: ${title}\n#+filetags: :project:")
+      :unnarrowed t))))
+
+
+(defun my/org-roam-capture-task ()
+  (interactive)
+  ;; Add the project file to the agenda after capture is finished
+  (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
+
+  ;; Capture the new task, creating the project file if necessary
+  (org-roam-capture- :node (org-roam-node-read
+                            nil
+                            (my/org-roam-filter-by-tag "project"))
+                     :templates '(("p" "project" plain "** TODO %?"
+                                   :if-new (file+head+olp "%<%Y%m%d%H%M%S>-${slug}.org"
+                                                          "#+title: ${title}\n#+category: ${title}\n#+filetags: Project"
+                                                          ("Tasks"))))))
+#+END_SRC
+
+
+Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/org-roam-guide/. Use subdirectories to define properties of nodes.
+#+BEGIN_SRC emacs-lisp
+(use-package org-roam
+  :config
+  (cl-defmethod org-roam-node-type ((node org-roam-node))
+    "Return the TYPE of NODE."
+    (condition-case nil
+	(file-name-nondirectory
+	 (directory-file-name
+          (file-name-directory
+           (file-relative-name (org-roam-node-file node) org-roam-directory))))
+      (error "")))
+
+  ;; Display the type as a column.
+  (setq org-roam-node-display-template
+	(concat "${type:15} ${title:150} " (propertize "${tags:10}" 'face 'org-tag)))
+
+  (defun klk/org-roam-find-by-type (type-name)
+    (interactive)
+    (org-roam-node-find
+     nil nil
+     (lambda (node)
+       (string-equal type-name (org-roam-node-type node)))))
+
+  (defun klk/org-roam-find-excluding-type (type-name)
+    (interactive)
+    (org-roam-node-find
+     nil nil
+     (lambda (node)
+       (not (string-equal type-name (org-roam-node-type node))))))
+
+  :general
+  (klk/leader-key-def
+    "n" '(:ignore t :which-key "org-roam")
+    "n l" '(org-roam-buffer-toggle :wk "backlinks")
+    "n p" '(my/org-roam-find-project :wk "project")
+    "n j" '(org-roam-dailies-goto-today :wk "today")
+    "n t" '(org-roam-dailies-goto-tomorrow :wk "tomorrow")
+    "n y" '(org-roam-dailies-goto-tomorrow :wk "yesterday")
+    "n d" '(org-roam-dailies-goto-date :wk "yesterday")
+    "n i" '(org-roam-node-insert :wk "insert")
+    "n f" '(:ignore t :which-key "find")
+    "n f a" '(org-roam-node-find :wk "all")
+    "n f f" '((lambda () (interactive) (klk/org-roam-find-excluding-type "references")) :wk "all but dailies")
+    "n f r" '((lambda () (interactive) (klk/org-roam-find-by-type "references")) :wk "reference"))
+  )
+#+END_SRC
+
+  Graphical UI
+#+BEGIN_SRC emacs-lisp
+(use-package org-roam-ui
+  :straight
+    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+    :after org-roam
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+    ;; :hook (after-init . org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-sync-theme t
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-open-on-start nil))
+#+END_SRC
+
+*** roam images
+
+I insert a lot of screenshots into org-roam notes, but I don't want to have to worry about where the links point, in case I decide to move a file to another directory. To solve this, I define a single directory for org-roam images, and set =org-link-abbrev-alist= so I can use links of the form =[[org-roam-images:myimage.png]]=.
+
+#+BEGIN_SRC emacs-lisp
+(setq org-link-abbrev-alist
+      `(("org-roam-images"  . ,org-roam-image-dir)
+	("org-roam-attachments"  . ,org-roam-attachments-dir)))
+#+END_SRC
+
+Here I define a function that converts all png links in a file to use the =org-roam-images:= syntax (if in the org-roam directory), and add advice to call this after inserting a screenshot.
+
+#+BEGIN_SRC emacs-lisp
+(defun klk/convert-org-roam-image-links (&optional arg)
+  "Replace links to png files to be relative to the org-roam-images directory"
+  (interactive)
+  (when (string-prefix-p (file-truename org-roam-directory) (expand-file-name (buffer-file-name)))
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "\\[\\[file:[^\]]*/\\(.*\.png\\)" nil t)
+	(replace-match "[[org-roam-images:\\1"))
+      (org-redisplay-inline-images))))
+
+(advice-add 'org-download-screenshot :after 'klk/convert-org-roam-image-links)
+(advice-add 'org-download-clipboard :after 'klk/convert-org-roam-image-links)
+#+END_SRC
+
+
+Finally, I add the following to a =.dir-locals.el= in the root of the org roam directory, so org-download will save screenshots there.
+#+begin_example
+((nil . ((org-download-image-dir . "~/Dropbox/org/roam/images"))))
+#+end_example
+
 ** Tasks
 
 *** Basics
@@ -1838,261 +2064,6 @@ new one (which shows the same information).
   (setq org-src-window-setup 'current-window)
 #+END_SRC
 
-** Roam
-After much struggling with getting the org-roam buffer to follow links reasonably, the configuration below (dedicated side window, from [[https://org-roam.discourse.group/t/sidebar-roam-buffer-gets-replaced-with-org-roam-node-instead-of-updating/2162/6][this discussion]]) works well enough.
-#+BEGIN_SRC emacs-lisp
-(use-package org-roam
-  :straight (org-roam :type git :flavor melpa :host github :repo "org-roam/org-roam")
-  :demand t ; force this to be loaded
-  :custom
-  (org-roam-directory "~/Dropbox/org/roam")
-  :config
-  (org-roam-db-autosync-mode)
-  (add-hook 'org-roam-mode-hook #'visual-line-mode)
-  (define-key org-roam-mode-map [mouse-1] #'org-roam-preview-visit)
-  (add-to-list 'display-buffer-alist
-               '("\\*org-roam\\*"
-                 (display-buffer-in-side-window)
-                 (dedicated . t)
-                 (side . right)
-                 (slot . 0)
-                 (window-width . 0.33)
-                 (window-parameters . ((no-other-window . t)
-                                       (no-delete-other-windows . t)))))
-  (setq org-roam-capture-templates
-        '(("d" "default" plain
-           "%?"
-           :if-new (file+head
-		    "pages/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n")
-           :unnarrowed t)
-	  ("n" "name" plain ;; people, organizations, etc.
-           "%?"
-           :if-new (file+head
-		    "pages/names/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n")
-           :unnarrowed t)
-	  ("e" "podcast episode" plain
-           "Episode of %?"
-           :if-new (file+head
-		    "pages/sources/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n")
-           :unnarrowed t)
-	  ("s" "source" plain ;; non-academic references
-           "Source: %?"
-           :if-new (file+head
-		    "pages/sources/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n")
-           :unnarrowed t)
-	  ("t" "technical" plain ;; general mathy / factual information
-	   "%?"
-           :if-new (file+head
-		    "pages/technical/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n")
-           :unnarrowed t)
-	  ("h" "howto" plain ;; collections of tips / advice / procedures
-	   "%?"
-           :if-new (file+head
-		    "pages/howto/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n")
-           :unnarrowed t)
-	  ("o" "outline" plain ;; files that start to link ideas together
-	   "%?"
-           :if-new (file+head
-		    "pages/outline/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n")
-           :unnarrowed t)
-	  ("i" "index" plain ;; broad topics that function like tags
-	   "%?"
-           :if-new (file+head
-		    "pages/index/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n")
-           :unnarrowed t)
-	  ("p" "project" plain
-	   "%?"
-           :if-new (file+head
-		    "pages/projects/%<%Y%m%d%H%M%S>-${slug}.org"
-		    "#+title: ${title}\n#+filetags: :project:\n")
-           :unnarrowed t)
-	  ("r" "bibliography reference" plain "%?"
-           :if-new
-           (file+head "pages/references/${citekey}.org" "#+title: ${author} (${year}). ${title}\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ~/Dropbox/Zotero/${file}\n:END:\n")
-	   :unnarrowed t)))
-  (setq org-roam-dailies-directory "dailies/")
-  (setq org-roam-dailies-capture-templates
-	(quote (("d" "daily" plain
-		 "%?"
-		 :if-new (file+head
-                          "%<%Y%m%d>.org"
-                          "#+title: %<%Y-%m-%d (%A)>\n")
-		 :unnarrowed t))))
-
-  ;; Set key bindings.
-  (global-set-key (kbd "C-c n p") #'my/org-roam-find-project)
-  :bind (("C-c j" . org-roam-dailies-goto-today)
-	 ("C-c t" . org-roam-dailies-goto-tomorrow)
-	 ("C-c y" . org-roam-dailies-goto-yesterday)
-	 ("C-c n d" . org-roam-dailies-goto-date)
-	 ("C-c n f" . org-roam-node-find)
-	 ("C-c n l" . org-roam-buffer-toggle)
-	 ("C-c n i" . org-roam-node-insert)
-	 ("C-c f" . org-roam-dailies-goto-next-note)
-	 ("C-c b" . org-roam-dailies-goto-previous-note)))
-  #+END_SRC
-
-Handy config from https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/ to add roam files with the Project tag to the agenda list, so I can track TODOs within a project. I could switch to just adding everything in the new projects directory, but I like being able to exclude old projects from the agenda list by just removing the tag.
-  #+BEGIN_SRC emacs-lisp
-(use-package org-roam
-  :config
-  ;; Add existing projects to agenda list on startup:
-  (defun my/org-roam-filter-by-tag (tag-name)
-    (lambda (node)
-      (member tag-name (org-roam-node-tags node))))
-
-  (defun my/org-roam-list-notes-by-tag (tag-name)
-    (mapcar #'org-roam-node-file
-            (seq-filter
-             (my/org-roam-filter-by-tag tag-name)
-             (org-roam-node-list))))
-
-  (defun my/org-roam-refresh-agenda-list ()
-    (interactive)
-    (setq org-agenda-files (append org-agenda-files (my/org-roam-list-notes-by-tag "project"))))
-
-  ;; Build the agenda list the first time for the session
-  (my/org-roam-refresh-agenda-list)
-
-
-  ;; And add new projects to agenda list after capture.
-  (defun my/org-roam-project-finalize-hook ()
-    "Adds the captured project file to `org-agenda-files' if the
-capture was not aborted."
-    ;; Remove the hook since it was added temporarily
-    (remove-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
-
-    ;; Add project file to the agenda list if the capture was confirmed
-    (unless org-note-abort
-      (with-current-buffer (org-capture-get :buffer)
-	(add-to-list 'org-agenda-files (buffer-file-name)))))
-
-  (defun my/org-roam-find-project ()
-    (interactive)
-    ;; Add the project file to the agenda after capture is finished
-    (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
-
-    ;; Select a project file to open, creating it if necessary
-    (org-roam-node-find
-     nil
-     nil
-     (my/org-roam-filter-by-tag "project")
-     :templates
-     '(("p" "project" plain "* Goals\n\n%?\n\n* Tasks\n\n** TODO Add initial tasks\n\n"
-	:if-new (file+head
-		 "%<%Y%m%d%H%M%S>-${slug}"
-		 "#+title: ${title}\n#+category: ${title}\n#+filetags: :project:")
-	:unnarrowed t))))
-)
-#+END_SRC
-
-
-Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/org-roam-guide/. Use subdirectories to define properties of nodes.
-#+BEGIN_SRC emacs-lisp
-(use-package org-roam
-  :config
-  (cl-defmethod org-roam-node-type ((node org-roam-node))
-    "Return the TYPE of NODE."
-    (condition-case nil
-	(file-name-nondirectory
-	 (directory-file-name
-          (file-name-directory
-           (file-relative-name (org-roam-node-file node) org-roam-directory))))
-      (error "")))
-
-  ;; Display the type as a column.
-  (setq org-roam-node-display-template
-	(concat "${type:15} ${title:150} " (propertize "${tags:10}" 'face 'org-tag)))
-
-  (defun klk/org-roam-find-by-type (type-name)
-    (interactive)
-    (org-roam-node-find
-     nil nil
-     (lambda (node)
-       (string-equal type-name (org-roam-node-type node)))))
-
-  (defun klk/org-roam-find-excluding-type (type-name)
-    (interactive)
-    (org-roam-node-find
-     nil nil
-     (lambda (node)
-       (not (string-equal type-name (org-roam-node-type node))))))
-
-  :general
-  (klk/leader-key-def
-    "n" '(:ignore t :which-key "org-roam")
-    "n f" '(:ignore t :which-key "find")
-    "n f A" '(org-roam-node-find :wk "all")
-    "n f f" '((lambda () (interactive) (klk/org-roam-find-excluding-type "dailies")) :wk "all but dailies")
-    "n f h" '((lambda () (interactive) (klk/org-roam-find-by-type "howto")) :wk "howto")
-    "n f m" '((lambda () (interactive) (klk/org-roam-find-by-type "pages")) :wk "main")
-    "n f p" '((lambda () (interactive) (klk/org-roam-find-by-type "projects")) :wk "project")
-    "n f n" '((lambda () (interactive) (klk/org-roam-find-by-type "names")) :wk "name")
-    "n f s" '((lambda () (interactive) (klk/org-roam-find-by-type "sources")) :wk "source")
-    "n f o" '((lambda () (interactive) (klk/org-roam-find-by-type "outline")) :wk "outline")
-    "n f i" '((lambda () (interactive) (klk/org-roam-find-by-type "index")) :wk "index")
-    "n f r" '((lambda () (interactive) (klk/org-roam-find-by-type "references")) :wk "reference")
-    "n f t" '((lambda () (interactive) (klk/org-roam-find-by-type "technical")) :wk "technical"))
-  )
-#+END_SRC
-
-
-  Graphical UI
-#+BEGIN_SRC emacs-lisp
-(use-package org-roam-ui
-  :straight
-    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
-    :after org-roam
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-    ;; :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start nil))
-#+END_SRC
-
-*** roam images
-
-I insert a lot of screenshots into org-roam notes, but I don't want to have to worry about where the links point, in case I decide to move a file to another directory. To solve this, I define a single directory for org-roam images, and set =org-link-abbrev-alist= so I can use links of the form =[[org-roam-images:myimage.png]]=.
-
-#+BEGIN_SRC emacs-lisp
-(setq org-link-abbrev-alist
-      `(("org-roam-images"  . ,org-roam-image-dir)))
-#+END_SRC
-
-Here I define a function that converts all png links in a file to use the =org-roam-images:= syntax (if in the org-roam directory), and add advice to call this after inserting a screenshot.
-
-#+BEGIN_SRC emacs-lisp
-(defun klk/convert-org-roam-image-links (&optional arg)
-  "Replace links to png files to be relative to the org-roam-images directory"
-  (interactive)
-  (when (string-prefix-p (file-truename org-roam-directory) (expand-file-name (buffer-file-name)))
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward "\\[\\[file:[^\]]*/\\(.*\.png\\)" nil t)
-	(replace-match "[[org-roam-images:\\1"))
-      (org-redisplay-inline-images))))
-
-(advice-add 'org-download-screenshot :after 'klk/convert-org-roam-image-links)
-(advice-add 'org-download-clipboard :after 'klk/convert-org-roam-image-links)
-#+END_SRC
-
-Finally, I add the following to a =.dir-locals.el= in the root of the org roam directory, so org-download will save screenshots there.
-#+begin_example
-((nil . ((org-download-image-dir . "~/Dropbox/org-roam/images"))))
-#+end_example
-
 ** Reference management
 *** pdf-tools
 Better pdf interactions in Emacs.
@@ -2126,33 +2097,107 @@ Set paths that will be used by multiple packages.
       pdf-files-directory "~/Dropbox/papers/bibtex")
 #+END_SRC
 
-*** org-ref
-Manage references in org mode.
+*** citar
+First set up the built-in org-cite to handle export. Use citeproc to include csl support for everything except latex export.
 #+BEGIN_SRC emacs-lisp
-(use-package org-ref
-  :bind (:map org-mode-map ("C-c ]" . org-ref-insert-link))
-  :config
-  (setq org-latex-prefer-user-labels t)
-  (setq bibtex-completion-bibliography bib-files
-	bibtex-completion-library-path '("~/Dropbox/Zotero/storage/")
-	bibtex-completion-notes-path "~/Dropbox/org/roam/references/"
-	bibtex-completion-notes-template-multiple-files "* ${author-or-editor}, ${title}, ${journal}, (${year}) :${=type=}: \n\nSee [[cite:&${=key=}]]\n"
+(use-package citeproc)
 
-	bibtex-completion-additional-search-fields '(keywords)
-	bibtex-completion-display-formats
-	'((article       . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${journal:40}")
-	  (inbook        . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
-	  (incollection  . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-	  (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-	  (t             . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*}"))
-	bibtex-completion-pdf-open-function
-	(lambda (fpath)
-	  (call-process "open" nil 0 nil fpath)))
-  :demand
-  )
+(use-package org
+  :config
+  (require 'oc-biblatex)
+  :custom
+  (org-cite-global-bibliography '("~/Dropbox/Zotero/library.bib"))
+  (org-cite-export-processors '((latex biblatex) (t csl))))
 #+END_SRC
 
-*** org-roam-bibtex
+Set up citar for citation management.
+#+BEGIN_SRC emacs-lisp
+(use-package citar
+  :straight (citar :type git :host github :repo "emacs-citar/citar")
+  :after all-the-icons
+  :demand t
+  :general
+  (klk/leader-key-def
+    "c i" '(citar-insert-citation :wk "insert citation")
+    "c y" '(citar-org-kill-citation :wk "yank citation")
+    "c n" '(citar-open-note :wk "open reference note"))
+  :custom-face
+  (citar-highlight ((t (:weight normal))))
+  :init
+  (defun citar-setup-capf ()
+    (add-to-list 'completion-at-point-functions 'citar-capf))
+  :hook
+  (LaTeX-mode . citar-setup-capf)
+  (org-mode . citar-setup-capf)
+  :config
+  (setq citar-symbols
+        `((file ,(all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1) . " ")
+          (note ,(all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3) . " ")
+          (link ,(all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01) . " ")))
+  (setq citar-symbol-separator "  ")
+  ; Remove type and expand name field
+  (setq citar-templates
+	'((main . "${author editor:30%sn}     ${date year issued:4}     ${title:80}")
+          (suffix . "          ${=key= id:15}   ${tags keywords:*}")
+          (preview . "${author editor:%etal} (${year issued date}) ${title}, ${journal journaltitle publisher container-title collection-title}.\n")
+          (note . "Notes on ${author editor:%etal}, ${title}")))
+  :custom
+  (citar-at-point-function 'embark-act)
+  (citar-library-paths '("~/Dropbox/Zotero/"))
+  (citar-notes-paths `(,(expand-file-name "references" org-roam-directory)))
+  (citar-bibliography '("~/Dropbox/Zotero/library.bib")))
+#+END_SRC
+
+**** citar-embark
+#+BEGIN_SRC emacs-lisp
+(use-package citar-embark
+  :after citar embark
+  :no-require
+  :config (citar-embark-mode))
+#+END_SRC
+
+**** citar-org-roam
+#+BEGIN_SRC emacs-lisp
+(use-package citar-org-roam
+  :after citar org-roam
+  :no-require
+  :custom
+  (citar-org-roam-capture-template-key "r")
+  (citar-org-roam-note-title-template "#+created: %U\n[[file:~/Dropbox/Zotero/${file}][Link to PDF]]\n* ${title} (${year})\n${author}\n")  :config (citar-org-roam-mode))
+#+END_SRC
+
+*** org-ref
+
+I'm using citar now for reference management, but org-ref still provides a nice menu for inserting references to figures / tables / etc. So I still use it for that.
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-ref
+  :general
+  (klk/leader-key-def
+    "rr" '(org-ref-insert-ref-link :wk "insert ref")))
+  ;; :bind (:map org-mode-map ("C-c ]" . org-ref-insert-link))
+  ;; :config
+  ;; (setq org-latex-prefer-user-labels t)
+  ;; (setq bibtex-completion-bibliography bib-files
+  ;; 	bibtex-completion-library-path '("~/Dropbox/Zotero/storage/")
+  ;; 	bibtex-completion-notes-path "~/Dropbox/Notes/org_zettel/references/"
+  ;; 	bibtex-completion-notes-template-multiple-files "* ${author-or-editor}, ${title}, ${journal}, (${year}) :${=type=}: \n\nSee [[cite:&${=key=}]]\n"
+
+  ;; 	bibtex-completion-additional-search-fields '(keywords)
+  ;; 	bibtex-completion-display-formats
+  ;; 	'((article       . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${journal:40}")
+  ;; 	  (inbook        . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+  ;; 	  (incollection  . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+  ;; 	  (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+  ;; 	  (t             . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*}"))
+  ;; 	bibtex-completion-pdf-open-function
+  ;; 	(lambda (fpath)
+  ;; 	  (call-process "open" nil 0 nil fpath)))
+  ;; :demand
+  ;; )
+#+END_SRC
+
+*** COMMENT org-roam-bibtex
 Integrate bibtex with =org-roam=.
 
 At some point the file keyword stopped being processed correctly. Possibly related to [[https://org-roam.discourse.group/t/orb-process-file-field-not-working-in-orb-templates/795/11][this]]. So for now I set =orb-process-file-keyword= to =nil=, which means the whole contents of the file field are input. Sometimes this includes an extra file (web snapshot), but it's easier to deal with than inserting nothing.
