@@ -271,7 +271,7 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
     "yf" 'klk/yank-file-path
     "b" 'previous-buffer
     "f" 'next-buffer
-    "o" 'find-file
+    "F" 'find-file
 
     ;; Themes
     "t" 'klk-choose-theme :which-key "themes"
@@ -1167,6 +1167,54 @@ Alternatively, set org files to be headings-only on startup. This will start wit
     "ns" 'org-narrow-to-subtree :wk "narrow"
     "nw" 'widen :wk "widen"
     "jl" '(klk/goto-last-heading :wk "last heading")))
+#+END_SRC
+
+** org-ql
+#+BEGIN_SRC emacs-lisp
+(use-package org-ql
+  :straight (org-ql :type git :host github :repo "alphapapa/org-ql"
+            :files (:defaults (:exclude "helm-org-ql.el")))
+  :general
+  (klk/leader-key-def
+    "oqr" '(klk/view-refs-by-tag :which-key "view related papers"))
+  )
+#+END_SRC
+
+Wrap =org-ql-view--format-element= to display reference notes matching a tag along with their summary field. Adapted from https://www.reddit.com/r/emacs/comments/uivx1f/comment/i7gv85g/
+
+I use a top-level heading in each reference file with the paper name, and apply any project tags to that heading. That way I can use =org-ql= to list matching papers, even thought it doesn't currently support file-level properties.
+
+Turn off tag inheritance so the query doesn't return all subheadings.
+
+#+BEGIN_SRC emacs-lisp
+(setq org-use-tag-inheritance nil)
+
+(defun klk/org-ql-view-reference (orig-fun &rest args)
+  "This function will intercept the original function and
+   add the summary to the result as a new line.
+
+   ARGS is `element' in `org-ql-view--format-element'"
+  (if (not args)
+      ""
+    (let* ((element args)
+           (properties (cadar element))
+           (result (apply orig-fun element))
+           (summary (plist-get properties :SUMMARY)))
+      (concat result "\n\n" summary)
+      )))
+
+(defun klk/view-refs-by-tag ()
+  (interactive)
+  (require 'org-ql)
+  (advice-add 'org-ql-view--format-element :around #'klk/org-ql-view-reference)
+  (let ((tag (completing-read "Choose tag:" (org-get-buffer-tags))))
+  (org-ql-search
+    (directory-files-recursively "~/Dropbox/org-roam/references" "\\.org$")
+    '(tags tag)
+    :sort nil
+    :super-groups '((:auto-category t))))
+  (advice-remove #'klk/org-ql-view-reference 'org-ql-view--format-element))
+
 #+END_SRC
 ** Sidebar
 The tree sidebar provides an outline on the left that you can use to jump around the file. The regular sidebar on the right shows TODO items in the file.

@@ -95,7 +95,7 @@
  ("org-krita" . "7e334951b8de8f2f1c8cbe5068e7dfe6b9e9808f")
  ("org-modern" . "42fdbd2d27f5a8652593577a200eeea96555d018")
  ("org-noter" . "340b60e7810a06d50fb619ff5384468998d94675")
- ("org-ql" . "29533525c39e0e243912bb3c807412e4bc3e804e")
+ ("org-ql" . "1d98c7d07c6f2af5c84e8358cb6c5db71e8f1006")
  ("org-randomnote" . "ea8cf4385970637efffff8f79e14576ba6d7ad13")
  ("org-ref" . "01b7f5cbd56639bee0333ef7c344c3b8db21fdf1")
  ("org-reverse-datetree" . "fca95cd22ed29653f3217034c71ec0ab0a7c7734")
