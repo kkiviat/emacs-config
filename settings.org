@@ -264,8 +264,8 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
     "wR" 'winner-redo
     "wm" '(delete-other-windows :which-key "maximize")
     "wr" 'rotate-frame-clockwise
-    "wv" 'split-window-below
-    "wh" 'split-window-right
+    "wh" 'split-window-below
+    "wv" 'split-window-right
 
     ;; Files
     "yf" 'klk/yank-file-path
@@ -1391,8 +1391,11 @@ Taken from [[https://daryl.wakatara.com/emacs-gtd-flow-evolved/#science-stuff][t
 
 #+BEGIN_SRC emacs-lisp
 (use-package math-preview
+  :general
+  (klk/leader-key-def
+    "m p" '(math-preview-all :which-key "latex preview"))
 	:custom
-    (math-preview-scale 1.5)
+    (math-preview-scale 1.25)
     (math-preview-tex-marks-inline
 			'(("$" "$")))
     (math-preview-tex-marks
@@ -1411,10 +1414,9 @@ Taken from [[https://daryl.wakatara.com/emacs-gtd-flow-evolved/#science-stuff][t
 							(s-replace-regexp "\\label{.+}" ""
 									  (gethash 'string x))
 							x)))))
-(add-hook 'org-mode-hook #'math-preview-all)
+;; (add-hook 'org-mode-hook #'math-preview-all)
 (defalias #'org-latex-preview #'math-preview-at-point)
 (defalias #'org-clear-latex-preview #'math-preview-clear-region)
-;; (advice-add #'math-preview-at-point :after (lambda () (math-preview-stop-process 1)))
 #+END_SRC
 
 *** org-fragtog
@@ -1438,6 +1440,7 @@ Note: need =xclip= installed for =org-download-clipboard=.
     "d s" '(org-download-screenshot :which-key "screenshot")
     "d c" '(org-download-clipboard :which-key "clipboard"))
   :custom
+  (org-download-heading-lvl nil)
   (org-download-screenshot-method "spectacle -br -o %s")
   (org-download-image-dir "images"))
 #+END_SRC
@@ -2254,7 +2257,7 @@ At some point the file keyword stopped being processed correctly. Possibly relat
   :after org-roam
   :bind (:map org-mode-map ("C-c n b" . orb-note-actions))
   :config
-  (require 'org-ref) ; optional: if Org Ref is not loaded anywhere else, load it here
+  ;; (require 'org-ref) ; optional: if Org Ref is not loaded anywhere else, load it here
   (setq orb-preformat-keywords
       '("citekey" "title" "url" "author-or-editor" "keywords" "file" "author" "year")
       orb-process-file-keyword nil) ;; files don't appear otherwise
