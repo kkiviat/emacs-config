@@ -610,6 +610,16 @@ Include their config to add padding to buffers and tweak a few other things.
  org-agenda-current-time-string
  "⭠ now ─────────────────────────────────────────────────")
 #+END_SRC
+
+Hide category prefix on tasks.
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-prefix-format
+      '((agenda . " %i %-12:c%?-12t% s")
+        (todo   . " ")
+        (tags   . " %i %-12:c")
+        (search . " %i %-12:c")))
+#+END_SRC
+
 *** icons
 #+BEGIN_SRC emacs-lisp
 (use-package all-the-icons
@@ -1678,6 +1688,7 @@ Set the =TODO= states.
 (setq org-todo-keywords '((sequence
 			   "TODO(t!)"
 			   "NEXT(n)"
+			   "COLLECTING(C)"
 			   "WAITING(w@)"
 			   "PROJECT(p)"
 			   "INP(i!)"
@@ -1779,9 +1790,35 @@ Define capture templates. Config for capturing project-specific tasks / notes ba
 	   ("Projects" :keys "p"
             :file klk/org-project-notes-file
             :children (("note" :keys "n" :template ("* %^{Title}" "%?") :function (lambda ()
-                          (org-reverse-datetree-goto-date-in-file
-                           nil :olp '("Notes"))))
+										    (org-reverse-datetree-goto-date-in-file
+										     nil :olp '("Notes"))))
                        ("task" :keys "t" :headline "Tasks" :template ("* TODO %^{Title}" "%?"))))
+	   ("Meetings"
+	    :keys "m"
+	    :template ("* %^u\n%?")
+	    :prepend t
+      :children (
+                ("advisor"
+                :type plain
+                :keys "a"
+                :file ,(expand-file-name "Research/Advisor Meetings.org" org-roam-directory)
+                :template ("* %^u\n** Questions\n%?")
+                :function (lambda () (goto-char (point-min)) (search-forward "* Questions") (org-forward-heading-same-level 1))
+                )
+                ("group"
+                :keys "g"
+		      :file (lambda () (read-file-name "File: " (expand-file-name "Research/" org-roam-directory) nil nil nil (lambda (x) (string-match-p ".*[mM]eeting.*" x))))
+                :template ("* %^u\n%?")
+                :function (lambda () (goto-char (point-min)) (search-forward "* "))
+                )))
+	   ("Advisor Question"
+	    :keys "q"
+      :file ,(expand-file-name "Research/Advisor Meetings.org" org-roam-directory)
+	    :type item
+	    :empty-lines 0
+	    :olp ("Questions")
+	    :function (lambda () (goto-char (point-min)))
+	    :template ("%?"))
 	   ("Goal" :keys "g"
 	    :immediate-finish t
 	    :template ("* TODO %^{Goal}"
