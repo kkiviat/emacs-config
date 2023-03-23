@@ -1215,7 +1215,7 @@ I use a top-level heading in each reference file with the paper name, and apply 
   (advice-add 'org-ql-view--format-element :around #'klk/org-ql-view-reference)
   (let ((tag (completing-read "Choose tag:" (org-get-buffer-tags))))
   (org-ql-search
-    (directory-files-recursively (expand-file-name "references" org-roam-directory) "\\.org$")
+    (directory-files-recursively (org-roam-path "references") "\\.org$")
     `(tags-local ,tag)
     :sort nil
     :super-groups '((:auto-category t))))
@@ -1455,6 +1455,10 @@ Note: need =xclip= installed for =org-download-clipboard=.
 (defvar org-roam-dir "~/Dropbox/org/roam")
 (defvar org-roam-image-dir "~/Dropbox/org/roam/images/")
 (defvar org-roam-attachments-dir "~/Dropbox/org/roam/attachments/")
+(defun org-roam-path (filename)
+  "Return the absolute address of an org file, given its relative name."
+  (concat (file-name-as-directory org-roam-dir) filename))
+
 (use-package org-roam
   :straight (org-roam :type git :flavor melpa :host github :repo "org-roam/org-roam")
   :demand t ; force this to be loaded
@@ -1796,19 +1800,19 @@ Define capture templates. Config for capturing project-specific tasks / notes ba
                 ("advisor"
                 :type plain
                 :keys "a"
-                :file ,(expand-file-name "Research/Advisor Meetings.org" org-roam-directory)
+                :file ,(org-roam-path "Research/Advisor Meetings.org")
                 :template ("* %^u\n** Questions\n%?")
                 :function (lambda () (goto-char (point-min)) (search-forward "* Questions") (org-forward-heading-same-level 1))
                 )
                 ("group"
                 :keys "g"
-		      :file (lambda () (read-file-name "File: " (expand-file-name "Research/" org-roam-directory) nil nil nil (lambda (x) (string-match-p ".*[mM]eeting.*" x))))
+		      :file (lambda () (read-file-name "File: " (org-roam-path "Research/") nil nil nil (lambda (x) (string-match-p ".*[mM]eeting.*" x))))
                 :template ("* %^u\n%?")
                 :function (lambda () (goto-char (point-min)) (search-forward "* "))
                 )))
 	   ("Advisor Question"
 	    :keys "q"
-      :file ,(expand-file-name "Research/Advisor Meetings.org" org-roam-directory)
+      :file ,(org-roam-path "Research/Advisor Meetings.org")
 	    :type item
 	    :empty-lines 0
 	    :olp ("Questions")
@@ -2228,7 +2232,7 @@ Set up citar for citation management.
   :custom
   (citar-at-point-function 'embark-act)
   (citar-library-paths '("~/Dropbox/Zotero/"))
-  (citar-notes-paths `(,(expand-file-name "references" org-roam-directory)))
+  (citar-notes-paths `(,(org-roam-path "references")))
   (citar-bibliography '("~/Dropbox/Zotero/library.bib")))
 #+END_SRC
 
@@ -2502,10 +2506,24 @@ Slightly easier way to interact with krita or xournal++ files in buffers. Still 
 (use-package eglot)
 #+END_SRC
 ** LSP
+
+#+BEGIN_SRC emacs-lisp
+  (defun my/lsp-mode-use-orderless ()
+    (setf (alist-get 'styles
+		     (alist-get 'lsp-capf completion-category-defaults))
+	  '(orderless)))
+#+END_SRC
 #+BEGIN_SRC emacs-lisp
 (use-package lsp-ui
   :ensure t
+  :custom
+  (lsp-enable-symbol-highlighting nil)
+  (lsp-ui-doc-show-with-mouse nil)
+  (lsp-headerline-breadcrumb-enable nil)
+  (lsp-ui-sideline-enable nil)
+  (lsp-completion-provider :none)
   :config
+  (add-hook 'lsp-completion-mode-hook 'my/lsp-mode-use-orderless)
   (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
   (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
 #+END_SRC
