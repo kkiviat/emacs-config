@@ -1568,7 +1568,7 @@ capture was not aborted."
   (org-roam-capture- :node (org-roam-node-read
                             nil
                             (my/org-roam-filter-by-tag "project"))
-                     :templates '(("p" "project" plain "** TODO %?"
+                     :templates '(("p" "project" plain "** TODO %?\n:PROPERTIES:\n:CREATED: %U\n:Purpose: %^{purpose}\n:Results:\n:END:\n"
                                    :if-new (file+head+olp "%<%Y%m%d%H%M%S>-${slug}.org"
                                                           "#+title: ${title}\n#+category: ${title}\n#+filetags: Project"
                                                           ("Tasks"))))))
@@ -1609,6 +1609,7 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
   :general
   (klk/leader-key-def
     "n" '(:ignore t :which-key "org-roam")
+    "n c" '(my/org-roam-capture-task :wk "capture task")
     "n l" '(org-roam-buffer-toggle :wk "backlinks")
     "n p" '(my/org-roam-find-project :wk "project")
     "n j" '(org-roam-dailies-goto-today :wk "today")
@@ -1761,6 +1762,11 @@ Define a function to go to the last top-level heading in an org file. For my wee
   (search-backward-regexp "^* " nil t))
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+(defun klk/get-date-string ()
+  (format-time-string "%Y-%m-%d %A" (org-read-date nil t)))
+#+END_SRC
+
 Define capture templates. Config for capturing project-specific tasks / notes based on [[https://www.reddit.com/r/emacs/comments/fs7tk3/how_to_manage_todo_tasks_in_my_project/][this thread]].
 #+BEGIN_SRC emacs-lisp
 (setq
@@ -1827,26 +1833,34 @@ Define capture templates. Config for capturing project-specific tasks / notes ba
             :children (
 		       ("weekly" :keys "w" :file ,(org-file-path "goals.org") :headline "Weekly")
 		       ("monthly" :keys "m" :file ,(org-file-path "goals.org") :headline "Monthly")))
-	   ("Weekly" :keys "w"
+	   ("Research Weekly" :keys "w"
 	    :empty-lines 1
-	    :function (lambda () (klk/org-last-top-level-heading))
-	    :file ,(org-file-path "journal/weekly2022.org")
-	    :refile-targets ,(org-file-path "journal/weekly2022.org")
-	    :template ("** Week %^{week number}"
-		       "[[file:~/Dropbox/org/roam/dailies/%^{start of week (yyyymmdd).org}]]"
-		       "*** Goals / priorities :goals:"
-		       "- %?"
-		       "*** Review :weekly:"
-		       "*** Key Ideas :keyideas:"))
-	   ("Monthly" :keys "m"
-	    :empty-lines 1
-	    :file ,(org-file-path "journal/weekly2022.org")
-	    :template ("* %^{Month}"
-		       "** %\\1 Goals / priorities :goals:"
-		       "- %?"
-		       "** %\\1 Review :monthly:"
-		       "** %\\1 Key Ideas :monthlykeyideas:"
-		       "** %\\1 Highlights :highlights:" ))
+	    :prepend t
+	    :function (lambda () (goto-char (point-min)))
+	    :file ,(org-roam-path "Research/research_weekly.org")
+	    :template ("* Week ending %(klk/get-date-string)"))
+	    ;; :template ("* Week ending %<%Y-%m-%d (%A)>")
+	    ;; :time-prompt t)
+	   ;; ("Weekly" :keys "w"
+	   ;;  :empty-lines 1
+	   ;;  :function (lambda () (klk/org-last-top-level-heading))
+	   ;;  :file ,(org-file-path "journal/weekly2022.org")
+	   ;;  :refile-targets ,(org-file-path "journal/weekly2022.org")
+	   ;;  :template ("** Week %^{week number}"
+	   ;; 	       "[[file:~/Dropbox/org/roam/dailies/%^{start of week (yyyymmdd).org}]]"
+	   ;; 	       "*** Goals / priorities :goals:"
+	   ;; 	       "- %?"
+	   ;; 	       "*** Review :weekly:"
+	   ;; 	       "*** Key Ideas :keyideas:"))
+	   ;; ("Monthly" :keys "m"
+	   ;;  :empty-lines 1
+	   ;;  :file ,(org-file-path "journal/weekly2022.org")
+	   ;;  :template ("* %^{Month}"
+	   ;; 	       "** %\\1 Goals / priorities :goals:"
+	   ;; 	       "- %?"
+	   ;; 	       "** %\\1 Review :monthly:"
+	   ;; 	       "** %\\1 Key Ideas :monthlykeyideas:"
+	   ;; 	       "** %\\1 Highlights :highlights:" ))
 	   )))))
 
 #+END_SRC
