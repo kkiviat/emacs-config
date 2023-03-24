@@ -92,6 +92,7 @@
  ("org-download" . "19e166f0a8c539b4144cfbc614309d47a9b2a9b7")
  ("org-fragtog" . "c675563af3f9ab5558cfd5ea460e2a07477b0cfd")
  ("org-gcal.el" . "f8075bd8eac7288eea1060077ca103d5fd01fb65")
+ ("org-journal" . "18df4d5ae5e15580df42562c143d007c6d28d75f")
  ("org-krita" . "7e334951b8de8f2f1c8cbe5068e7dfe6b9e9808f")
  ("org-modern" . "42fdbd2d27f5a8652593577a200eeea96555d018")
  ("org-noter" . "340b60e7810a06d50fb619ff5384468998d94675")

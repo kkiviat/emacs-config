@@ -8,6 +8,14 @@ Enable lexical binding (needed for some of the org-roam config). *This must be a
 #+END_SRC
 
 * Basics
+** Utilities
+#+BEGIN_SRC emacs-lisp
+(defun klk/save-buffer-and-exit()
+  "Save current buffer and kill window"
+  (interactive)
+  (save-buffer)
+  (kill-buffer-and-window))
+#+END_SRC
 ** Sensible Defaults
 sensible-defaults.el is from [[https://github.com/hrs/sensible-defaults.el][here]].
 Enable everything, but disable the visual bell function.
@@ -276,6 +284,9 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
     ;; Themes
     "t" 'klk-choose-theme :which-key "themes"
 
+    ;; Utilities
+    "q" 'klk/save-buffer-and-exit
+
     "r"'(:ignore t :which-key "refile")
     "rr" '(org-refile :which-key "choose heading")
     "rf" '(klk/refile-in-same-file :which-key "same file")
@@ -284,10 +295,10 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
     "k" '(:keymap bookmark-map :which-key "bookmarks")
 
     ;; Jump around
-    "jh" #'ap/avy-org-goto-to-heading-timer
-    "jj" #'avy-goto-char-timer
-    "jl" #'avy-goto-line
-    "jp" #'avy-pop-mark))
+    "gh" #'ap/avy-org-goto-to-heading-timer
+    "gg" #'avy-goto-char-timer
+    "gl" #'avy-goto-line
+    "gp" #'avy-pop-mark))
 
 #+END_SRC
 ** Selection
@@ -1176,7 +1187,7 @@ Alternatively, set org files to be headings-only on startup. This will start wit
     :keymaps 'org-mode-map
     "ns" 'org-narrow-to-subtree :wk "narrow"
     "nw" 'widen :wk "widen"
-    "jl" '(klk/goto-last-heading :wk "last heading")))
+    "gl" '(klk/goto-last-heading :wk "last heading")))
 #+END_SRC
 
 ** org-ql
@@ -1673,6 +1684,31 @@ Finally, I add the following to a =.dir-locals.el= in the root of the org roam d
 #+begin_example
 ((nil . ((org-download-image-dir . "~/Dropbox/org/roam/images"))))
 #+end_example
+
+** org-journal
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-journal
+  :general
+  (klk/leader-key-def
+    "j" '(:ignore t :wk "journal")
+    "j j" '(org-journal-new-entry :wk "new entry")
+    "j o" '(org-journal-open-current-journal-file :wk "open file")
+    "j d" '(org-journal-new-date-entry :wk "new entry at date")
+    "j s" '(org-journal-search :wk "search")
+    "j S" '(org-journal-search-forever :wk "search all"))
+  (klk/leader-key-def
+    :keymaps 'org-journal-mode-map
+    "," 'org-journal-previous-entry
+    "." 'org-journal-next-entry)
+  :custom
+  ;; Don't carry over
+  (org-journal-file-type 'yearly)
+  (org-journal-carryover-items "")
+  (org-journal-dir "~/Dropbox/org/journal/")
+  (org-journal-file-format "%Y.org")
+  (org-journal-date-format "%A, %Y-%m-%d"))
+#+END_SRC
 
 ** Tasks
 
