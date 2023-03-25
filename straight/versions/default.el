@@ -70,7 +70,6 @@
  ("log4e" . "737d275eac28dbdfb0b26d28e99da148bfce9d16")
  ("lsp-mode" . "7a50934cbbe0aec1a1a054e7d13fce804a1708c6")
  ("lsp-pyright" . "54a2acddfdd7c3d31cb804a042305a3c6e60cf81")
- ("lsp-ui" . "295d8984da06a745b0a36c56e28ce915bc389adb")
  ("magit" . "adf5848ea787401b09aa37b134aacaaaae3007f7")
  ("major-mode-hydra.el" . "84c1929a5153be169ca5c36737439d51dffde505")
  ("map" . "a0e501aede34f183a8baa5d3d41610a3ffa1728e")

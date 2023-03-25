@@ -2586,7 +2586,7 @@ Slightly easier way to interact with krita or xournal++ files in buffers. Still 
 #+BEGIN_SRC emacs-lisp
 (use-package eglot)
 #+END_SRC
-** LSP
+** COMMENT LSP
 
 #+BEGIN_SRC emacs-lisp
   (defun my/lsp-mode-use-orderless ()
@@ -2662,12 +2662,15 @@ Simple python config based on https://gist.github.com/Nathan-Furnal/b327f14e861f
 
 (use-package lsp-pyright
   :ensure t
+  :custom
+  (read-process-output-max (* 1024 1024))
   :general
   (klk/leader-key-def
     "l" '(:ignore t :which-key "lsp")
     "ld" '(lsp-find-definition :which-key "definition")
     "lb" '(xref-pop-marker-stack :which-key "xref back")
-    "lr" '(lsp-find-references :which-key "references"))
+    "lr" '(lsp-rename :which-key "rename")
+    "lx" '(lsp-find-references :which-key "references"))
   :hook (python-mode . (lambda ()
                           (require 'lsp-pyright)
                           (lsp-deferred))))
