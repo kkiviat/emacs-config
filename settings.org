@@ -2560,6 +2560,34 @@ Slightly easier way to interact with krita or xournal++ files in buffers. Still 
 )
   ;; (setq 'org-xournalpp-image-type 'png)
 #+END_SRC
+* Notes
+** Denote
+#+BEGIN_SRC emacs-lisp
+(use-package denote
+  :custom
+  (denote-directory "~/Dropbox/org/denote/")
+  (xref-search-program 'ripgrep)
+  (denote-known-keywords '(""))
+  (denote-backlinks-show-context t)
+  (denote-date-prompt-use-org-read-date nil)
+  :general
+  (klk/leader-key-def
+    "dn" '(denote :wk "denote new file")
+    "db" '(denote-link-backlinks :wk "denote new file")
+    "df" '(consult-notes :wk "find note")
+    "di" '(denote-link :wk "denote insert link"))
+  :config
+  (require 'denote-org-dblock)
+  (add-hook 'dired-mode-hook #'denote-dired-mode-in-directories)
+  (add-hook 'dired-before-readin-hook #'denote-dired-mode-in-directories)
+  (add-hook 'find-file-hook #'denote-link-buttonize-buffer))
+
+(use-package consult-notes
+  :after denote consult
+  :config
+  (consult-notes-denote-mode))
+#+END_SRC
+
 * Programming
 ** Auto-formatting
 #+BEGIN_SRC emacs-lisp
