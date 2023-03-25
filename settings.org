@@ -16,6 +16,41 @@ Enable lexical binding (needed for some of the org-roam config). *This must be a
   (save-buffer)
   (kill-buffer-and-window))
 #+END_SRC
+
+Kill the current buffer and the associated file, or rename the current file. From https://kundeveloper.com/blog/buffer-files/
+#+BEGIN_SRC emacs-lisp
+(defun klk/delete-current-buffer-file ()
+  "Removes file connected to current buffer and kills buffer."
+  (interactive)
+  (let ((filename (buffer-file-name))
+        (buffer (current-buffer))
+        (name (buffer-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (ido-kill-buffer)
+      (when (yes-or-no-p "Are you sure you want to remove this file? ")
+        (delete-file filename)
+        (kill-buffer buffer)
+        (message "File '%s' successfully removed" filename)))))
+(global-set-key (kbd "C-x C-k") 'klk/delete-current-buffer-file)
+
+(defun klk/rename-current-buffer-file ()
+  "Renames current buffer and file it is visiting."
+  (interactive)
+  (let ((name (buffer-name))
+        (filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (error "Buffer '%s' is not visiting a file!" name)
+      (let ((new-name (read-file-name "New name: " filename)))
+        (if (get-buffer new-name)
+            (error "A buffer named '%s' already exists!" new-name)
+          (rename-file filename new-name 1)
+          (rename-buffer new-name)
+          (set-visited-file-name new-name)
+          (set-buffer-modified-p nil)
+          (message "File '%s' successfully renamed to '%s'"
+                   name (file-name-nondirectory new-name)))))))
+(global-set-key (kbd "C-x C-r") 'klk/rename-current-buffer-file)
+#+END_SRC
 ** Sensible Defaults
 sensible-defaults.el is from [[https://github.com/hrs/sensible-defaults.el][here]].
 Enable everything, but disable the visual bell function.
@@ -1498,10 +1533,10 @@ Note: need =xclip= installed for =org-download-clipboard=.
 		    "references/%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n#+created: %U\n")
            :unnarrowed t)
-	  ("i" "index" plain ;; broad topics that function like tags
+	  ("h" "howto" plain
 	   "%?"
            :if-new (file+head
-		    "index/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "howto/%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n#+created: %U\n")
            :unnarrowed t)
 	  ("r" "bibliography reference" plain "%?"
@@ -1514,7 +1549,7 @@ Note: need =xclip= installed for =org-download-clipboard=.
 	(quote (("d" "daily" plain
 		 "%?"
 		 :if-new (file+head
-                          "%<%Y%m%d>.org"
+                          "%<%Y-%m-%d>.org"
                           "#+title: %<%Y-%m-%d (%A)>\n")
 		 :unnarrowed t)))))
   #+END_SRC
@@ -1625,13 +1660,16 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
     "n p" '(my/org-roam-find-project :wk "project")
     "n j" '(org-roam-dailies-goto-today :wk "today")
     "n t" '(org-roam-dailies-goto-tomorrow :wk "tomorrow")
-    "n y" '(org-roam-dailies-goto-tomorrow :wk "yesterday")
-    "n d" '(org-roam-dailies-goto-date :wk "yesterday")
+    "n y" '(org-roam-dailies-goto-yesterday :wk "yesterday")
+    "n d" '(org-roam-dailies-goto-date :wk "open date")
+    "n ," '(org-roam-dailies-goto-previous-note :wk "previous day")
+    "n ." '(org-roam-dailies-goto-next-note :wk "next day")
     "n i" '(org-roam-node-insert :wk "insert")
     "n f" '(:ignore t :which-key "find")
     "n f a" '(org-roam-node-find :wk "all")
-    "n f f" '((lambda () (interactive) (klk/org-roam-find-excluding-type "references")) :wk "all but dailies")
-    "n f r" '((lambda () (interactive) (klk/org-roam-find-by-type "references")) :wk "reference"))
+    "n f f" '((lambda () (interactive) (klk/org-roam-find-excluding-type "dailies")) :wk "all but dailies")
+    "n f r" '((lambda () (interactive) (klk/org-roam-find-by-type "references")) :wk "reference")
+    "n f h" '((lambda () (interactive) (klk/org-roam-find-by-type "howto")) :wk "howto"))
   )
 #+END_SRC
 
