@@ -983,37 +983,30 @@ Quickly select another directory in minibuffer.
 *** Corfu
 #+BEGIN_SRC emacs-lisp
 (use-package corfu
-  ;; Optional customizations
   :custom
-  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ;; Enable auto completion
-  (corfu-separator "*")          ;; Orderless field separator
-  (corfu-min-width 80)
-  (corfu-max-width corfu-min-width) ;; Always have the same width
-  (corfu-quit-at-boundary t)
-  (corfu-quit-no-match t)      ;; Never quit, even if there is no match
-  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-  ;; (corfu-preselect-first nil)    ;; Disable candidate preselection
-  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  ;; (corfu-echo-documentation nil) ;; Disable documentation in the echo area
-  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+  (corfu-cycle t)           ;; Enable cycling for `corfu-next/previous'
+  (corfu-preselect 'prompt) ;; Always preselect the prompt
 
+  :bind
+  (:map corfu-map
+	("SPC" . corfu-insert-separator)
+   ("TAB" . corfu-next)
+	("C-j" . corfu-next)
+	("C-k" . corfu-previous)
+   ([tab] . corfu-next)
+   ("S-TAB" . corfu-previous)
+   ([backtab] . corfu-previous))
   :config
   (defun corfu-enable-always-in-minibuffer ()
-  "Enable Corfu in the minibuffer if Vertico/Mct are not active."
-  (unless (or (bound-and-true-p mct--active)
-              (bound-and-true-p vertico--input))
-    ;; (setq-local corfu-auto nil) Enable/disable auto completion
-    (corfu-mode 1)))
+    "Enable Corfu in the minibuffer if Vertico/Mct are not active."
+    (unless (or (bound-and-true-p mct--active)
+		(bound-and-true-p vertico--input))
+      ;; (setq-local corfu-auto nil) Enable/disable auto completion
+      (corfu-mode 1)))
   (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
   (evil-make-overriding-map corfu-map)
   (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
   (advice-add 'corfu--teardown :after 'evil-normalize-keymaps)
-  :bind
-  (:map corfu-map ("S-SPC" . corfu-insert-separator))
-  (:map corfu-map ("C-j" . corfu-next))
-  (:map corfu-map ("C-k" . corfu-previous))
-
   :init
   (global-corfu-mode))
 
