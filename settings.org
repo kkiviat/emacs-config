@@ -2236,15 +2236,24 @@ new one (which shows the same information).
 ** Reference management
 *** pdf-tools
 Better pdf interactions in Emacs.
+
 #+BEGIN_SRC emacs-lisp
 (use-package pdf-tools
+  :after image-roll
+  :straight (pdf-tools :host github :repo "dalanicolai/pdf-tools"
+                      :branch "pdf-roll"
+                      :files ("lisp/*.el"
+                              "README"
+                              ("build" "Makefile")
+                              ("build" "server")
+                              (:exclude "lisp/tablist.el" "lisp/tablist-filter.el")))
   :config
   (pdf-tools-install)
-  (setq-default pdf-view-display-size 'fit-width)
-  ;; (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
-  :custom
-  (pdf-annot-activate-created-annotations t "automatically annotate highlights")
-)
+  (define-key pdf-view-mode-map [mouse-5] #'pdf-view-next-line-or-next-page)
+  (define-key pdf-view-mode-map [mouse-4] #'pdf-view-previous-line-or-previous-page))
+
+(use-package image-roll
+  :straight (image-roll :host github :repo "dalanicolai/image-roll.el"))
 #+END_SRC
 
 Emacs 29's =pixel-scroll-precision-mode= doesn't seem to work with pdf-tools ([[https://github.com/vedang/pdf-tools/issues/56][issue]]). For now, work around it by turning mode off when changing to a pdf buffer, and on otherwise.

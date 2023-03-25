@@ -110,7 +110,7 @@
  ("ov" . "c5b9aa4e1b00d702eb2caedd61c69a22a5fa1fab")
  ("ox-pandoc" . "66c32cca4f6047dd7e0f77f10bd565a2d83d4729")
  ("parsebib" . "1efca921cbb49380396df9d81308b32e55fc8b63")
- ("pdf-tools" . "c122c813f4272da6d3d3922185ece6cd5528cb09")
+ ("pdf-tools" . "ddc0e1e4a8b845a34a81273ee72823b39c894221")
  ("peg" . "5d4ed356ca89acdf52a3e7e7f8e2408b808552c4")
  ("persist" . "c10835478d9f916534a07fad0174d497adf85729")
  ("persp-projectile" . "4e374d7650c7e041df5af5ac280a44d4a4ec705a")
