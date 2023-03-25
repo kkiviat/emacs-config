@@ -17,39 +17,15 @@ Enable lexical binding (needed for some of the org-roam config). *This must be a
   (kill-buffer-and-window))
 #+END_SRC
 
-Kill the current buffer and the associated file, or rename the current file. From https://kundeveloper.com/blog/buffer-files/
-#+BEGIN_SRC emacs-lisp
-(defun klk/delete-current-buffer-file ()
-  "Removes file connected to current buffer and kills buffer."
-  (interactive)
-  (let ((filename (buffer-file-name))
-        (buffer (current-buffer))
-        (name (buffer-name)))
-    (if (not (and filename (file-exists-p filename)))
-        (ido-kill-buffer)
-      (when (yes-or-no-p "Are you sure you want to remove this file? ")
-        (delete-file filename)
-        (kill-buffer buffer)
-        (message "File '%s' successfully removed" filename)))))
-(global-set-key (kbd "C-x C-k") 'klk/delete-current-buffer-file)
+[[https://github.com/bbatsov/crux][Crux]] has various useful functions.
 
-(defun klk/rename-current-buffer-file ()
-  "Renames current buffer and file it is visiting."
-  (interactive)
-  (let ((name (buffer-name))
-        (filename (buffer-file-name)))
-    (if (not (and filename (file-exists-p filename)))
-        (error "Buffer '%s' is not visiting a file!" name)
-      (let ((new-name (read-file-name "New name: " filename)))
-        (if (get-buffer new-name)
-            (error "A buffer named '%s' already exists!" new-name)
-          (rename-file filename new-name 1)
-          (rename-buffer new-name)
-          (set-visited-file-name new-name)
-          (set-buffer-modified-p nil)
-          (message "File '%s' successfully renamed to '%s'"
-                   name (file-name-nondirectory new-name)))))))
-(global-set-key (kbd "C-x C-r") 'klk/rename-current-buffer-file)
+#+BEGIN_SRC emacs-lisp
+(use-package crux
+  :straight (crux :type git :host github :repo "bbatsov/crux")
+  :bind
+  ("C-c o" . crux-open-with)
+  ("C-x C-r" . crux-rename-buffer-and-file)
+  ("C-x C-k" . crux-delete-buffer-and-file))
 #+END_SRC
 ** Sensible Defaults
 sensible-defaults.el is from [[https://github.com/hrs/sensible-defaults.el][here]].

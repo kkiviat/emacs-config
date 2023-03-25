@@ -19,6 +19,7 @@
  ("consult-notes" . "5aee2ef15d9ec14bb3ef2f1aa05e511cd52af971")
  ("consult-projectile" . "5ef1ada3be767ea766255801050210f5d796deec")
  ("corfu" . "9b3d6d8046471a105503ee361f4322df97f02735")
+ ("crux" . "f8789f67a9d2e1eb31a0e4531aec9bb6d6ec1282")
  ("dash.el" . "3df46d7d9fe74f52a661565888e4d31fd760f0df")
  ("denote" . "7db22b8aa8cf9c67dc4af9382ddcdd4e824950da")
  ("doct" . "69bfe30317c7fa7a5a51f2763515dfe9c989ebf1")
