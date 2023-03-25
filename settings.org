@@ -621,6 +621,7 @@ Include their config to add padding to buffers and tweak a few other things.
  ;; Org styling, hide markup etc.
  org-hide-emphasis-markers t
  org-pretty-entities t
+ org-pretty-entities-include-sub-superscripts nil
  org-ellipsis "…"
  org-fontify-quote-and-verse-blocks t
 
@@ -706,6 +707,30 @@ Disabled because it makes a huge difference in performance.
     (add-hook 'prog-mode-hook #'highlight-symbol-mode)
     (add-hook 'prog-mode-hook #'highlight-symbol-nav-mode))
   #+END_SRC
+
+** electric-pair-mode
+
+Automatically match parentheses, etc.
+
+#+BEGIN_SRC emacs-lisp
+;; Exclude pairing '<' and '(' symbols
+(setq electric-pair-inhibit-predicate
+      (lambda (c)
+        (if (or (char-equal c ?\<) (char-equal c ?\()) t (electric-pair-default-inhibit c))))
+(electric-pair-mode 1)
+#+END_SRC
+
+Add $ as a paired symbol for org mode. From https://emacs.stackexchange.com/a/2559
+
+#+BEGIN_SRC emacs-lisp
+(defvar org-electric-pairs '((?$ . ?$)) "Electric pairs for org-mode.")
+
+(defun org-add-electric-pairs ()
+  (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
+  (setq-local electric-pair-text-pairs electric-pair-pairs))
+
+(add-hook 'org-mode-hook 'org-add-electric-pairs)
+#+END_SRC
 
 ** Backups / saves
 From [[https://www.emacswiki.org/emacs/BackupDirectory][emacswiki]]
@@ -847,6 +872,7 @@ Define some helper methods to support my current project notes workflow. I like 
   (yas-reload-all)'
   :diminish yas-minor-mode)
 #+END_SRC
+
 *** Yasnippet Company Integration
 Taken from [[https://emacs.stackexchange.com/a/7909. Use =C-o= for yasnippet expansion to avoid conflict with company-mode.
 #+BEGIN_SRC emacs-lisp
@@ -1012,10 +1038,87 @@ Quickly select another directory in minibuffer.
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 #+END_SRC
 ** Latex
+*** auctex
+
 Feature name different from package name; see https://github.com/raxod502/straight.el/issues/516
+
 #+BEGIN_SRC emacs-lisp
 (use-package tex
   :straight auctex)
+#+END_SRC
+
+*** cdlatex
+
+[[https://github.com/cdominik/cdlatex][cdlatex]] gives an efficient way to enter $\LaTeX$ symbols. See [[https://karthinks.com/software/latex-input-for-impatient-scholars/][Latex Input for Impatient Scholars]] for a good introduction and configuration tips.
+
+#+BEGIN_SRC emacs-lisp
+(use-package cdlatex
+  :config
+  (add-hook 'org-mode-hook #'turn-on-org-cdlatex)
+  (add-hook 'LaTeX-mode-hook #'turn-on-cdlatex)   ; with AUCTeX LaTeX mode
+  (add-hook 'latex-mode-hook #'turn-on-cdlatex)   ; with Emacs latex mode
+  (dolist (cmd '(("vc" "Insert \\vect{}" "\\vect{?}"
+                  cdlatex-position-cursor nil nil t)
+                 ("sfr" "Insert \\sfrac{}{}" "\\sfrac{?}{}"
+                  cdlatex-position-cursor nil nil t)
+                 ("abs" "Insert \\abs{}" "\\abs{?}"
+                  cdlatex-position-cursor nil nil t)
+                 ("equ*" "Insert equation* env"
+                  "\\begin{equation*}\n?\n\\end{equation*}"
+                  cdlatex-position-cursor nil t nil)
+                 ("sn*" "Insert section* env"
+                  "\\section*{?}"
+                  cdlatex-position-cursor nil t nil)
+                 ("ss*" "Insert subsection* env"
+                  "\\subsection*{?}"
+                  cdlatex-position-cursor nil t nil)
+                 ("sss*" "Insert subsubsection* env"
+                  "\\subsubsection*{?}"
+                  cdlatex-position-cursor nil t nil)))
+    (push cmd cdlatex-command-alist))
+  :init
+  (setq cdlatex-math-symbol-alist '((?F ("\\Phi"))
+				    (?o ("\\omega" "\\mho" "\\mathcal{O}"))
+				    (?. ("\\cdot" "\\circ"))
+				    (?6 ("\\partial"))
+				    (?v ("\\vee" "\\forall"))
+				    (?^ ("\\uparrow" "\\Updownarrow" "\\updownarrow"))))
+  (setq cdlatex-math-modify-alist '((?b "\\mathbb" "\\textbf" t nil nil)
+				    (?B "\\mathbf" "\\textbf" t nil nil)
+				    (?t "\\text" nil t nil nil))))
+#+END_SRC
+
+*** latex-auto-activating-snippets
+
+https://github.com/tecosaur/LaTeX-auto-activating-snippets
+
+Doesn't have the which-key-like suggestions and doesn't work as well in org-mode, but some of these are more convenient to type.
+
+#+BEGIN_SRC emacs-lisp
+(use-package laas
+  :init
+  (setq laas-accent-snippets nil)
+  :hook
+  (LaTeX-mode . laas-mode)
+  (org-mode . laas-mode)
+  :config ; do whatever here
+  (aas-set-snippets 'laas-mode
+                    ;; set condition!
+                    :cond #'texmathp ; expand only while in math
+                    "supp" "\\supp"
+                    "On" "O(n)"
+                    "O1" "O(1)"
+                    "Olog" "O(\\log n)"
+                    "Olon" "O(n \\log n)"
+                    ;; bind to functions!
+                    "Sum" (lambda () (interactive)
+                            (yas-expand-snippet "\\sum_{$1}^{$2} $0"))
+                    "Span" (lambda () (interactive)
+                             (yas-expand-snippet "\\Span($1)$0"))
+                    ;; add accent snippets
+                    :cond #'laas-object-on-left-condition
+                    ";t" (lambda () (interactive) (laas-wrap-previous-object "text"))
+                    "qq" (lambda () (interactive) (laas-wrap-previous-object "sqrt"))))
 #+END_SRC
 
 ** Git
