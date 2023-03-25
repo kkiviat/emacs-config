@@ -1045,7 +1045,8 @@ Feature name different from package name; see https://github.com/raxod502/straig
 ** Git
 *** Magit
   #+BEGIN_SRC emacs-lisp
-(use-package magit)
+(use-package magit
+  :straight (magit :type git :host github :repo "magit/magit"))
   #+END_SRC
 *** Git Gutter
 #+BEGIN_SRC emacs-lisp
