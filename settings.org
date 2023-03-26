@@ -268,6 +268,10 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
   :config
   (general-auto-unbind-keys)
   (general-create-definer klk/leader-key-def :prefix "M-SPC")
+  (general-create-definer klk/leader-key-def-major-mode
+    :states '(normal visual motion emacs insert)
+    :keymaps 'override
+    :prefix "M-,")
   (klk/leader-key-def
     ;; Window management
     "w" '(:ignore t :which-key "window")
@@ -1601,6 +1605,12 @@ Note: need =xclip= installed for =org-download-clipboard=.
 		    "%<%Y%m%d%H%M%S>-${slug}.org"
 		    "#+title: ${title}\n#+created: %U\n")
            :unnarrowed t)
+	  ("t" "technical" plain
+           "%?"
+           :if-new (file+head
+		    "technical/%<%Y%m%d%H%M%S>-${slug}.org"
+		    "#+title: ${title}\n#+created: %U\n")
+           :unnarrowed t)
 	  ("s" "source" plain ;; non-academic references
            "Source: %?"
            :if-new (file+head
@@ -1615,8 +1625,7 @@ Note: need =xclip= installed for =org-download-clipboard=.
            :unnarrowed t)
 	  ("r" "bibliography reference" plain "%?"
            :if-new
-           (file+head "references/@${citekey}.org" "#+title: @${citekey}\n${title}\n* Notes\n\n")
-           ;; (file+head "references/${citekey}.org" "#+title: ${author} (${year}). ${title}\n* Summary\n\n* Key Ideas\n\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ~/Dropbox/Zotero/${file}\n:END:\n")
+           (file+head "references/@${citekey}.org" "#+title: @${citekey}\n${title}")
 	   :unnarrowed t)))
   (setq org-roam-dailies-directory "dailies/")
   (setq org-roam-dailies-capture-templates
@@ -2316,25 +2325,54 @@ new one (which shows the same information).
 
 ** Reference management
 *** pdf-tools
-Better pdf interactions in Emacs.
+
+Better pdf interactions in Emacs. Config based on https://github.com/yanghaoxie/emacs.d/blob/master/init.org#pdf-tools
 
 #+BEGIN_SRC emacs-lisp
 (use-package pdf-tools
-  :after image-roll
-  :straight (pdf-tools :host github :repo "dalanicolai/pdf-tools"
-                      :branch "pdf-roll"
-                      :files ("lisp/*.el"
-                              "README"
-                              ("build" "Makefile")
-                              ("build" "server")
-                              (:exclude "lisp/tablist.el" "lisp/tablist-filter.el")))
+  :mode (("\\.pdf\\'" . pdf-view-mode))
   :config
-  (pdf-tools-install)
-  (define-key pdf-view-mode-map [mouse-5] #'pdf-view-next-line-or-next-page)
-  (define-key pdf-view-mode-map [mouse-4] #'pdf-view-previous-line-or-previous-page))
-
-(use-package image-roll
-  :straight (image-roll :host github :repo "dalanicolai/image-roll.el"))
+  (pdf-tools-install :no-query)
+  (setq-default pdf-view-display-size 'fit-page)
+  (setq pdf-annot-activate-created-annotations t)
+  ;; turn off cua so copy works
+  (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
+  ;; more fine-grained zooming
+  (setq pdf-view-resize-factor 1.1)
+  :general
+  (klk/leader-key-def-major-mode
+    :keymaps 'pdf-view-mode-map
+    :major-modes t
+    "/" 'isearch-forward
+    "?" 'isearch-backward
+    ;; Slicing image
+    "s" '(:ignore t :which-key "slice/occur")
+    "sm" 'pdf-view-set-slice-using-mouse
+    "sb" 'pdf-view-set-slice-from-bounding-box
+    "sr" 'pdf-view-reset-slice
+    ;; Annotations
+    "a" '(:ignore t :which-key "annotation")
+    "ad" 	'pdf-annot-delete
+    "at" 	'pdf-annot-attachment-dired
+    "ah" 	'pdf-annot-add-highlight-markup-annotation
+    "al" 	'pdf-annot-list-annotations
+    "am" 	'pdf-annot-add-markup-annotation
+    "ao" 	'pdf-annot-add-strikeout-markup-annotation
+    "as" 	'pdf-annot-add-squiggly-markup-annotation
+    "at" 	'pdf-annot-add-text-annotation
+    "au" 	'pdf-annot-add-underline-markup-annotation
+    "b" 'pdf-isearch-sync-backward
+    ;; Fit image to window
+    "f" '(:ignore t :which-key "fit")
+    "fw" 'pdf-view-fit-width-to-window
+    "fh" 'pdf-view-fit-height-to-window
+    "fp" 'pdf-view-fit-page-to-window
+    ;; Other
+    "ss" 'pdf-occur
+    "p" 'pdf-misc-print-document
+    "O" 'pdf-outline
+    "m" 'pdf-view-midnight-minor-mode)
+  )
 #+END_SRC
 
 Emacs 29's =pixel-scroll-precision-mode= doesn't seem to work with pdf-tools ([[https://github.com/vedang/pdf-tools/issues/56][issue]]). For now, work around it by turning mode off when changing to a pdf buffer, and on otherwise.
@@ -2422,9 +2460,8 @@ Set up citar for citation management.
   :no-require
   :custom
   (citar-org-roam-capture-template-key "r")
-  (citar-org-roam-note-title-template "#+created: %U\n[[file:~/Dropbox/Zotero/${file}][Link to PDF]]\n* ${title} (${year})\n${author}\n")  :config (citar-org-roam-mode))
+  (citar-org-roam-note-title-template "#+created: %U\n\n[[file:~/Dropbox/Zotero/${file}][Link to PDF]]\n* ${title} (${year})\n${author}\n\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ~/Dropbox/Zotero/${file}\n:END:\n")  :config (citar-org-roam-mode))
 #+END_SRC
-
 *** org-ref
 
 I'm using citar now for reference management, but org-ref still provides a nice menu for inserting references to figures / tables / etc. So I still use it for that.
@@ -2477,19 +2514,24 @@ At some point the file keyword stopped being processed correctly. Possibly relat
 Attach notes to locations in the pdf.
 #+BEGIN_SRC emacs-lisp
 (use-package org-noter
-  :straight (org-noter :type git :host github :repo "aagon/org-noter")
-  :after org-roam
+  ;; :after org-roam
   :config
-  (setq org-noter-notes-window-location 'horizontal-split
+  (setq org-noter-notes-window-location 'other-frame
 	org-noter-always-create-frame nil
 	org-noter-hide-other nil
 	org-noter-kill-frame-at-session-end nil
-	org-noter-notes-search-path 'org-roam-directory
+	;; org-noter-notes-search-path (org-roam-path "references")
 	org-noter-doc-split-fraction '(0.66 . 0.5)
-   )
+	)
+  :general
+  (klk/leader-key-def-major-mode
+   :keymaps 'pdf-view-mode-map
+   "i" 'org-noter-insert-note
+   "k" 'org-noter-kill-session)
   (klk/leader-key-def
     :keymaps 'org-mode-map
-    "nn" '(org-noter :wk "noter"))
+    "nn" '(org-noter :wk "noter")
+    "nk" '(org-noter-kill-session :wk "noter"))
   )
 #+END_SRC
 
