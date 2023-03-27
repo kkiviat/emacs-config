@@ -87,7 +87,7 @@ Transparency toggling / setting code based on [[https://www.reddit.com/r/emacs/c
        (cadr (frame-parameter nil 'alpha))
        100)
       (set-frame-parameter nil 'alpha '(100 100))
-    (set-frame-parameter nil 'alpha '(90 90))))
+    (set-frame-parameter nil 'alpha '(60 60))))
 (global-set-key (kbd "<f9>") 'toggle-transparency)
 
 ;; Set transparency of emacs
@@ -101,7 +101,6 @@ Transparency toggling / setting code based on [[https://www.reddit.com/r/emacs/c
                     (t              `(,(car old) ,arg)))))
     (if elt (setcdr elt new) (push `(alpha ,@new) default-frame-alist))
     (set-frame-parameter nil 'alpha new)))
-(global-set-key (kbd "C-c p") 'transparency)
 #+END_SRC
 
 Allows undo and redo of changes in window configurations.
@@ -262,6 +261,23 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
   (interactive)
   (kill-new (buffer-file-name)))
 #+END_SRC
+
+Utility to get the ROAM_REFS citekey from literature notes.
+
+#+BEGIN_SRC emacs-lisp
+(defun klk/get-roam-ref ()
+  "Attempts to read the file ROAM_REFS."
+  (save-excursion
+    (goto-char (point-min))
+    (let ((ref (org-entry-get nil "ROAM_REFS")))
+      (when (and ref (not (string= "" ref)))
+	ref))))
+
+(defun klk/yank-roam-ref ()
+  (interactive)
+  (kill-new (klk/get-roam-ref)))
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp
 (use-package general
   :demand t
@@ -289,12 +305,23 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
     "wr" 'rotate-frame-clockwise
     "wh" 'split-window-below
     "wv" 'split-window-right
+    "wt" 'transparency
 
     ;; Files
+    "f" '(:ignore t :which-key "files")
+    "fy" 'klk/yank-file-path
+    "fk" '(crux-delete-buffer-and-file :which-key "delete current file")
+    "fr" '(crux-rename-buffer-and-file :which-key "rename current file")
+    "fo" '(crux-open-with :which-key "open externally")
+    "ff" '(find-file :which-key "find file")
+
+    "," 'previous-buffer
+    "." 'next-buffer
+
+    ;; Yanking
+    "y" '(:ignore t :which-key "yank")
     "yf" 'klk/yank-file-path
-    "b" 'previous-buffer
-    "f" 'next-buffer
-    "F" 'find-file
+    "yr" 'klk/yank-roam-ref
 
     ;; Themes
     "t" 'klk-choose-theme :which-key "themes"
@@ -946,7 +973,7 @@ Provides nice annotations for minibuffer completion options (like command descri
     "s o" '(consult-outline :which-key "outline")
     "s h" '(consult-org-heading :which-key "org heading")
     "s p" '(consult-ripgrep :which-key "ripgrep project")
-    "B" 'consult-buffer :which-key "consult buffer")
+    "b" 'consult-buffer :which-key "consult buffer")
   :config
   (autoload 'projectile-project-root "projectile"))
 #+END_SRC
