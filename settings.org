@@ -2882,7 +2882,12 @@ Taken from https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-
 Set =julia-snail-multimedia-enable= in a =.dir-locals.el= to enable displaying plots in buffer.
 #+BEGIN_SRC emacs-lisp
 (use-package julia-snail
-  :hook (julia-mode . julia-snail-mode))
+  :hook (julia-mode . julia-snail-mode)
+  :general
+  (klk/leader-key-def
+    :keymaps 'julia-snail-mode-map
+    "e e" '(julia-snail-send-dwim :wk "eval dwim"))
+  )
 #+END_SRC
 ** code cells
 
@@ -2901,6 +2906,10 @@ Overwrite =code-cells-boundary-regexp= to also use =##= as a cell marker.
            (group-n 1 (+ "#"))
            (seq " In[" (* (any space digit)) "]:")))
    :type 'regexp)
+  :general
+  (klk/leader-key-def
+    :keymaps 'code-cells-mode-map
+    "e c" '(code-cells-eval :wk "cell"))
   :config
   (add-to-list 'code-cells-eval-region-commands '(julia-snail-mode . julia-snail-send-code-cell))
   (let ((map code-cells-mode-map))
