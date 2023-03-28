@@ -253,6 +253,16 @@ Avy-style jumping for evil motion commands. Type space followed by a motion key 
   :config
   (evilem-default-keybindings "SPC"))
 #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package evil-org
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys)
+  (setq org-super-agenda-header-map (make-sparse-keymap)))
+#+END_SRC
 *** General
 Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
 
@@ -1746,7 +1756,7 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
 
   ;; Display the type as a column.
   (setq org-roam-node-display-template
-	(concat "${type:15} ${title:150} " (propertize "${tags:10}" 'face 'org-tag)))
+	(concat "${type:15} ${title:150} " (propertize "${tags:20}" 'face 'org-tag)))
 
   (defun klk/org-roam-find-by-type (type-name)
     (interactive)
@@ -2102,7 +2112,7 @@ Add more space for the category in the agenda.
 #+BEGIN_SRC emacs-lisp
 (setq org-agenda-prefix-format '((agenda . " %i %-15:c%?-12t% s")
 				 (todo . " %i %-12:c")
-				 (tags . " %i %-12:c")
+				 (tags . "")
 				 (search . " %i %-12:c")))
 #+END_SRC
 
@@ -2111,13 +2121,9 @@ Set files to be included in the agenda. Includes archive because I like to see o
 (setq org-agenda-files (append org-agenda-files
 			       `(,(org-file-path "inbox.org")
 				 ,(org-file-path "mobile inbox.org")
-				 ,(org-file-path "writing_inbox.org")
-				 ,(org-file-path "reading_inbox.org")
 				 ,(org-file-path "gcal.org")
 				 ,(org-file-path "gcal-school.org")
 				 ,(org-file-path "gtd.org")
-				 ,(org-file-path "goals.org")
-				 ,(org-file-path "research.org")
 				 ,(org-file-path "recurring.org")
 				 ,(org-file-path "archive.org")
 				 ,(org-file-path "school.org")
@@ -2147,31 +2153,8 @@ Super Agenda
 (setq org-agenda-custom-commands
       (list
        (quote
-	("d" "Daily Agenda"
-	 (
-	  (
-	   agenda "" ((org-agenda-span 'day)
-		      (org-agenda-log-mode-items '(closed clock state))
-		      (org-agenda-prefix-format "  %?-12t% s")
-		      (org-super-agenda-groups
-		       '(
-			 (:name "⏰ Calendar" :time-grid t)
-			 (:name "☆ Important" :priority "A")
-			 (:name "⚠ Overdue!" :deadline past :and (:scheduled past :not (:habit t)))
-			 (:name "☆ Due" :and (:deadline today :not (:habit t)))
-			 (:auto-property "Project")
-			 (:auto-category)
-			 (:name "Misc. Scheduled" :and (:scheduled today :not (:habit t)))
-			 (:name "📌 Routines" :and (:habit t :category "recurring" :tag "habit"))
-			 (:name "📌 Chores" :and (:habit t :category "recurring" :tag "chore"))
-			 ))
-		      ))
-	  )))
-       (quote
 	("x" "Daily Agenda"
-	 (
-	  (
-	   agenda "" (
+	 ((agenda "" (
 		      (org-agenda-span 'day)
 		      (org-agenda-overriding-header "Today")
 		      (org-agenda-log-mode-items '(closed clock state))
@@ -2192,16 +2175,9 @@ Super Agenda
 			  (:name "In Two Days" :scheduled (on ,(timestamp-in-n-days 2)))
 			  (:discard (:anything t))
 			  ))))
-	  (alltodo "" ((org-agenda-overriding-header "Goals")
-                       (org-super-agenda-groups
-                        `((:name "This month" :and (:tag "goal" :tag "monthly"))
-			  (:name "This week" :and (:tag "goal" :tag "weekly"))
-			  (:discard (:anything t))
-			  ))))
-	  ;; (todo "NEXT"
-	  ;; 	((org-agenda-overriding-header "Next Tasks")
-	  ;; 	 (org-super-agenda-groups '((:auto-property "Project") (:auto-category)))
-	  ;; 	 ))
+         (tags-todo "project"
+                     ((org-agenda-overriding-header "Project Tasks")
+                      (org-super-agenda-groups '((:auto-category)))))
 	  )))
        (quote
 	("U" "Unscheduled"
@@ -2215,27 +2191,31 @@ Super Agenda
 	       (org-super-agenda-groups '((:auto-property "Project") (:auto-category)))
 	       ))
 	     )
-       (quote("p" "Project tasks" todo ""
-	      (
-	       (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo '("PROJECT")))
-	       (org-super-agenda-groups '((:auto-property "Project" :not (:todo "PROJECT")) (:discard (:anything t))))
-	       )
-	      ))
-       (quote
-	("n" "Notes"
-	 (
-	  (agenda "" ((org-agenda-span 'week)
-		      (org-agenda-log-mode-items '(closed clock state))
-		      (org-agenda-prefix-format "  %?-12t% s")
+       (quote("p" "Project Tasks"
+         ((tags-todo "project"
+                     ((org-agenda-overriding-header "Project Tasks")
+                      (org-super-agenda-groups '((:auto-category)))))
+          )))
+      (quote("P" "Projects (old)" todo ""
+	     (
+	      (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo '("PROJECT")))
+	      (org-super-agenda-groups '((:auto-property "Project" :not (:todo "PROJECT")) (:discard (:anything t))))
+	      )
+	     ))
+      (quote
+       ("n" "Notes"
+	(
+	 (agenda "" ((org-agenda-span 'week)
+		     (org-agenda-log-mode-items '(closed clock state))
+		     (org-agenda-prefix-format "  %?-12t% s")
 					; (org-agenda-compact-blocks t)
-		      (org-super-agenda-groups
-		       '(
-			 (:name "Daily Summary" :and (:time-grid t :tag "daily"))
-			 (:discard (:anything t))
-			 ))
-		      )))))
-       )
-      )
+		     (org-super-agenda-groups
+		      '(
+			(:name "Daily Summary" :and (:time-grid t :tag "daily"))
+			(:discard (:anything t))
+			))
+		     )))))
+      ))
 #+END_SRC
 
 ** Journal
