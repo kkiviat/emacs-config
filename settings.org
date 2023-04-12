@@ -943,11 +943,17 @@ Insert proposed expansion with =M-/=. Can be used to, e.g., repeat previous line
 *** Vertico
 #+BEGIN_SRC emacs-lisp
 (use-package vertico
+  :straight (:files (:defaults "extensions/*"))
   :init
   (vertico-mode)
   :bind (:map vertico-map
          ("C-j" . vertico-next)
-         ("C-k" . vertico-previous))
+         ("C-k" . vertico-previous)
+         ("RET" . vertico-directory-enter)
+         ("DEL" . vertico-directory-delete-char)
+         ("M-DEL" . vertico-directory-delete-word))
+  ;; Tidy shadowed file names
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
   :custom
   (vertico-cycle t))
 #+END_SRC
