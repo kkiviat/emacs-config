@@ -1648,6 +1648,12 @@ Note: need =xclip= installed for =org-download-clipboard=.
 		    "%<%Y%m%dT%H%M%S>--${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
+	  ("z" "zettel" plain
+           "%?"
+           :if-new (file+head
+		    "zettel/%<%Y%m%dT%H%M%S>--${slug}.org"
+		    "#+title: ${title}\n#+date: %U\n")
+           :unnarrowed t)
 	  ("t" "technical" plain
            "%?"
            :if-new (file+head
@@ -1724,6 +1730,16 @@ Change org-roam's slugs to use dashes instead of underscores in filename, like i
 			))
                (slug (-reduce-from #'cl-replace (strip-nonspacing-marks title) pairs)))
           (downcase slug))))))
+#+END_SRC
+
+Turning headings into nodes: add an id as well as a CREATED property with the current timestamp.
+#+BEGIN_SRC emacs-lisp
+(defun klk/org-roam-node-from-heading ()
+  (interactive)
+  (save-excursion
+    (org-back-to-heading)
+    (org-id-get-create)
+    (org-set-property "CREATED" (format-time-string "[%Y-%m-%d %T]"))))
 #+END_SRC
 
 Handy config from https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/ to add roam files with the Project tag to the agenda list, so I can track TODOs within a project. I could switch to just adding everything in the new projects directory, but I like being able to exclude old projects from the agenda list by just removing the tag.
@@ -1826,24 +1842,45 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
      (lambda (node)
        (not (string-equal type-name (org-roam-node-type node))))))
 
+  (defun klk/org-roam-insert-by-type (type-name)
+    (interactive)
+    (org-roam-node-insert
+     (lambda (node)
+       (string-equal type-name (org-roam-node-type node)))))
+
+  (defun klk/org-roam-insert-excluding-type (type-name)
+    (interactive)
+    (org-roam-node-insert
+     (lambda (node)
+       (not (string-equal type-name (org-roam-node-type node))))))
+
   :general
   (klk/leader-key-def
     "n" '(:ignore t :which-key "org-roam")
+    "n N" '(klk/org-roam-node-from-heading :wk "create node from heading")
     "n c" '(my/org-roam-capture-task :wk "capture task")
     "n l" '(org-roam-buffer-toggle :wk "backlinks")
     "n p" '(my/org-roam-find-project :wk "project")
     "n j" '(org-roam-dailies-goto-today :wk "today")
-    "n t" '(org-roam-dailies-goto-tomorrow :wk "tomorrow")
     "n y" '(org-roam-dailies-goto-yesterday :wk "yesterday")
     "n d" '(org-roam-dailies-goto-date :wk "open date")
     "n ," '(org-roam-dailies-goto-previous-note :wk "previous day")
     "n ." '(org-roam-dailies-goto-next-note :wk "next day")
     "n i" '(org-roam-node-insert :wk "insert")
-    "n f" '(:ignore t :which-key "find")
-    "n f a" '(org-roam-node-find :wk "all")
-    "n f f" '((lambda () (interactive) (klk/org-roam-find-excluding-type "dailies")) :wk "all but dailies")
-    "n f r" '((lambda () (interactive) (klk/org-roam-find-by-type "references")) :wk "reference")
-    "n f h" '((lambda () (interactive) (klk/org-roam-find-by-type "howto")) :wk "howto"))
+    "n a" '(:ignore t :which-key "all")
+    "n a f" '(org-roam-node-find :wk "find all")
+    "n a i" '(org-roam-node-insert :wk "insert all")
+    "n f" '((lambda () (interactive) (klk/org-roam-find-excluding-type "dailies")) :wk "find all but dailies")
+    "n i" '((lambda () (interactive) (klk/org-roam-insert-excluding-type "dailies")) :wk "insert all but dailies")
+    "n r" '(:ignore t :which-key "references")
+    "n r f" '((lambda () (interactive) (klk/org-roam-find-by-type "references")) :wk "find")
+    "n r i" '((lambda () (interactive) (klk/org-roam-insert-by-type "references")) :wk "insert")
+    "n z" '(:ignore t :which-key "zettel")
+    "n z f" '((lambda () (interactive) (klk/org-roam-find-by-type "zettel")) :wk "find")
+    "n z i" '((lambda () (interactive) (klk/org-roam-insert-by-type "zettel")) :wk "insert")
+    "n h" '(:ignore t :which-key "howto")
+    "n h f" '((lambda () (interactive) (klk/org-roam-find-by-type "howto")) :wk "find")
+    "n h i" '((lambda () (interactive) (klk/org-roam-insert-by-type "howto")) :wk "insert"))
   )
 #+END_SRC
 
@@ -2758,7 +2795,7 @@ Slightly easier way to interact with krita or xournal++ files in buffers. Still 
 #+BEGIN_SRC emacs-lisp
 (use-package denote
   :custom
-  (denote-directory "~/Dropbox/org/denote/")
+  (denote-directory "~/Dropbox/org/roam/attachments/")
   (xref-search-program 'ripgrep)
   (denote-known-keywords '(""))
   (denote-backlinks-show-context t)
@@ -2768,6 +2805,7 @@ Slightly easier way to interact with krita or xournal++ files in buffers. Still 
     "dn" '(denote :wk "denote new file")
     "db" '(denote-link-backlinks :wk "denote new file")
     "df" '(consult-notes :wk "find note")
+    "do" '(denote-open-or-create :wk "open note")
     "di" '(denote-link :wk "denote insert link"))
   :config
   (require 'denote-org-dblock)
@@ -2775,10 +2813,10 @@ Slightly easier way to interact with krita or xournal++ files in buffers. Still 
   (add-hook 'dired-before-readin-hook #'denote-dired-mode-in-directories)
   (add-hook 'find-file-hook #'denote-link-buttonize-buffer))
 
-(use-package consult-notes
-  :after denote consult
-  :config
-  (consult-notes-denote-mode))
+;; (use-package consult-notes
+;;   :after denote consult org-roam
+;;   :config
+;;   (consult-notes-denote-mode))
 #+END_SRC
 
 * Programming
