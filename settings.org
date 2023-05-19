@@ -757,7 +757,11 @@ Automatically match parentheses, etc.
 ;; Exclude pairing '<' and '(' symbols
 (setq electric-pair-inhibit-predicate
       (lambda (c)
-        (if (or (char-equal c ?\<) (char-equal c ?\()) t (electric-pair-default-inhibit c))))
+        (if (or
+	     (char-equal c ?\<)
+	     (char-equal c ?\")
+	     (char-equal c ?\())
+	    t (electric-pair-default-inhibit c))))
 (electric-pair-mode 1)
 #+END_SRC
 
@@ -953,7 +957,7 @@ Insert proposed expansion with =M-/=. Can be used to, e.g., repeat previous line
          ("DEL" . vertico-directory-delete-char)
          ("M-DEL" . vertico-directory-delete-word))
   ;; Tidy shadowed file names
-  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy)
   :custom
   (vertico-cycle t))
 #+END_SRC
