@@ -1467,6 +1467,12 @@ Add support for Elsevier article format. From https://write.as/dani/writing-a-ph
 		     ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 #+END_SRC
 
+Allow using user-defined labels when exporting (necessary, e.g., for org-ref to reference figures by their =#+name= (see [[https://emacs.stackexchange.com/questions/38457/name-is-ignored-unless-running-emacs-with-q][this stackexchange post]])
+#+BEGIN_SRC emacs-lisp
+(setq org-latex-prefer-user-labels t)
+#+END_SRC
+
+
 ** Refiling
 Set targets for refiling. Use =C-c C-w= to refile. This determines what options you're prompted with. Includes everything in all the agenda files, plus the someday file and various list files.
 
