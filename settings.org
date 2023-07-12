@@ -724,6 +724,34 @@ Hide category prefix on tasks.
   :hook (org-mode . prettify-symbols-mode))
 #+END_SRC
 
+** Markdown
+
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :custom
+  (markdown-enable-wiki-links t)
+  (markdown-hide-markup t)
+  :hook (markdown-mode . variable-pitch-mode)
+  :init
+  (advice-add #'markdown-indent-line :before-until #'completion-at-point))
+#+END_SRC
+
+Enable =[[wiki links]]=.
+
+#+BEGIN_SRC emacs-lisp
+;; (setq markdown-enable-wiki-links t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+;; (setq markdown-hide-markup t)
+#+END_SRC
+Allow completion at point with md-roam.
+
+#+BEGIN_SRC emacs-lisp
+;; (with-eval-after-load 'markdown-mode
+;;   (advice-add #'markdown-indent-line :before-until #'completion-at-point))
+#+END_SRC
+
 ** COMMENT Flyspell
 
 Disabled because it makes a huge difference in performance.
@@ -1641,16 +1669,20 @@ Note: need =xclip= installed for =org-download-clipboard=.
   :demand t ; force this to be loaded
   :custom
   (org-roam-directory org-roam-dir)
+  (org-roam-file-extensions '("org" "md"))
   :config
+  (add-to-list  'load-path "~/md-roam")
+  (require 'md-roam)
+  (md-roam-mode 1)
   (org-roam-db-autosync-mode)
   (add-hook 'org-roam-mode-hook #'visual-line-mode)
   (define-key org-roam-mode-map [mouse-1] #'org-roam-preview-visit)
-(add-to-list 'display-buffer-alist
-             '("\\*org-roam\\*"
-               (display-buffer-in-direction)
-               (direction . right)
-               (window-width . 0.33)
-               (window-height . fit-window-to-buffer)))
+  (add-to-list 'display-buffer-alist
+               '("\\*org-roam\\*"
+		 (display-buffer-in-direction)
+		 (direction . right)
+		 (window-width . 0.33)
+		 (window-height . fit-window-to-buffer)))
   (setq org-roam-capture-templates
         '(("d" "default" plain
            "%?"
@@ -1682,6 +1714,10 @@ Note: need =xclip= installed for =org-download-clipboard=.
 		    "howto/%<%Y%m%dT%H%M%S>--${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
+	  ("m" "Markdown" plain "" :target
+           (file+head "folgezettel/${slug}.md"
+		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\n---\n")
+	   :unnarrowed t)
 	  ("r" "bibliography reference" plain "%?"
            :if-new
            (file+head "references/@${citekey}.org" "#+title: @${citekey}\n${title}")
