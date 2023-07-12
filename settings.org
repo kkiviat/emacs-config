@@ -2768,6 +2768,7 @@ Load the languages to be recognized in code blocks, and also set default header 
  '((python . t)
    (jupyter . t)
    (octave . t)
+   ;; (R . t)
    ;; other languages..
    ))
 
@@ -2953,6 +2954,14 @@ Simple python config based on https://gist.github.com/Nathan-Furnal/b327f14e861f
                           (lsp-deferred))))
 #+END_SRC
 
+** R
+Installed via github with =git clone https://github.com/emacs-ess/ESS.git= (run =make= in =ESS= dir) since the current release is old.
+
+Add to load-path and use deferred loading.
+#+BEGIN_SRC emacs-lisp
+(add-to-list  'load-path "~/.emacs.d/ESS/lisp")
+(load "ess-autoloads")
+#+END_SRC
 ** Typescript
 Taken from https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/.
 #+BEGIN_SRC emacs-lisp
