@@ -334,7 +334,7 @@ Utility to get the ROAM_REFS citekey from literature notes.
     "yr" 'klk/yank-roam-ref
 
     ;; Themes
-    "t" 'klk-choose-theme :which-key "themes"
+    "T" 'klk-choose-theme :which-key "themes"
 
     ;; Utilities
     "q" 'klk/save-buffer-and-exit
@@ -901,7 +901,7 @@ Define some helper methods to support my current project notes workflow. I like 
     "pn" '(klk/open-org-project-notes-file :which-key "project notes")
     "py" '(klk/yank-project-root :which-key "yank root"))
     :config
-  (setq projectile-project-search-path '(("~/Dropbox/org/" . 3) ("~/" . 2) ("~/openfoam/" . 3) ("~/Dropbox/classes/" . 3)))
+  (setq projectile-project-search-path '(("~/Dropbox/org/" . 3) ("~/" . 2) ("~/openfoam/" . 3) ("~/Dropbox/classes/" . 3) ("~/OpenFOAM/" . 4) ("~/Dropbox/projects/" . 3)))
 )
 #+END_SRC
 
@@ -1699,28 +1699,28 @@ Note: need =xclip= installed for =org-download-clipboard=.
 	  ("t" "technical" plain
            "%?"
            :if-new (file+head
-		    "technical/%<%Y%m%dT%H%M%S>--${slug}.org"
+		    "Resources/technical/${title}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
 	  ("s" "source" plain ;; non-academic references
            "Source: %?"
            :if-new (file+head
-		    "references/%<%Y%m%dT%H%M%S>--${slug}.org"
+		    "Resources/sources/%<%Y%m%dT%H%M%S>--${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
 	  ("h" "howto" plain
 	   "%?"
            :if-new (file+head
-		    "howto/%<%Y%m%dT%H%M%S>--${slug}.org"
+		    "Resources/howto/${title}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
-	  ("m" "Markdown" plain "" :target
-           (file+head "folgezettel/${slug}.md"
+	  ("f" "Folgezettel" plain "" :target
+           (file+head "folgezettel/${title}.md"
 		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\n---\n")
 	   :unnarrowed t)
 	  ("r" "bibliography reference" plain "%?"
            :if-new
-           (file+head "references/@${citekey}.org" "#+title: @${citekey}\n${title}")
+           (file+head "Resources/references/@${citekey}.org" "#+title: @${citekey}\n${title}")
 	   :unnarrowed t)))
   (setq org-roam-dailies-directory "dailies/")
   (setq org-roam-dailies-capture-templates
@@ -1836,10 +1836,27 @@ capture was not aborted."
    :templates
    '(("p" "project" plain "* Goals\n\n%?\n\n* Tasks\n\n"
       :if-new (file+head
-	       "%<%Y%m%dT%H%M%S>--${slug}.org"
-	       "#+title: ${title}\n#+category: ${title}\n#+filetags: :project:")
+	       "Projects/${title}.org"
+	       "#+title: ${title}\n#+created: %U\n#+category: ${title}\n#+filetags: :project:")
       :unnarrowed t))))
 
+(defun my/org-roam-find-research-project ()
+  (interactive)
+  ;; Add the project file to the agenda after capture is finished
+  (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
+
+  ;; Select a project file to open, creating it if necessary
+  (org-roam-node-find
+   nil
+   nil
+   (my/org-roam-filter-by-tag "project")
+   nil
+   :templates
+   '(("p" "project" plain "* Goals\n\n%?\n\n* Tasks\n\n"
+      :if-new (file+head
+	       "Research/Projects/%<%Y%m%dT%H%M%S>--${slug}.org"
+	       "#+title: ${title}\n#+created: %U\n#+category: ${title}\n#+filetags: :project:")
+      :unnarrowed t))))
 
 (defun my/org-roam-capture-task ()
   (interactive)
@@ -1906,7 +1923,8 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
     "n N" '(klk/org-roam-node-from-heading :wk "create node from heading")
     "n c" '(my/org-roam-capture-task :wk "capture task")
     "n l" '(org-roam-buffer-toggle :wk "backlinks")
-    "n p" '(my/org-roam-find-project :wk "project")
+    "n p p" '(my/org-roam-find-project :wk "personal project")
+    "n p r" '(my/org-roam-find-research-project :wk "research project")
     "n j" '(org-roam-dailies-goto-today :wk "today")
     "n y" '(org-roam-dailies-goto-yesterday :wk "yesterday")
     "n d" '(org-roam-dailies-goto-date :wk "open date")
@@ -2836,6 +2854,17 @@ Slightly easier way to interact with krita or xournal++ files in buffers. Still 
   (setq org-xournalpp-template-getter 'get-xournal-template)
 )
   ;; (setq 'org-xournalpp-image-type 'png)
+#+END_SRC
+
+** transclusion
+#+BEGIN_SRC emacs-lisp
+(use-package org-transclusion
+  :general
+  (klk/leader-key-def
+    "ta" '(org-transclusion-add :wk "add transclusion")
+    "tA" '(org-transclusion-add-all :wk "add all transclusions")
+    "tr" '(org-transclusion-remove :wk "add transclusion")
+    "tm" '(org-transclusion-mode :wk "transclusion mode")))
 #+END_SRC
 * Notes
 ** Denote
