@@ -263,6 +263,14 @@ Avy-style jumping for evil motion commands. Type space followed by a motion key 
   (evil-org-agenda-set-keys)
   (setq org-super-agenda-header-map (make-sparse-keymap)))
 #+END_SRC
+
+Evil escape
+#+BEGIN_SRC emacs-lisp
+(use-package evil-escape
+  :init
+  (setq-default evil-escape-key-sequence "fd")
+  (evil-escape-mode 1))
+#+END_SRC
 *** General
 Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
 
