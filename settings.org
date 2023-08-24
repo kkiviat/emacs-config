@@ -1716,12 +1716,15 @@ Note: need =xclip= installed for =org-download-clipboard=.
            :unnarrowed t)
 	  ("f" "Folgezettel" plain "" :target
            (file+head "folgezettel/${title}.md"
-		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\n---\n")
+		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\n---\n# ${title}\n")
 	   :unnarrowed t)
-	  ("r" "bibliography reference" plain "%?"
-           :if-new
-           (file+head "Resources/references/@${citekey}.org" "#+title: @${citekey}\n${title}")
-	   :unnarrowed t)))
+	  ("r" "bibliography reference" plain
+           "%?"
+           :target
+           (file+head
+            "Resources/references/@${citar-citekey}.md"
+            "---\ntitle: \"${citar-title}\"\nauthor: ${citar-author}\nyear: ${citar-date}\nroam_refs: ${citar-citekey}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n\n# ${citar-title} (${citar-date})\n${citar-author}\n\n[@${citar-citekey}]\n[Link to PDF (Obsidian)](<file:///home/kira/Dropbox/Zotero/${citar-file}>)\n\n# Summary\n\n# Notes\n\n")
+           :unnarrowed t)))
   (setq org-roam-dailies-directory "dailies/")
   (setq org-roam-dailies-capture-templates
 	(quote (("d" "daily" plain
@@ -2589,15 +2592,50 @@ Set up citar for citation management.
   (LaTeX-mode . citar-setup-capf)
   (org-mode . citar-setup-capf)
   :config
-  (setq citar-symbols
-        `((file ,(all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1) . " ")
-          (note ,(all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3) . " ")
-          (link ,(all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01) . " ")))
-  (setq citar-symbol-separator "  ")
-  ; Remove type and expand name field
+  (defvar citar-indicator-files-icons
+    (citar-indicator-create
+     :symbol (all-the-icons-faicon
+              "file-o"
+              :face 'all-the-icons-green
+              :v-adjust -0.1)
+     :function #'citar-has-files
+     :padding "  " ; need this because the default padding is too low for these icons
+     :tag "has:files"))
+
+  (defvar citar-indicator-links-icons
+    (citar-indicator-create
+     :symbol (all-the-icons-octicon
+              "link"
+              :face 'all-the-icons-orange
+              :v-adjust 0.01)
+     :function #'citar-has-links
+     :padding "  "
+     :tag "has:links"))
+
+  (defvar citar-indicator-notes-icons
+    (citar-indicator-create
+     :symbol (all-the-icons-material
+              "speaker_notes"
+              :face 'all-the-icons-blue
+              :v-adjust -0.3)
+     :function #'citar-has-notes
+     :padding "  "
+     :tag "has:notes"))
+
+  (defvar citar-indicator-cited-icons
+    (citar-indicator-create
+     :symbol (all-the-icons-faicon
+              "circle-o"
+              :face 'all-the-icon-green)
+     :function #'citar-is-cited
+     :padding "  "
+     :tag "is:cited"))
+  (setq citar-indicators
+	(list citar-indicator-files-icons ; plain text
+              citar-indicator-notes-icons)) ; icon
   (setq citar-templates
 	'((main . "${author editor:30%sn}     ${date year issued:4}     ${title:80}")
-          (suffix . "          ${=key= id:15}   ${tags keywords:*}")
+          (suffix . "          ${=key= id:15}    ${=type=:12}    ${tags keywords:*}")
           (preview . "${author editor:%etal} (${year issued date}) ${title}, ${journal journaltitle publisher container-title collection-title}.\n")
           (note . "Notes on ${author editor:%etal}, ${title}")))
   :custom
@@ -2622,7 +2660,17 @@ Set up citar for citation management.
   :no-require
   :custom
   (citar-org-roam-capture-template-key "r")
-  (citar-org-roam-note-title-template "#+created: %U\n\n[[file:~/Dropbox/Zotero/${file}][Link to PDF]]\n* ${title} (${year})\n${author}\n\n* Notes\n:PROPERTIES:\n:NOTER_DOCUMENT: ~/Dropbox/Zotero/${file}\n:END:\n")  :config (citar-org-roam-mode))
+  (setq citar-org-roam-note-title-template "${title}")
+  :config
+  (setq citar-org-roam-template-fields
+	; override this to include the file field
+	'((:citar-title . ("title"))
+    (:citar-author . ("author" "editor"))
+    (:citar-date . ("date" "year" "issued"))
+    (:citar-pages . ("pages"))
+    (:citar-file . ("file"))
+    (:citar-type . ("=type="))))
+  (citar-org-roam-mode))
 #+END_SRC
 *** org-ref
 
