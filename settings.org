@@ -183,7 +183,7 @@ Emacs 29 has smooth scrolling natively.
   Display line numbers except in certain modes. From https://www.emacswiki.org/emacs/LineNumbers
 #+BEGIN_SRC emacs-lisp
 (require 'display-line-numbers)
-(defcustom display-line-numbers-exempt-modes '(vterm-mode eshell-mode shell-mode term-mode ansi-term-mode org-mode org-agenda-mode pdf-view-mode)
+(defcustom display-line-numbers-exempt-modes '(vterm-mode eshell-mode shell-mode term-mode ansi-term-mode org-mode org-agenda-mode pdf-view-mode markdown-mode)
   "Major modes on which to disable the linum mode, exempts them from global requirement"
   :group 'display-line-numbers
   :type 'list
@@ -731,7 +731,9 @@ Hide category prefix on tasks.
   :custom
   (markdown-enable-wiki-links t)
   (markdown-hide-markup t)
-  :hook (markdown-mode . variable-pitch-mode)
+  :hook
+  (markdown-mode . variable-pitch-mode)
+  (markdown-mode . markdown-toggle-inline-images)
   :init
   (advice-add #'markdown-indent-line :before-until #'completion-at-point))
 #+END_SRC
@@ -2170,7 +2172,7 @@ Define capture templates. Config for capturing project-specific tasks / notes ba
                 )))
 	   ("Advisor Question"
 	    :keys "q"
-      :file ,(org-roam-path "Research/Advisor Meetings.org")
+      :file ,(org-roam-path "Research/Meetings/Advisor Meetings.org")
 	    :type item
 	    :empty-lines 0
 	    :olp ("Questions")
