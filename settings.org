@@ -300,8 +300,13 @@ Utility to get the ROAM_REFS citekey from literature notes.
 (use-package general
   :demand t
   :config
+  (general-evil-setup)
+  (general-create-definer klk/leader-key-def
+    :states '(normal insert visual emacs)
+    :keymaps 'override
+    :prefix "SPC"
+    :global-prefix "M-SPC")
   (general-auto-unbind-keys)
-  (general-create-definer klk/leader-key-def :prefix "M-SPC")
   (general-create-definer klk/leader-key-def-major-mode
     :states '(normal visual motion emacs insert)
     :keymaps 'override
@@ -989,8 +994,10 @@ Insert proposed expansion with =M-/=. Can be used to, e.g., repeat previous line
   :init
   (vertico-mode)
   :bind (:map vertico-map
-         ("C-j" . vertico-next)
-         ("C-k" . vertico-previous)
+         ("M-j" . vertico-next)
+         ("M-k" . vertico-previous)
+         ("M-J" . vertico-next-group)
+         ("M-K" . vertico-previous-group)
          ("RET" . vertico-directory-enter)
          ("DEL" . vertico-directory-delete-char)
          ("M-DEL" . vertico-directory-delete-word))
@@ -1214,7 +1221,11 @@ Doesn't have the which-key-like suggestions and doesn't work as well in org-mode
 *** Magit
   #+BEGIN_SRC emacs-lisp
 (use-package magit
-  :straight (magit :type git :host github :repo "magit/magit"))
+  :straight (magit :type git :host github :repo "magit/magit")
+  :general
+  (klk/leader-key-def
+    "gs" '(magit-status :which-key "magit status"))
+  )
   #+END_SRC
 *** Git Gutter
 #+BEGIN_SRC emacs-lisp
@@ -2991,6 +3002,12 @@ Config from the corfu [[https://github.com/minad/corfu/wiki#configuring-corfu-fo
   (defun my/lsp-mode-setup-completion ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless))) ;; Configure orderless
+  :config
+  (let ((map xref--xref-buffer-mode-map))
+    (define-key map (kbd "M-j") 'xref-next-line)
+    (define-key map (kbd "M-k") 'xref-prev-line)
+    (define-key map (kbd "M-J") 'xref-next-group)
+    (define-key map (kbd "M-K") 'xref-prev-group))
   :hook
   (lsp-completion-mode . my/lsp-mode-setup-completion))
 #+END_SRC
