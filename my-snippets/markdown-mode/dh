@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: dateheading
+# key: dh
+##
+# --
+`(concat "## " (format-time-string "%Y-%m-%d (%A)"))`$0

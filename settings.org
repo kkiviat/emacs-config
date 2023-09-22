@@ -741,6 +741,18 @@ Hide category prefix on tasks.
 
 #+BEGIN_SRC emacs-lisp
 (use-package markdown-mode
+  :general
+  (:keymaps 'markdown-mode-map
+	    "M-n" 'markdown-outline-next
+	    "M-p" 'markdown-outline-previous
+	    "M-h" 'markdown-outline-up
+	    "M-l" 'markdown-outline-next-same-level
+	    "M-j" 'markdown-outline-next-same-level
+	    "M-k" 'markdown-outline-previous-same-level)
+  (klk/leader-key-def
+    :keymaps 'markdown-mode-map
+    "ns" 'markdown-narrow-to-subtree :wk "narrow"
+    "nw" 'widen :wk "widen")
   :custom
   (markdown-enable-wiki-links t)
   (markdown-hide-markup t)
@@ -1737,14 +1749,14 @@ Note: need =xclip= installed for =org-download-clipboard=.
            :unnarrowed t)
 	  ("f" "Folgezettel" plain "" :target
            (file+head "folgezettel/${title}.md"
-		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\n---\n# ${title}\n")
+		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n# ${title}\n")
 	   :unnarrowed t)
 	  ("r" "bibliography reference" plain
            "%?"
            :target
            (file+head
             "Resources/references/@${citar-citekey}.md"
-            "---\ntitle: \"${citar-title}\"\nauthor: ${citar-author}\nyear: ${citar-date}\nroam_refs: ${citar-citekey}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n\n# ${citar-title} (${citar-date})\n${citar-author}\n\n[@${citar-citekey}]\n[Link to PDF (Obsidian)](<file:///home/kira/Dropbox/Zotero/${citar-file}>)\n\n# Summary\n\n# Notes\n\n")
+            "---\ntitle: \"${citar-title}\"\nauthor: ${citar-author}\nyear: ${citar-date}\nroam_refs: ${citar-citekey}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n\n- **tags**:: \n\n# ${citar-title} (${citar-date})\n${citar-author}\n\n[@${citar-citekey}]\n[Link to PDF (Obsidian)](<file:///home/kira/Dropbox/Zotero/${citar-file}>)\n\n**Summary**:: \n\n# Notes\n\n")
            :unnarrowed t)))
   (setq org-roam-dailies-directory "dailies/")
   (setq org-roam-dailies-capture-templates
