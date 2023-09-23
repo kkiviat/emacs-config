@@ -768,6 +768,7 @@ Hide category prefix on tasks.
   :custom
   (markdown-enable-wiki-links t)
   (markdown-hide-markup t)
+  (markdown-max-image-size '(800 . 800))
   :hook
   (markdown-mode . variable-pitch-mode)
   (markdown-mode . markdown-toggle-inline-images)
