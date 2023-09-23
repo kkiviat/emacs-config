@@ -153,30 +153,12 @@ Use code from https://www.emacswiki.org/emacs/TransposeFrame, which enables flip
 ** Scrolling
 Emacs 29 has smooth scrolling natively.
 #+BEGIN_SRC emacs-lisp
-  (if (version< emacs-version "29")
-      (progn
-	(setq mouse-wheel-scroll-amount '(2 ((shift) . 1))) ;; two lines at a time
-	(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-	(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-	(setq scroll-step 1) ;; keyboard scroll one line at a time
-	(setq auto-window-vscroll nil)
-	(setq fast-but-imprecise-scrolling t)
-	(setq scroll-conservatively 101)
-	)
-    (progn
-      (pixel-scroll-precision-mode)
-      (setq pixel-scroll-precision-large-scroll-height 40.0)
-      (setq pixel-scroll-precision-interpolation-factor 30)
-      (setq scroll-conservatively 101) ;; keyboard scroll one line at a time
-      )
-    )
-#+END_SRC
-
-** COMMENT beacon
-#+BEGIN_SRC emacs-lisp
-(use-package beacon
-  :init
-  (beacon-mode 1))
+(pixel-scroll-precision-mode)
+(global-set-key (kbd "<mouse-4>") 'pixel-scroll-down)
+(global-set-key (kbd "<mouse-5>") 'pixel-scroll-up)
+(setq pixel-scroll-precision-large-scroll-height 40.0)
+(setq pixel-scroll-precision-interpolation-factor 30)
+(setq scroll-conservatively 101) ;; keyboard scroll one line at a time
 #+END_SRC
 
 ** Line numbers
@@ -548,12 +530,42 @@ Config for quiet theme from https://github.com/quiettheme/emacs.
 
 *** Configure modus themes
 #+BEGIN_SRC emacs-lisp
-(setq modus-themes-region '(accented bg-only)
-      modus-themes-mode-line '(accented)
-      modus-themes-completions 'opinionated
-      modus-themes-org-blocks 'tinted-background
-      modus-themes-bold-constructs t
-      modus-themes-italic-constructs t)
+(use-package emacs
+  :config
+  (require-theme 'modus-themes) ; `require-theme' is ONLY for the built-in Modus themes
+  (setq modus-themes-italic-constructs t
+	modus-themes-bold-constructs t
+	modus-themes-mixed-fonts t
+	modus-themes-mode-line '(accented)
+	modus-themes-region '(accented bg-only)
+	modus-themes-variable-pitch-ui nil
+	modus-themes-custom-auto-reload t
+	modus-themes-disable-other-themes t
+
+	;; Options for `modus-themes-prompts' are either nil (the
+	;; default), or a list of properties that may include any of those
+	;; symbols: `italic', `WEIGHT'
+	modus-themes-prompts '(italic bold)
+
+	modus-themes-completions
+	'((matches . (extrabold))
+	  (selection . (semibold italic text-also)))
+
+	modus-themes-org-blocks 'tinted-background ; {nil,'gray-background,'tinted-background}
+	;; The `modus-themes-headings' is an alist: read the manual's
+	;; node about it or its doc string.  Basically, it supports
+	;; per-level configurations for the optional use of
+	;; `variable-pitch' typography, a height value as a multiple of
+	;; the base font size (e.g. 1.5), and a `WEIGHT'.
+	modus-themes-headings
+	'((1 . (variable-pitch 1.5))
+          (2 . (1.3))
+          (agenda-date . (1.3))
+          (agenda-structure . (variable-pitch light 1.8))
+          (t . (1.1))))
+
+  ;; Load the theme of your choice.
+  (load-theme 'modus-operandi))
 #+END_SRC
 *** Modeline
 **** COMMENT Doom modeline
@@ -762,33 +774,6 @@ Hide category prefix on tasks.
   :init
   (advice-add #'markdown-indent-line :before-until #'completion-at-point))
 #+END_SRC
-
-Enable =[[wiki links]]=.
-
-#+BEGIN_SRC emacs-lisp
-;; (setq markdown-enable-wiki-links t)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-;; (setq markdown-hide-markup t)
-#+END_SRC
-Allow completion at point with md-roam.
-
-#+BEGIN_SRC emacs-lisp
-;; (with-eval-after-load 'markdown-mode
-;;   (advice-add #'markdown-indent-line :before-until #'completion-at-point))
-#+END_SRC
-
-** COMMENT Flyspell
-
-Disabled because it makes a huge difference in performance.
-
-  #+BEGIN_SRC emacs-lisp
-(use-package flyspell
-  :straight nil
-  :hook
-  (text-mode . flyspell-mode))
-  #+END_SRC
 
 ** Highlighting
   Highlight all occurrences of word under the cursor. Config from http://xenodium.com/emacs-highlight-symbol-mode/
@@ -1264,32 +1249,6 @@ Doesn't have the which-key-like suggestions and doesn't work as well in org-mode
   (setq org-imenu-depth 3))
 #+END_SRC
 
-** COMMENT Dashboard
-#+BEGIN_SRC emacs-lisp
-(use-package dashboard
-  :config
-  (dashboard-setup-startup-hook)
-  (setq dashboard-items '(;(recents  . 5)
-                        (bookmarks . 5)
-                        (projects . 5)
-                        (agenda . 5)))
-  (setq dashboard-set-navigator t)
-  (setq dashboard-center-content t)
-  (setq dashboard-startup-banner 'logo)
-  (setq dashboard-navigator-buttons
-        `((;; Github
-           (,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0)
-            "Github"
-            "Github"
-            (lambda (&rest _) (browse-url "https://github.com/kkiviat/emacs-config")))
-           ;; Perspectives
-           (,(all-the-icons-octicon "history" :height 1.1 :v-adjust 0.0)
-            "Restore"
-            "Restore"
-            (lambda (&rest _) (persp-state-load persp-state-default-file)))
-           ))))
-#+END_SRC
-
 ** Utilities
 
 *** explain pause mode
@@ -1575,42 +1534,6 @@ Create ids for links so they will work even if you move them across files.
 (global-set-key "\C-ca" 'org-agenda)
 (global-set-key "\C-cc" 'org-capture)
 (global-set-key "\C-cC" 'klk/open-calendar)
-#+END_SRC
-
-** Tables
-Functions to jump between tables in a buffer. Taken from [[https://www.reddit.com/r/orgmode/comments/ot8g0j/orgnexttable_and_orgprevioustable_jump_to/][reddit]].
-#+BEGIN_SRC emacs-lisp
-(defun org-next-table (&optional arg)
-  "Jump to the next table.
-
-With a prefix argument ARG, jump forward ARG many tables."
-  (interactive "p")
-  (cl-loop
-     for n below (abs arg)
-     with backward = (< arg 0)
-     with search-fn = (if backward #'re-search-backward #'re-search-forward)
-     do
-       (setq pt (point))
-       (when (org-at-table-p)
-         (funcall search-fn org-table-border-regexp nil :move))
-     if (funcall search-fn org-table-line-regexp nil t) do
-       (when (org-invisible-p)
-         (org-reveal t)
-         (org-show-entry)
-         (unless (org-at-table-p)
-           (cl-decf n)))
-     else return (goto-char pt)
-     finally (when backward
-               (when (funcall search-fn org-table-border-regexp nil :move)
-                 (next-line))
-               (forward-char))))
-
-(defun org-previous-table (&optional arg)
-  "Jump to the previous table.
-
-With a prefix argument ARG, jump backward ARG many tables."
-  (interactive "p")
-  (org-next-table (- arg)))
 #+END_SRC
 
 ** Images
@@ -2170,13 +2093,6 @@ Define capture templates. Config for capturing project-specific tasks / notes ba
 		       ("todo" :keys "t" :body nil :scheduled nil :todo-state "TODO")
 		       ("scheduled" :keys "s" :body nil :scheduled "SCHEDULED: %^{scheduled}t\n" :todo-state "TODO")
 		       ("next" :keys "n" :body nil :scheduled nil :todo-state "NEXT")))
-	   ("Notes" :keys "n"
-	    :template ("* %?\n%i\n")
-            :children (
-		       ("health" :keys "h" :file ,(org-file-path "p-health.org") :headline "Notes")
-		       ("financial" :keys "f" :file ,(org-file-path "p-financial.org") :headline "Notes")
-		       ("garden" :keys "g" :file ,(org-file-path "p-garden.org") :headline "Notes")
-		       ("research" :keys "r" :file ,(org-file-path "research.org") :olp ("Notes") :datetree t :template "* %?\n")))
 	   ("Projects" :keys "p"
             :file klk/org-project-notes-file
             :children (("note" :keys "n" :template ("* %^{Title}" "%?") :function (lambda ()
@@ -2224,48 +2140,8 @@ Define capture templates. Config for capturing project-specific tasks / notes ba
 	    :function (lambda () (goto-char (point-min)))
 	    :file ,(org-roam-path "Research/research_weekly.org")
 	    :template ("* Week ending %(klk/get-date-string)"))
-	    ;; :template ("* Week ending %<%Y-%m-%d (%A)>")
-	    ;; :time-prompt t)
-	   ;; ("Weekly" :keys "w"
-	   ;;  :empty-lines 1
-	   ;;  :function (lambda () (klk/org-last-top-level-heading))
-	   ;;  :file ,(org-file-path "journal/weekly2022.org")
-	   ;;  :refile-targets ,(org-file-path "journal/weekly2022.org")
-	   ;;  :template ("** Week %^{week number}"
-	   ;; 	       "[[file:~/Dropbox/org/roam/dailies/%^{start of week (yyyymmdd).org}]]"
-	   ;; 	       "*** Goals / priorities :goals:"
-	   ;; 	       "- %?"
-	   ;; 	       "*** Review :weekly:"
-	   ;; 	       "*** Key Ideas :keyideas:"))
-	   ;; ("Monthly" :keys "m"
-	   ;;  :empty-lines 1
-	   ;;  :file ,(org-file-path "journal/weekly2022.org")
-	   ;;  :template ("* %^{Month}"
-	   ;; 	       "** %\\1 Goals / priorities :goals:"
-	   ;; 	       "- %?"
-	   ;; 	       "** %\\1 Review :monthly:"
-	   ;; 	       "** %\\1 Key Ideas :monthlykeyideas:"
-	   ;; 	       "** %\\1 Highlights :highlights:" ))
 	   )))))
 
-#+END_SRC
-
-**** Capture from outside emacs
-Bind a system shortcut to =emacsclient -n -e '(yequake-toggle "org-capture")'= to bring up a temporary capture frame. Must have an emacsclient instance running. Doesn't work with refiling.
-#+BEGIN_SRC emacs-lisp
-(use-package yequake
-  :straight (yequake :type git :host github :repo "alphapapa/yequake")
-
-  :custom
-  (yequake-frames
-   '(("org-capture"
-      (buffer-fns . (yequake-org-capture))
-      (width . 0.75)
-      (height . 0.5)
-      (alpha . 0.95)
-      (frame-parameters . ((undecorated . t)
-                           (skip-taskbar . t)
-                           (sticky . t)))))))
 #+END_SRC
 
 *** Agenda
@@ -2409,54 +2285,6 @@ Super Agenda
       ))
 #+END_SRC
 
-** Journal
-
-**** COMMENT deft
-Deft is good for searching through files in a directory, like the journal directory.
-=deft-parse-title= override is from https://github.com/jrblevin/deft/issues/75 so the title isn't just ":PROPERTIES:" with org-roam V2.
-
-Note: this causes some annoyances because it seems to trigger auto-saves in org-roam files every couple of seconds.
-#+BEGIN_SRC emacs-lisp
-(use-package deft
-  :bind ("C-c d" . deft)
-  :bind ("C-c D" . deft-find-file)
-  :commands (deft)
-  :config
-  (setq deft-default-extension "org"
-	deft-extensions '("org")
-	deft-directory "~/Dropbox/org/roam"
-	deft-recursive t
-	deft-strip-summary-regexp ":PROPERTIES:\n\\(.+\n\\)+:END:\n\\(#\\+.+\n\\)*\\(- .+::.+\n\\)?"
-	deft-use-filename-as-title nil
-	deft-file-naming-rules '((noslash . "-")
-				 (nospace . "-")
-				 (case-fn . downcase))
-	deft-text-mode 'org-mode)
-  )
-(advice-add 'deft-parse-title :override
-    (lambda (file contents)
-      (if deft-use-filename-as-title
-	  (deft-base-filename file)
-	(let* ((case-fold-search 't)
-	       (begin (string-match "title: " contents))
-	       (end-of-begin (match-end 0))
-	       (end (string-match "\n" contents begin)))
-	  (if begin
-	      (substring contents end-of-begin end)
-	    (format "%s" file))))))
-#+END_SRC
-
-**** random note
-Random note, for looking at a random past entry.
-#+BEGIN_SRC emacs-lisp
-(use-package org-randomnote
-	:bind ("C-c r" . org-randomnote)
-	:config
-	(setq org-randomnote-candidates (directory-files "~/Dropbox/org/roam/dailies" t "^[0-9]+.org$" t))
-	(setq org-randomnote-open-behavior 'indirect-buffer)
-	)
-#+END_SRC
-
 ** Visual
 
 Use syntax highlighting in source blocks while editing.
@@ -2495,17 +2323,6 @@ Load images inline.
 This changes the context settings for sparse subtrees so that it will show the content of a heading matching the tag.
 #+BEGIN_SRC emacs-lisp
 (push '(tags-tree . local) org-show-context-detail)
-#+END_SRC
-
-Use variable font sizes for headings and a large font for titles.
-#+BEGIN_SRC emacs-lisp
-(custom-set-faces
-  '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
-  '(org-level-2 ((t (:inherit outline-2 :height 1.15 :weight normal))))
-  '(org-level-3 ((t (:inherit outline-3 :height 1.1 :weight normal))))
-  '(org-level-4 ((t (:inherit outline-4 :height 1.1 :weight normal))))
-  '(org-document-title ((t (:height 250))))
-)
 #+END_SRC
 
 ** Code
@@ -2714,43 +2531,6 @@ I'm using citar now for reference management, but org-ref still provides a nice 
   :general
   (klk/leader-key-def
     "rr" '(org-ref-insert-ref-link :wk "insert ref")))
-  ;; :bind (:map org-mode-map ("C-c ]" . org-ref-insert-link))
-  ;; :config
-  ;; (setq org-latex-prefer-user-labels t)
-  ;; (setq bibtex-completion-bibliography bib-files
-  ;; 	bibtex-completion-library-path '("~/Dropbox/Zotero/storage/")
-  ;; 	bibtex-completion-notes-path "~/Dropbox/Notes/org_zettel/references/"
-  ;; 	bibtex-completion-notes-template-multiple-files "* ${author-or-editor}, ${title}, ${journal}, (${year}) :${=type=}: \n\nSee [[cite:&${=key=}]]\n"
-
-  ;; 	bibtex-completion-additional-search-fields '(keywords)
-  ;; 	bibtex-completion-display-formats
-  ;; 	'((article       . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${journal:40}")
-  ;; 	  (inbook        . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
-  ;; 	  (incollection  . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-  ;; 	  (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-  ;; 	  (t             . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*}"))
-  ;; 	bibtex-completion-pdf-open-function
-  ;; 	(lambda (fpath)
-  ;; 	  (call-process "open" nil 0 nil fpath)))
-  ;; :demand
-  ;; )
-#+END_SRC
-
-*** COMMENT org-roam-bibtex
-Integrate bibtex with =org-roam=.
-
-At some point the file keyword stopped being processed correctly. Possibly related to [[https://org-roam.discourse.group/t/orb-process-file-field-not-working-in-orb-templates/795/11][this]]. So for now I set =orb-process-file-keyword= to =nil=, which means the whole contents of the file field are input. Sometimes this includes an extra file (web snapshot), but it's easier to deal with than inserting nothing.
-#+BEGIN_SRC emacs-lisp
-(use-package org-roam-bibtex
-  :after org-roam
-  :bind (:map org-mode-map ("C-c n b" . orb-note-actions))
-  :config
-  ;; (require 'org-ref) ; optional: if Org Ref is not loaded anywhere else, load it here
-  (setq orb-preformat-keywords
-      '("citekey" "title" "url" "author-or-editor" "keywords" "file" "author" "year")
-      orb-process-file-keyword nil) ;; files don't appear otherwise
-  (org-roam-bibtex-mode)
-  :demand)
 #+END_SRC
 
 *** org-noter
@@ -2788,36 +2568,6 @@ Attach notes to locations in the pdf.
 #+END_SRC
 ** Calendar
   Set up syncing with google calendar  following https://github.com/emacsmirror/org-gcal.
-
-*** calfw
-  Basic calfw config from https://github.com/kiwanami/emacs-calfw
-  #+BEGIN_SRC emacs-lisp
-    (use-package calfw
-      :init
-      (setq cfw:fchar-junction ?╋
-	    cfw:fchar-vertical-line ?┃
-	    cfw:fchar-horizontal-line ?━
-	    cfw:fchar-left-junction ?┣
-	    cfw:fchar-right-junction ?┫
-	    cfw:fchar-top-junction ?┯
-	    cfw:fchar-top-left-corner ?┏
-	    cfw:fchar-top-right-corner ?┓
-	    calendar-week-start-day 1 ; 0:Sunday, 1:Monday
-	    ))
-    (use-package calfw-org)
-    (use-package calfw-ical)
-    (use-package calfw-cal)
-
-  (defun klk/open-calendar ()
-    "CFW config for my calendars."
-    (interactive)
-    (cfw:open-calendar-buffer
-     :contents-sources
-     (list
-      (cfw:org-create-source "DarkGreen")
-      (cfw:ical-create-source "gcal" (klk/get-gcal) "Blue")
-     )))
-  #+END_SRC
 
 *** org-gcal
 #+BEGIN_SRC emacs-lisp
@@ -2869,30 +2619,6 @@ Make use of the jupyter customizations in [[https://github.com/jkitchin/scimax][
 (require 'scimax-jupyter)
 (setq org-confirm-babel-evaluate nil)
 #+END_SRC
-*** COMMENT jupyter
-[[https://github.com/nnicandro/emacs-jupyter][emacs-jupyter]] requires [[https://github.com/nnicandro/emacs-zmq][emacs-zmq]]. To install =emacs-zmq=, after running the following, go to =straight/build/zmq= and run =make=.
-
-May need to first run =sudo dnf install libstdc++-static zeromq-devel libtool=.
-
-#+BEGIN_SRC emacs-lisp
-(use-package zmq)
-
-(use-package jupyter
-  :config
-  (require 'jupyter-julia))
-
-(setq org-src-fontify-natively t
-      org-src-tab-acts-natively t
-      org-confirm-babel-evaluate nil
-      org-edit-src-content-indentation 0)
-#+END_SRC
-
-Fix for ansi color sequence issue from https://github.com/nnicandro/emacs-jupyter/issues/380
-#+BEGIN_SRC emacs-lisp
-(defun jupyter-ansi-color-apply-on-region (begin end)
-  (ansi-color-apply-on-region begin end t))
-#+END_SRC
-
 *** load languages
 
 Load the languages to be recognized in code blocks, and also set default header args.
@@ -2911,42 +2637,6 @@ Load the languages to be recognized in code blocks, and also set default header 
              '(:results . "output"))
 #+END_SRC
 
-** images
-Slightly easier way to interact with krita or xournal++ files in buffers. Still have to create the files separately, though. These just allow clicking on a link in an org buffer to open an existing image file.
-*** org-krita
-#+BEGIN_SRC emacs-lisp
-(use-package org-krita
-  :ensure t
-  :straight (org-krita :host github :repo "lepisma/org-krita" :files ("*.el" "resources"))
-  :config
-  (add-hook 'org-mode-hook 'org-krita-mode))
-#+END_SRC
-*** org-xournalpp
-#+BEGIN_SRC emacs-lisp
-(defun get-xournal-template ()
-  (let ((template-file "~/Dropbox/org/org-xournalpp/resources/"))
-    (read-file-name nil template-file)))
-
-(use-package org-xournalpp
-  :ensure t
-  :straight (org-xournalpp :host gitlab :repo "vherrmann/org-xournalpp" :files ("*.el" "resources"))
-  :config
-  (add-hook 'org-mode-hook 'org-xournalpp-mode)
-  (setq org-xournalpp-template-getter 'get-xournal-template)
-)
-  ;; (setq 'org-xournalpp-image-type 'png)
-#+END_SRC
-
-** transclusion
-#+BEGIN_SRC emacs-lisp
-(use-package org-transclusion
-  :general
-  (klk/leader-key-def
-    "ta" '(org-transclusion-add :wk "add transclusion")
-    "tA" '(org-transclusion-add-all :wk "add all transclusions")
-    "tr" '(org-transclusion-remove :wk "add transclusion")
-    "tm" '(org-transclusion-mode :wk "transclusion mode")))
-#+END_SRC
 * Notes
 ** Denote
 #+BEGIN_SRC emacs-lisp
@@ -3024,20 +2714,6 @@ Config from the corfu [[https://github.com/minad/corfu/wiki#configuring-corfu-fo
   (lsp-completion-mode . my/lsp-mode-setup-completion))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-;; (use-package lsp-ui
-;;   :ensure t
-;;   :custom
-;;   (lsp-enable-symbol-highlighting nil)
-;;   (lsp-ui-doc-show-with-mouse nil)
-;;   (lsp-headerline-breadcrumb-enable nil)
-;;   (lsp-ui-sideline-enable nil)
-;;   (lsp-completion-provider :none)
-;;   :config
-;;   (add-hook 'lsp-completion-mode-hook 'my/lsp-mode-use-orderless)
-;;   (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-;;   (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
-#+END_SRC
 ** Flycheck
   Syntax checking support
 #+BEGIN_SRC emacs-lisp
@@ -3049,21 +2725,6 @@ Config from the corfu [[https://github.com/minad/corfu/wiki#configuring-corfu-fo
   (setq flycheck-check-syntax-automatically '(mode-enabled save))
   :config
   (define-key flycheck-mode-map (kbd "C-c ! !") 'org-time-stamp-inactive))
-#+END_SRC
-
-** COMMENT Company
-  Auto-completion support
-#+BEGIN_SRC emacs-lisp
-(use-package company
-  :after lsp-mode
-  :hook (lsp-mode . company-mode)
-  :bind (:map company-active-map
-         ("<tab>" . company-complete-selection))
-        (:map lsp-mode-map
-         ("<tab>" . company-indent-or-complete-common))
-  :custom
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0))
 #+END_SRC
 
 ** Python
