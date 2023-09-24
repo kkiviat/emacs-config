@@ -764,7 +764,8 @@ Hide category prefix on tasks.
   (klk/leader-key-def
     :keymaps 'markdown-mode-map
     "ns" 'markdown-narrow-to-subtree :wk "narrow"
-    "nw" 'widen :wk "widen")
+    "nw" 'widen :wk "widen"
+    "it" 'markdown-toggle-inline-images :wk "toggle images")
   :custom
   (markdown-enable-wiki-links t)
   (markdown-hide-markup t)
@@ -1481,6 +1482,7 @@ Alternatively, set org files to be headings-only on startup. This will start wit
     :keymaps 'org-mode-map
     "ns" 'org-narrow-to-subtree :wk "narrow"
     "nw" 'widen :wk "widen"
+    "it" 'org-toggle-inline-images :wk "toggle images"
     "gl" '(klk/goto-last-heading :wk "last heading")))
 #+END_SRC
 
@@ -1712,13 +1714,32 @@ Automatically disable LaTeX images when the cursor is on them, and re-enable aft
 
 *** org-download
 Note: need =xclip= installed for =org-download-clipboard=.
+
+I have some modifications to make screenshot pasting work in markdown files as well.
 #+BEGIN_SRC emacs-lisp
 (use-package org-download
+  :config
+  (defun klk/org-download-clipboard-md ()
+    "like org-download-clipboard, but with markdown link format and no annotation"
+    (interactive)
+    (let ((org-download-link-format "![screenshot](%s)\n")
+	  (org-download-annotate-function '(lambda (link) "")))
+      (org-download-clipboard))
+    (markdown-display-inline-images))
+
+  ; force the code to run in markdown mode as well as org mode
+  (advice-add 'org-download-org-mode-p :override
+              (lambda () (or (eq major-mode 'org-mode) (when (derived-mode-p 'org-mode) t) (eq major-mode 'markdown-mode))))
   :general
   (klk/leader-key-def
+    :keymaps 'org-mode-map
     "d" '(:ignore t :which-key "org-download")
     "d s" '(org-download-screenshot :which-key "screenshot")
     "d c" '(org-download-clipboard :which-key "clipboard"))
+  (klk/leader-key-def
+    :keymaps 'markdown-mode-map
+    "d" '(:ignore t :which-key "org-download")
+    "d c" '(klk/org-download-clipboard-md :which-key "clipboard"))
   :custom
   (org-download-heading-lvl nil)
   (org-download-screenshot-method "spectacle -br -o %s")
