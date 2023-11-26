@@ -1396,14 +1396,17 @@ Don't prompt me about local variables.
        (treemacs-git-mode 'simple)))
 
     (treemacs-hide-gitignored-files-mode nil))
+  :general
+  (klk/leader-key-def
+    "t" '(:ignore t :which-key "treemacs")
+    "t d" '(treemacs-select-directory :which-key "select directory")
+    "t p" '(treemacs-projectile :which-key "add project"))
   :bind
   (:map global-map
         ("M-0"       . treemacs-select-window)
         ("C-x t 1"   . treemacs-delete-other-windows)
         ("<f4>"   . treemacs)
-        ("C-x t d"   . treemacs-select-directory)
         ("C-x t B"   . treemacs-bookmark)
-        ("C-x t C-t" . treemacs-find-file)
         ("C-x t M-t" . treemacs-find-tag)))
 
 (use-package treemacs-evil
