@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: partial-partial-dx
+# key: ppdx
+# --
+\frac{\partial^2 ${1:numerator}}{\partial x^2}$0

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: partial-partial
+# key: ppd
+# --
+\frac{\partial^2 ${1:numerator}}{\partial ${2:denominator}^2}$0

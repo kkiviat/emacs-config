@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: partial
+# key: pd
+# --
+\frac{\partial ${1:numerator}}{\partial ${2:denominator}}$0

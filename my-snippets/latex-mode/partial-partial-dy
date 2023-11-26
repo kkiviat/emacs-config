@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: partial-partial-dy
+# key: ppdy
+# --
+\frac{\partial^2 ${1:numerator}}{\partial y^2}$0

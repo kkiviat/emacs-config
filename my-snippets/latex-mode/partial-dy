@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: partial dy
+# key: pdy
+# --
+\frac{\partial ${1:numerator}}{\partial y}$0

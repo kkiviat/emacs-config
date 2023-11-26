@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: partial dx
+# key: pdx
+# --
+\frac{\partial ${1:numerator}}{\partial x}$0

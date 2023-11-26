@@ -955,6 +955,8 @@ Define some helper methods to support my current project notes workflow. I like 
   :config
   (use-package yasnippet-snippets)
   (yas-global-mode t)
+  (add-to-list 'yas-key-syntaxes 'yas-longest-key-from-whitespace)
+  (setq yas-triggers-in-field t)
   (add-to-list #'yas-snippet-dirs (expand-file-name "my-snippets" user-emacs-directory))
   (yas-reload-all)'
   :diminish yas-minor-mode)
