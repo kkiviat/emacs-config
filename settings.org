@@ -2033,7 +2033,7 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
 
   ;; Display the type as a column.
   (setq org-roam-node-display-template
-	(concat "${type:15} ${title:150} " (propertize "${tags:20}" 'face 'org-tag)))
+	(concat "${type:15} ${todo:8} ${title:150} " (propertize "${tags:20}" 'face 'org-tag)))
 
   (defun klk/org-roam-find-by-type (type-name)
     (interactive)
@@ -2261,6 +2261,7 @@ Define a function to go to the last top-level heading in an org file. For my wee
 #+END_SRC
 
 Define capture templates. Config for capturing project-specific tasks / notes based on [[https://www.reddit.com/r/emacs/comments/fs7tk3/how_to_manage_todo_tasks_in_my_project/][this thread]].
+Function to dynamically choose heading from target file from [[https://www.reddit.com/r/orgmode/comments/j4yl0y/orgcapturetemplates_how_can_i_dynamically_pick_a/][here]].
 #+BEGIN_SRC emacs-lisp
 (setq
  org-capture-templates
@@ -2278,33 +2279,66 @@ Define capture templates. Config for capturing project-specific tasks / notes ba
 		       ("todo" :keys "t" :body nil :scheduled nil :todo-state "TODO")
 		       ("scheduled" :keys "s" :body nil :scheduled "SCHEDULED: %^{scheduled}t\n" :todo-state "TODO")
 		       ("next" :keys "n" :body nil :scheduled nil :todo-state "NEXT")))
+	   ("Research" :keys "r"
+	    :file ,(org-roam-path "Research/Projects/Research Tasks.org")
+            :function (lambda () (let ((org-goto-interface 'outline-path-completion))
+				   (org-goto)))
+            :children (
+		       ("task" :keys "t"
+			:template ("* TODO %^{task}"
+				   ":PROPERTIES:"
+				   ":CATEGORY: %\\1"
+				   ":CREATED: %U"
+				   ":END:"
+				   "** Purpose"
+				   "** Notes"
+				   "** Log"))
+		       ("log" :keys "l"
+			:template ("* %t %?"))
+		       ("log under current" :keys "L"
+			:contexts (:in-file "Research Tasks\\.org$")
+			:function (lambda () (search-forward "* Log"))
+			:template ("* %t %?"))))
 	   ("Projects" :keys "p"
-            :file klk/org-project-notes-file
-            :children (("note" :keys "n" :template ("* %^{Title}" "%?") :function (lambda ()
-										    (org-reverse-datetree-goto-date-in-file
-										     nil :olp '("Notes"))))
-                       ("task" :keys "t" :headline "Tasks" :template ("* TODO %^{Title}" "%?"))))
+	    :file ,(org-roam-path "Projects/Personal Projects.org")
+            :function (lambda () (let ((org-goto-interface 'outline-path-completion))
+				   (org-goto)))
+            :children (
+		       ("task" :keys "t"
+			:template ("* TODO %^{task}"
+				   ":PROPERTIES:"
+				   ":CATEGORY: %\\1"
+				   ":CREATED: %U"
+				   ":END:"
+				   "** Notes"
+				   "** Log"))
+		       ("log" :keys "l"
+			:template ("* %t %?"))
+		       ("log under current" :keys "L"
+			:contexts (:in-file "Personal Projects\\.org$")
+			:function (lambda () (search-forward "* Log"))
+			:template ("* %t %?"))))
 	   ("Meetings"
 	    :keys "m"
 	    :template ("* %^u\n%?")
 	    :prepend t
-      :children (
-                ("advisor"
-                :type plain
-                :keys "a"
-                :file ,(org-roam-path "Research/Advisor Meetings.org")
-                :template ("* %^u\n** Questions\n%?")
-                :function (lambda () (goto-char (point-min)) (search-forward "* Questions") (org-forward-heading-same-level 1))
-                )
-                ("group"
-                :keys "g"
-		      :file (lambda () (read-file-name "File: " (org-roam-path "Research/") nil nil nil (lambda (x) (string-match-p ".*[mM]eeting.*" x))))
-                :template ("* %^u\n%?")
-                :function (lambda () (goto-char (point-min)) (search-forward "* "))
-                )))
+	    :children (
+                       ("advisor"
+			:type plain
+			:keys "a"
+			:file ,(org-roam-path "Research/Advisor Meetings.org")
+			:template ("* %^u\n** Questions\n%?")
+			:function (lambda () (goto-char (point-min)) (search-forward "* Questions") (org-forward-heading-same-level 1))
+			)
+                       ("group"
+			:keys "g"
+			:file (lambda () (read-file-name "File: " (org-roam-path "Research/") nil nil nil (lambda (x) (string-match-p ".*[mM]eeting.*" x))))
+			:template ("* %^u\n%?")
+			:function (lambda () (goto-char (point-min)) (search-forward "* "))
+			)))
 	   ("Advisor Question"
 	    :keys "q"
-      :file ,(org-roam-path "Research/Meetings/Advisor Meetings.org")
+	    :file ,(org-roam-path "Research/Meetings/Advisor Meetings.org")
 	    :type item
 	    :empty-lines 0
 	    :olp ("Questions")
@@ -2373,8 +2407,9 @@ Set files to be included in the agenda. Includes archive because I like to see o
 (setq org-agenda-files (append org-agenda-files
 			       `(,(org-file-path "inbox.org")
 				 ,(org-file-path "mobile inbox.org")
+				 ,(org-roam-path "Research/Projects/Research Tasks.org")
+				 ,(org-roam-path "Projects/Personal Projects.org")
 				 ,(org-file-path "gcal.org")
-				 ,(org-file-path "gcal-school.org")
 				 ,(org-file-path "gtd.org")
 				 ,(org-file-path "recurring.org")
 				 ,(org-file-path "archive.org")
