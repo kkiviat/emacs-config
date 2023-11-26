@@ -997,6 +997,11 @@ Define some helper methods to support my current project notes workflow. I like 
 *** Yasnippet
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
+  :bind
+    (:map yas-minor-mode-map
+            ("M-e". yas-expand)
+            ([(tab)] . nil)
+            ("TAB" . nil))
   :config
   (use-package yasnippet-snippets)
   (yas-global-mode t)
