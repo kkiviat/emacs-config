@@ -260,6 +260,10 @@ Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
 (defun klk/yank-file-path ()
   (interactive)
   (kill-new (buffer-file-name)))
+
+(defun klk/yank-file-name ()
+  (interactive)
+  (kill-new (buffer-name)))
 #+END_SRC
 
 Utility to get the ROAM_REFS citekey from literature notes.
@@ -314,7 +318,8 @@ Utility to get the ROAM_REFS citekey from literature notes.
 
     ;; Files
     "f" '(:ignore t :which-key "files")
-    "fy" 'klk/yank-file-path
+    "fy" '(klk/yank-file-path :which-key "yank file path")
+    "fY" '(klk/yank-file-name :which-key "yank file name")
     "fk" '(crux-delete-buffer-and-file :which-key "delete current file")
     "fr" '(crux-rename-buffer-and-file :which-key "rename current file")
     "fo" '(crux-open-with :which-key "open externally")
@@ -757,6 +762,12 @@ Code to show markup on current line from [[https://www.reddit.com/r/emacs/commen
 (use-package markdown-mode
   :general
   (:keymaps 'markdown-mode-map
+	    "<M-return>" 'markdown-insert-header-dwim
+	    "<C-return>" 'markdown-insert-list-item
+	    "<M-left>" 'markdown-promote-list-item
+	    "<M-right>" 'markdown-demote-list-item
+	    "<M-up>" 'markdown-move-list-item-up
+	    "<M-down>" 'markdown-move-list-item-down
 	    "M-n" 'markdown-outline-next
 	    "M-p" 'markdown-outline-previous
 	    "M-h" 'markdown-outline-up
@@ -765,12 +776,15 @@ Code to show markup on current line from [[https://www.reddit.com/r/emacs/commen
 	    "M-k" 'markdown-outline-previous-same-level
 	    "M-K" 'markdown-move-subtree-up
 	    "M-J" 'markdown-move-subtree-down
-	    "M-H" 'markdown-promote-subtree
-	    "M-L" 'markdown-demote-subtree)
+	    "M-K" 'markdown-move-list-item-up
+	    "M-J" 'markdown-move-list-item-down
+	    "M-H" 'markdown-promote
+	    "M-L" 'markdown-demote)
   (klk/leader-key-def
     :keymaps 'markdown-mode-map
     "ns" 'markdown-narrow-to-subtree :wk "narrow"
     "nw" 'widen :wk "widen"
+    "ii" 'klk/insert-org-roam-image-md :wk "insert image"
     "it" 'markdown-toggle-inline-images :wk "toggle images")
   :custom
   (markdown-enable-wiki-links t)
@@ -1751,7 +1765,7 @@ Taken from [[https://daryl.wakatara.com/emacs-gtd-flow-evolved/#science-stuff][t
 							(s-replace-regexp "\\label{.+}" ""
 									  (gethash 'string x))
 							x)))))
-;; (add-hook 'org-mode-hook #'math-preview-all)
+(add-hook 'markdown-mode-hook #'math-preview-all)
 (defalias #'org-latex-preview #'math-preview-at-point)
 (defalias #'org-clear-latex-preview #'math-preview-clear-region)
 #+END_SRC
@@ -2146,6 +2160,20 @@ Finally, I add the following to a =.dir-locals.el= in the root of the org roam d
 #+begin_example
 ((nil . ((org-download-image-dir . "~/Dropbox/org/roam/images"))))
 #+end_example
+
+**** inserting images
+Function to help with inserting images in markdown. Prompts for a file from the roam images directory, then inserts a markdown image construct with the relative path to that files.
+
+#+BEGIN_SRC emacs-lisp
+(defun klk/insert-org-roam-image-md ()
+  "Insert a relative markdown link to chosen file"
+  (interactive)
+  (let ((relative-path (file-relative-name
+   (read-file-name "Choose image " org-roam-image-dir)
+   (file-name-directory buffer-file-name))))
+    (insert (concat "![image](" relative-path ")")))
+  (markdown-display-inline-images))
+#+END_SRC
 
 ** org-journal
 
