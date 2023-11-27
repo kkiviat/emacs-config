@@ -785,6 +785,7 @@ Code to show markup on current line from [[https://www.reddit.com/r/emacs/commen
     "ns" 'markdown-narrow-to-subtree :wk "narrow"
     "nw" 'widen :wk "widen"
     "ii" 'klk/insert-org-roam-image-md :wk "insert image"
+    "tm" 'markdown-toggle-markup-hiding :wk "toggle markdown hiding"
     "it" 'markdown-toggle-inline-images :wk "toggle images")
   :custom
   (markdown-enable-wiki-links t)
