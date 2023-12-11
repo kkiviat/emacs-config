@@ -837,6 +837,18 @@ Code to show markup on current line from [[https://www.reddit.com/r/emacs/commen
   (advice-add #'markdown-indent-line :before-until #'completion-at-point))
 #+END_SRC
 
+Custom font-locking for titles in markdown mode to make them look like headers (with more subtle font for folgezettel ids).
+
+(See also [[https://stackoverflow.com/questions/6258455/emacs-font-lock-mode-provide-a-custom-color-instead-of-a-face
+][here]])
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :config
+  (font-lock-add-keywords 'markdown-mode
+			  '(("^title: \\([1-9][^ ]*\\)?\\(.*\\)"
+			     (1 'font-lock-keyword-face t t)
+			     (2 'markdown-header-face-1 t)))))
+#+END_SRC
 ** Highlighting
   Highlight all occurrences of word under the cursor. Config from http://xenodium.com/emacs-highlight-symbol-mode/
   #+BEGIN_SRC emacs-lisp
