@@ -1864,12 +1864,6 @@ I have some modifications to make screenshot pasting work in markdown files as w
 		    "%<%Y%m%dT%H%M%S>--${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
-	  ("z" "zettel" plain
-           "%?"
-           :if-new (file+head
-		    "zettel/%<%Y%m%dT%H%M%S>--${slug}.org"
-		    "#+title: ${title}\n#+date: %U\n")
-           :unnarrowed t)
 	  ("t" "technical" plain
            "%?"
            :if-new (file+head
@@ -1888,7 +1882,11 @@ I have some modifications to make screenshot pasting work in markdown files as w
 		    "Resources/howto/${title}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
-	  ("f" "Folgezettel" plain "" :target
+	  ("p" "research zettel" plain "" :target
+           (file+head "zettelResearch/${title}.md"
+		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n# ${title}\n")
+	   :unnarrowed t)
+	  ("z" "zettel" plain "" :target
            (file+head "folgezettel/${title}.md"
 		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n# ${title}\n")
 	   :unnarrowed t)
@@ -1897,7 +1895,7 @@ I have some modifications to make screenshot pasting work in markdown files as w
            :target
            (file+head
             "Resources/references/@${citar-citekey}.md"
-            "---\ntitle: \"${citar-title}\"\nauthor: ${citar-author}\nyear: ${citar-date}\nroam_refs: ${citar-citekey}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n\n- **tags**:: \n\n# ${citar-title} (${citar-date})\n${citar-author}\n\n[@${citar-citekey}]\n[Link to PDF (Obsidian)](<file:///home/kira/Dropbox/Zotero/${citar-file}>)\n\n**Summary**:: \n\n# Notes\n\n")
+            "---\ntitle: \"${citar-title}\"\nauthor: ${citar-author}\nyear: ${citar-date}\nroam_refs: ${citar-citekey}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n\n- **tags**:: \n\n# ${citar-title} (${citar-date})\n${citar-author}\n\n[@${citar-citekey}]\n[Link to PDF (Obsidian)](<file:///home/kira/Dropbox/Zotero/${citar-file}>)\n\n**Summary**:: \n\n# Notes\n\n# Metadata\n **Status**:: To Read\n")
            :unnarrowed t)))
   (setq org-roam-dailies-directory "dailies/")
   (setq org-roam-dailies-capture-templates
