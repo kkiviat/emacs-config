@@ -2831,7 +2831,7 @@ Attach notes to locations in the pdf.
   :bind (("C-c s" . org-anki-sync-entry))
   )
 #+END_SRC
-** Calendar
+** COMMENT Calendar
   Set up syncing with google calendar  following https://github.com/emacsmirror/org-gcal.
 
 *** org-gcal
