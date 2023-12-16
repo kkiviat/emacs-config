@@ -1867,28 +1867,34 @@ I have some modifications to make screenshot pasting work in markdown files as w
 	  ("t" "technical" plain
            "%?"
            :if-new (file+head
-		    "Resources/technical/${title}.org"
-		    "#+title: ${title}\n#+date: %U\n")
+		    "Resources/technical/${title}.md"
+		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n")
            :unnarrowed t)
 	  ("s" "source" plain ;; non-academic references
            "Source: %?"
            :if-new (file+head
-		    "Resources/sources/%<%Y%m%dT%H%M%S>--${slug}.org"
+		    "Resources/sources/${title}.org"
+		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n")
+           :unnarrowed t)
+	  ("o" "org-file" plain
+           "%?"
+           :if-new (file+head
+		    "${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
 	  ("h" "howto" plain
 	   "%?"
            :if-new (file+head
 		    "Resources/howto/${title}.org"
-		    "#+title: ${title}\n#+date: %U\n")
+		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n")
            :unnarrowed t)
 	  ("p" "research zettel" plain "" :target
            (file+head "zettelResearch/${title}.md"
-		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n# ${title}\n")
+		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n")
 	   :unnarrowed t)
 	  ("z" "zettel" plain "" :target
            (file+head "folgezettel/${title}.md"
-		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n# ${title}\n")
+		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n")
 	   :unnarrowed t)
 	  ("r" "bibliography reference" plain
            "%?"
@@ -1939,9 +1945,9 @@ Change org-roam's slugs to use dashes instead of underscores in filename, like i
       (cl-flet* ((nonspacing-mark-p (char)
                                     (memq char slug-trim-chars))
 		 (strip-nonspacing-marks (s)
-					 (ucs-normalize-NFC-string
+					 (string-glyph-compose
                                           (apply #'string (seq-remove #'nonspacing-mark-p
-                                                                      (ucs-normalize-NFD-string s)))))
+                                                                      (string-glyph-decompose s)))))
 		 (cl-replace (title pair)
                              (replace-regexp-in-string (car pair) (cdr pair) title)))
 	(let* ((pairs `(("[^[:alnum:][:digit:]]" . "-") ;; convert anything not alphanumeric
