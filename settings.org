@@ -1880,7 +1880,7 @@ I have some modifications to make screenshot pasting work in markdown files as w
            "%?"
            :if-new (file+head
 		    "${slug}.org"
-		    "#+title: ${title}\n#+date: %U\n")
+		    "#+title: ${title}\n#+date: %U\n#+SETUPFILE: ~/Dropbox/org/roam/Resources/latexsetupfile.org\n\n* References :ignore:\n#+PRINT_BIBLIOGRAPHY:")
            :unnarrowed t)
 	  ("h" "howto" plain
 	   "%?"
