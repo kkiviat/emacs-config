@@ -150,6 +150,17 @@ Use code from https://www.emacswiki.org/emacs/TransposeFrame, which enables flip
 (require 'transpose-frame)
 #+END_SRC
 
+** Tabs
+#+BEGIN_SRC emacs-lisp
+(tab-bar-mode 1)
+(setq tab-bar-show 1)
+(setq tab-bar-close-button-show nil)
+(setq tab-bar-tab-hints t)
+(setq tab-bar-new-tab-choice "*scratch*")
+(global-set-key (kbd "C-l") 'tab-bar-switch-to-next-tab)
+(global-set-key (kbd "C-h") 'tab-bar-switch-to-prev-tab)
+#+END_SRC
+
 ** Scrolling
 Emacs 29 has smooth scrolling natively.
 #+BEGIN_SRC emacs-lisp
@@ -336,6 +347,11 @@ Utility to get the ROAM_REFS citekey from literature notes.
     ;; Themes
     "T" 'klk-choose-theme :which-key "themes"
 
+    ;; Tabs
+    "tn" 'tab-bar-new-tab :which-key "new tab"
+    "tk" 'tab-bar-close-tab :which-key "kill tab"
+    "tr" 'tab-bar-rename-tab :which-key "rename tab"
+
     ;; Utilities
     "q" 'klk/save-buffer-and-exit
 
@@ -345,6 +361,7 @@ Utility to get the ROAM_REFS citekey from literature notes.
     "rd" '((lambda () (interactive) (org-reverse-datetree--refile-to-file (buffer-file-name))) :which-key "datetree")
 
     "k" '(:keymap bookmark-map :which-key "bookmarks")
+    "h" '(:keymap help-map :which-key "help")
 
     ;; Jump around
     "gh" #'ap/avy-org-goto-to-heading-timer
