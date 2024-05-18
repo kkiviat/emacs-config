@@ -35,6 +35,7 @@ Enable everything, but disable the visual bell function.
 (sensible-defaults/use-all-settings)
 (sensible-defaults/use-all-keybindings)
 (setq ring-bell-function 'ignore)
+(global-auto-revert-mode t)
 #+END_SRC
 
 ** Help
@@ -840,10 +841,10 @@ Code to show markup on current line from [[https://www.reddit.com/r/emacs/commen
     (add-hook 'post-command-hook #'nb/refontify-on-linemove nil t))
   :custom-face
   (markdown-header-delimiter-face ((t (:foreground "#616161" :height 0.9))))
-  (markdown-header-face-1 ((t (:height 1.6  :foreground "#A3BE8C" :weight extra-bold :inherit markdown-header-face))))
-  (markdown-header-face-2 ((t (:height 1.4  :foreground "#EBCB8B" :weight extra-bold :inherit markdown-header-face))))
-  (markdown-header-face-3 ((t (:height 1.2  :foreground "#D08770" :weight extra-bold :inherit markdown-header-face))))
-  (markdown-header-face-4 ((t (:height 1.15 :foreground "#BF616A" :weight bold :inherit markdown-header-face))))
+  (markdown-header-face-1 ((t (:height 1.6  :foreground "#0b0b0b" :weight extra-bold :inherit markdown-header-face))))
+  (markdown-header-face-2 ((t (:height 1.4  :foreground "#fbb8e8" :weight extra-bold :inherit markdown-header-face))))
+  (markdown-header-face-3 ((t (:height 1.2  :foreground "#abf3f1" :weight extra-bold :inherit markdown-header-face))))
+  (markdown-header-face-4 ((t (:height 1.15 :foreground "#e3bbea" :weight bold :inherit markdown-header-face))))
   (markdown-header-face-5 ((t (:height 1.1  :foreground "#b48ead" :weight bold :inherit markdown-header-face))))
   (markdown-header-face-6 ((t (:height 1.05 :foreground "#5e81ac" :weight semi-bold :inherit markdown-header-face))))
   :hook
@@ -1152,8 +1153,8 @@ Quickly select another directory in minibuffer.
 (use-package embark
   :bind
   (("C-." . embark-act)         ;; pick some comfortable binding
-   ("C-;" . embark-dwim)        ;; good alternative: M-.
-   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+   ("C-;" . embark-dwim))        ;; good alternative: M-.
+   ;; ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
 
   :init
   ;; Optionally replace the key help with a completing-read interface
@@ -1535,7 +1536,7 @@ Copied from https://mstempl.netlify.app/post/beautify-org-mode/. Replace list da
 
 Stop org files from being opened in new windows.
 #+BEGIN_SRC emacs-lisp
-(setq org-link-frame-setup '((file . find-file)))
+(setq org-link-frame-setup '((file . find-file-other-window) (denote . find-file-other-window)))
 #+END_SRC
 
 ** Folding
@@ -2930,28 +2931,43 @@ Load the languages to be recognized in code blocks, and also set default header 
 #+BEGIN_SRC emacs-lisp
 (use-package denote
   :custom
-  (denote-directory "~/Dropbox/org/roam/attachments/")
+  (denote-directory "~/Dropbox/org/roam/denote")
   (xref-search-program 'ripgrep)
   (denote-known-keywords '(""))
   (denote-backlinks-show-context t)
-  (denote-date-prompt-use-org-read-date nil)
+  (denote-prompts '(file-type title keywords))
+  (denote-date-prompt-use-org-read-date t)
+  (denote-org-front-matter
+	":PROPERTIES:
+:ID: %4$s
+:END:
+,#+title:      %1$s
+,#+date:       %2$s
+,#+filetags:   %3$s
+\n")
+  (denote-yaml-front-matter
+	"---
+title:      %s
+date:       %s
+filetags:   %s
+id:         %s
+---\n")
   :general
   (klk/leader-key-def
     "dn" '(denote :wk "denote new file")
     "db" '(denote-link-backlinks :wk "denote new file")
     "df" '(consult-notes :wk "find note")
     "do" '(denote-open-or-create :wk "open note")
-    "di" '(denote-link :wk "denote insert link"))
+    "di" '(denote-link-or-create :wk "denote insert link"))
   :config
-  (require 'denote-org-dblock)
-  (add-hook 'dired-mode-hook #'denote-dired-mode-in-directories)
-  (add-hook 'dired-before-readin-hook #'denote-dired-mode-in-directories)
+  (add-hook 'dired-mode-hook #'denote-dired-mode)
+  (add-hook 'dired-before-readin-hook #'denote-dired-mode)
   (add-hook 'find-file-hook #'denote-link-buttonize-buffer))
 
-;; (use-package consult-notes
-;;   :after denote consult org-roam
-;;   :config
-;;   (consult-notes-denote-mode))
+(use-package consult-notes
+  :after denote consult org-roam
+  :config
+  (consult-notes-denote-mode))
 #+END_SRC
 
 * Programming
