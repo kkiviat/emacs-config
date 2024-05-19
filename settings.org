@@ -320,7 +320,7 @@ Utility to get the ROAM_REFS citekey from literature notes.
     "wd" 'delete-window
     "w=" 'balance-windows-area
     "wD" 'kill-buffer-and-window
-    "wU" 'winner-undo
+    "wu" 'winner-undo
     "wR" 'winner-redo
     "wm" '(delete-other-windows :which-key "maximize")
     "wr" 'rotate-frame-clockwise
@@ -363,6 +363,10 @@ Utility to get the ROAM_REFS citekey from literature notes.
 
     "k" '(:keymap bookmark-map :which-key "bookmarks")
     "h" '(:keymap help-map :which-key "help")
+
+    ;; Org
+    "o"'(:ignore t :which-key "org")
+    "ot" '(org-set-tags-command :which-key "add tag")
 
     ;; Jump around
     "gh" #'ap/avy-org-goto-to-heading-timer
@@ -771,7 +775,13 @@ Hide category prefix on tasks.
 				 ("#+RESULTS:" . "🠶")))
   :hook (org-mode . prettify-symbols-mode))
 #+END_SRC
-
+*** Emojis
+#+BEGIN_SRC emacs-lisp
+(use-package emojify
+  :hook (after-init . global-emojify-mode)
+  :config
+  (bind-key* (kbd "C-c .") #'emojify-insert-emoji)) ; override binding in any mode
+#+END_SRC
 ** Markdown
 
 Code to show markup on current line from [[https://www.reddit.com/r/emacs/comments/10h9jf0/beautify_markdown_on_emacs/][here]].
@@ -1134,8 +1144,8 @@ Provides nice annotations for minibuffer completion options (like command descri
     "s s" 'consult-line
     "s o" '(consult-outline :which-key "outline")
     "s h" '(consult-org-heading :which-key "org heading")
-    "s p" '(consult-ripgrep :which-key "ripgrep project")
-    "b" 'consult-buffer :which-key "consult buffer")
+    "s p" '(consult-ripgrep :which-key "ripgrep project"))
+    ;; "b" 'consult-buffer :which-key "consult buffer")
   :config
   (autoload 'projectile-project-root "projectile"))
 #+END_SRC
@@ -1594,6 +1604,8 @@ Alternatively, set org files to be headings-only on startup. This will start wit
             :files (:defaults (:exclude "helm-org-ql.el")))
   :general
   (klk/leader-key-def
+    "oqv" '(org-ql-view :which-key "open saved org-ql view")
+    "oqs" '(org-ql-search :which-key "org-ql search")
     "oqr" '(klk/view-refs-by-tag :which-key "view related papers"))
   )
 #+END_SRC
@@ -1628,6 +1640,18 @@ I use a top-level heading in each reference file with the paper name, and apply 
     :sort nil
     :super-groups '((:auto-category t))))
   (advice-remove #'klk/org-ql-view-reference 'org-ql-view--format-element))
+#+END_SRC
+
+*** COMMENT Other queries
+This doesn't need to be executed, as I've saved them as views
+#+BEGIN_SRC emacs-lisp
+(org-ql-search org-books-file
+  '()
+  :title "Books"
+  :super-groups '((:name "In Progress" :todo "READING")
+                  (:name "To-Read" :todo ("TO-READ"))
+                  (:name "Read" :todo ("READ"))
+		  (:discard (:anything t))))
 #+END_SRC
 ** Sidebar
 The tree sidebar provides an outline on the left that you can use to jump around the file. The regular sidebar on the right shows TODO items in the file.
@@ -2501,77 +2525,148 @@ Super Agenda
 (require 'org-habit)
 #+END_SRC
 
+Sorting functions. Taken from [[https://daryl.wakatara.com/emacs-gtd-flow-evolved/][here]] and [[https://emacs.stackexchange.com/a/79468][here]].
 #+BEGIN_SRC emacs-lisp
-(defun timestamp-in-n-days (n)
-  "Get the timestamp of n days in the future."
-  (format-time-string "%Y-%m-%d" (time-add (* 3600 24 n) (current-time))))
+(defun cmp-date-property-stamp (prop)
+  "Compare two `org-mode' agenda entries, `A' and `B', by some date property.
+If a is before b, return -1. If a is after b, return 1. If they
+are equal return nil."
+  (lexical-let ((prop prop))
+    #'(lambda (a b)
 
-(setq org-agenda-custom-commands
-      (list
-       (quote
-	("x" "Daily Agenda"
-	 ((agenda "" (
-		      (org-agenda-span 'day)
-		      (org-agenda-overriding-header "Today")
-		      (org-agenda-log-mode-items '(closed clock state))
-		      (org-agenda-prefix-format "  %?-12t% s")
-		      (org-super-agenda-groups
-		       '((:name "Calendar" :time-grid t)
-			 (:name "☆ Important" :priority "A")
-			 (:name "⚠ Overdue!" :deadline past :and (:scheduled past :not (:habit t)))
-			 (:name "Scheduled Today" :scheduled today)
-			 (:auto-property "Project")
-			 (:auto-category)
-			 (:name "☆ Due" :and (:deadline today :not (:habit t)))
-			 ))
-		      ))
-	  (alltodo "" ((org-agenda-overriding-header "Upcoming Schedule")
-                       (org-super-agenda-groups
-                        `((:name "Tomorrow" :scheduled (on ,(timestamp-in-n-days 1)))
-			  (:name "In Two Days" :scheduled (on ,(timestamp-in-n-days 2)))
-			  (:discard (:anything t))
-			  ))))
-         (tags-todo "project"
-                     ((org-agenda-overriding-header "Project Tasks")
-                      (org-super-agenda-groups '((:auto-category)))))
-	  )))
-       (quote
-	("U" "Unscheduled"
-	 ((todo ""
-		((org-agenda-overriding-header "Unscheduled Tasks")
-		 (org-agenda-skip-function '(org-agenda-skip-entry-if 'timestamp 'todo '("PROJECT"))))))
-	 ((org-agenda-todo-ignore-scheduled 'future)
-	  (org-agenda-sorting-strategy '(deadline-up)))))
-       (quote("N" "Next tasks" todo "NEXT"
-	      ((org-agenda-overriding-header "Next Tasks")
-	       (org-super-agenda-groups '((:auto-property "Project") (:auto-category)))
-	       ))
-	     )
-       (quote("p" "Project Tasks"
-         ((tags-todo "project"
-                     ((org-agenda-overriding-header "Project Tasks")
-                      (org-super-agenda-groups '((:auto-category)))))
-          )))
-      (quote("P" "Projects (old)" todo ""
-	     (
-	      (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo '("PROJECT")))
-	      (org-super-agenda-groups '((:auto-property "Project" :not (:todo "PROJECT")) (:discard (:anything t))))
-	      )
-	     ))
-      (quote
-       ("n" "Notes"
-	(
-	 (agenda "" ((org-agenda-span 'week)
-		     (org-agenda-log-mode-items '(closed clock state))
-		     (org-agenda-prefix-format "  %?-12t% s")
-					; (org-agenda-compact-blocks t)
-		     (org-super-agenda-groups
-		      '(
-			(:name "Daily Summary" :and (:time-grid t :tag "daily"))
-			(:discard (:anything t))
-			))
-		     )))))
-      ))
+	(let* ((a-pos (get-text-property 0 'org-marker a))
+	       (b-pos (get-text-property 0 'org-marker b))
+	       (a-date (or (org-entry-get a-pos prop)
+			   (format "<%s>" (org-read-date t nil "now"))))
+	       (b-date (or (org-entry-get b-pos prop)
+			   (format "<%s>" (org-read-date t nil "now"))))
+	       (cmp (compare-strings a-date nil nil b-date nil nil))
+	       )
+	  (if (eq cmp t) nil (signum cmp))
+	  ))))
+
+(defun org-cmp-closed (a b)
+  (let* ((a-marker (get-text-property 0 'org-marker a))
+         (b-marker (get-text-property 0 'org-marker b))
+         (now (current-time))
+         (a-closed-ts (org-timestamp-from-string
+                       (org-entry-get a-marker "CLOSED")))
+         (b-closed-ts (org-timestamp-from-string
+                       (org-entry-get b-marker "CLOSED")))
+         (a-closed-time (or (and a-closed-ts
+                                 (org-timestamp-to-time a-closed-ts))
+                            now))
+         (b-closed-time (or (and b-closed-ts
+                                 (org-timestamp-to-time b-closed-ts))
+                            now)))
+    (cond ((time-less-p b-closed-time a-closed-time) +1)
+          ((time-less-p a-closed-time b-closed-time) -1)
+          (t nil))))
+#+END_SRC
+
+
+Define the agenda views:
+#+BEGIN_SRC emacs-lisp
+  (defun timestamp-in-n-days (n)
+    "Get the timestamp of n days in the future."
+    (format-time-string "%Y-%m-%d" (time-add (* 3600 24 n) (current-time))))
+
+  (setq org-agenda-custom-commands
+        (list
+         (quote
+  	("x" "Daily Agenda"
+  	 ((agenda "" (
+  		      (org-agenda-span 'day)
+  		      (org-agenda-overriding-header "Today")
+  		      (org-agenda-log-mode-items '(closed clock state))
+  		      (org-agenda-prefix-format "  %?-12t% s")
+  		      (org-super-agenda-groups
+  		       '((:name "Calendar" :time-grid t)
+  			 (:name "☆ Important" :priority "A")
+  			 (:name "⚠ Overdue!" :deadline past :and (:scheduled past :not (:habit t)))
+  			 (:name "Scheduled Today" :scheduled today)
+  			 (:auto-property "Project")
+  			 (:auto-category)
+  			 (:name "☆ Due" :and (:deadline today :not (:habit t)))
+  			 ))
+  		      ))
+  	  (alltodo "" ((org-agenda-overriding-header "Upcoming Schedule")
+                         (org-super-agenda-groups
+                          `((:name "Tomorrow" :scheduled (on ,(timestamp-in-n-days 1)))
+  			  (:name "In Two Days" :scheduled (on ,(timestamp-in-n-days 2)))
+  			  (:discard (:anything t))
+  			  ))))
+           (tags-todo "project"
+                       ((org-agenda-overriding-header "Project Tasks")
+                        (org-super-agenda-groups '((:auto-category)))))
+  	  )))
+         (quote
+  	("U" "Unscheduled"
+  	 ((todo ""
+  		((org-agenda-overriding-header "Unscheduled Tasks")
+  		 (org-agenda-skip-function '(org-agenda-skip-entry-if 'timestamp 'todo '("PROJECT"))))))
+  	 ((org-agenda-todo-ignore-scheduled 'future)
+  	  (org-agenda-sorting-strategy '(deadline-up)))))
+         (quote("N" "Next tasks" todo "NEXT"
+  	      ((org-agenda-overriding-header "Next Tasks")
+  	       (org-super-agenda-groups '((:auto-property "Project") (:auto-category)))
+  	       ))
+  	     )
+         (quote("p" "Project Tasks"
+           ((tags-todo "project"
+                       ((org-agenda-overriding-header "Project Tasks")
+                        (org-super-agenda-groups '((:auto-category)))))
+            )))
+        (quote("P" "Projects (old)" todo ""
+  	     (
+  	      (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo '("PROJECT")))
+  	      (org-super-agenda-groups '((:auto-property "Project" :not (:todo "PROJECT")) (:discard (:anything t))))
+  	      )
+  	     ))
+        (quote
+         ("n" "Notes"
+  	(
+  	 (agenda "" ((org-agenda-span 'week)
+  		     (org-agenda-log-mode-items '(closed clock state))
+  		     (org-agenda-prefix-format "  %?-12t% s")
+  					; (org-agenda-compact-blocks t)
+  		     (org-super-agenda-groups
+  		      '(
+  			(:name "Daily Summary" :and (:time-grid t :tag "daily"))
+  			(:discard (:anything t))
+  			))
+  		     )))))
+
+         ;; (quote
+         ;; 	("r" "Resonance Cal" tags "Type={.}"
+         ;; 	   ((org-agenda-files
+         ;; 		 (directory-files-recursively
+         ;; 			"/home/kira/Dropbox/org/roam/40 Inputs/books" "\\.org$"))
+         ;; 	   (org-overriding-columns-format
+         ;; 		 "%35Item %Type %Author %Time %Finished %Image %Rating")
+         ;; 	   ;; (org-agenda-cmp-user-defined
+         ;; 	   ;; 	 (cmp-date-property-stamp "Start"))
+         ;; 	   ;; (org-agenda-sorting-strategy
+         ;; 	   ;; 	'(user-defined-down))
+         ;; (org-agenda-overriding-header "C-u r to re-run Type={.}")
+         ;; (org-agenda-mode-hook
+         ;; 	   (lambda ()
+         ;; 	     (visual-line-mode -1)
+         ;; 	     (setq truncate-lines 1)
+         ;; 	     (setq display-line-numbers-offset -1)
+         ;; 	     (display-line-numbers-mode 1)))
+         ;; 	  (org-agenda-view-columns-initially t))))
+         (quote
+        	("b" "books" todo "*"
+        	   ((org-agenda-files `(,org-books-file))
+        	   (org-overriding-columns-format
+        		 "%60Item %Author %Time %Added %Closed %10Rating")
+        	   (org-agenda-cmp-user-defined 'org-cmp-closed)
+        	   (org-agenda-sorting-strategy
+        		'(user-defined-down))
+         (org-agenda-overriding-header "r to re-run")
+        	  (org-agenda-view-columns-initially t))))
+        ))
 #+END_SRC
 
 ** Visual
@@ -2924,6 +3019,60 @@ Load the languages to be recognized in code blocks, and also set default header 
 
 (add-to-list 'org-babel-default-header-args:python
              '(:results . "output"))
+#+END_SRC
+
+
+** content capture
+*** org-books
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-books
+  :demand
+  :general
+  (klk/leader-key-def
+    "ba" '(org-books-add-isbn :wk "add book by isbn")
+    "br" '(klk/org-books-rate-book :wk "rate book at point"))
+  :custom
+  (org-books-file (org-roam-path "40 Inputs/books/books.org"))
+  (org-books-url-pattern-dispatches
+   '(("^\\(www\\.\\)?amazon\\." . org-books-get-details-amazon)
+     ("^\\(www\\.\\)?goodreads\\.com" . org-books-get-details-goodreads)
+     ("openlibrary\\.org" . klk/org-books-get-details-isbn)))
+  :config
+					; custom function to get additional details on book
+  (defun klk/org-books-get-details-isbn (url)
+    "Get book details from openlibrary ISBN response from URL."
+    (let* ((json-object-type 'hash-table)
+           (json-array-type 'list)
+           (json-key-type 'string)
+           (json (org-books--get-json url))
+           (isbn (car (hash-table-keys json)))
+           (data (gethash isbn json))
+           (title (gethash "title" data))
+           (year (gethash "publish_date" data))
+           (pages (gethash "number_of_pages" data))
+           (cover (gethash "medium" (gethash "cover" data)))
+           (author (gethash "name" (car (gethash "authors" data)))))
+      (list title author `(("ISBN" . ,url) ("Year" . ,year) ("Pages" . ,(number-to-string pages)) ("Cover" . ,cover)))))
+
+  ; override to change formatting
+  (defun org-books-format (level title author &optional props)
+    (with-temp-buffer
+      (org-mode)
+      (insert (make-string level ?*) " TO-READ " title "\n")
+      (org-set-property "Author" author)
+      (org-set-property "Added" (format-time-string "[%Y-%02m-%02d]"))
+      (org-set-property "Time" "")
+      (dolist (prop props)
+	(org-set-property (car prop) (cdr prop)))
+      (buffer-substring-no-properties (point-min) (point-max))))
+
+  (defun klk/org-books-rate-book (rating)
+    "Apply RATING to book at current point."
+    (interactive "nRating (stars 1-5): ")
+    (if (> rating 0)
+	(org-set-property "Rating" (s-repeat rating "⭐"))))
+  )
 #+END_SRC
 
 * Notes
