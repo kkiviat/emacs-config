@@ -1661,6 +1661,37 @@ The function reads the tags from the `elfeed' db."
 
 
 #+END_SRC
+
+** dired
+*** dired-preview
+Preview files in dired in a side window.
+
+#+BEGIN_SRC emacs-lisp
+(use-package dired-preview
+  :custom
+  (dired-preview-ignored-extensions-regexp
+      (concat "\\."
+              "\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a"
+              "\\|gz\\|zst\\|tar\\|xz\\|rar\\|zip"
+              "\\|iso\\|epub\\)"))
+  (dired-preview-delay 0.2)
+  :config
+  (dired-preview-global-mode 1))
+#+END_SRC
+*** casual-dired
+#+BEGIN_SRC emacs-lisp
+(use-package casual-dired
+  :general
+  (klk/leader-key-def
+    "Do" '(casual-dired-tmenu :which-key "casual dired menu"))
+  :config
+  (general-define-key
+   :states '(normal)
+   :keymaps 'dired-mode-map
+   "s" '(casual-dired-sort-by-tmenu :which-key "sort")
+   )
+  )
+#+END_SRC
 * Org-mode
 ** Basics
 
@@ -3274,7 +3305,10 @@ id:         %s
   :general
   (klk/leader-key-def
     "dn" '(denote :wk "denote new file")
+    "ds" '(denote-sort-dired :wk "denote new file")
     "db" '(denote-link-backlinks :wk "denote new file")
+    "dk" '(denote-rename-file-keywords :wk "denote change keywords")
+    "dt" '(denote-rename-file-title :wk "denote change title")
     "df" '(consult-notes :wk "find note")
     "do" '(denote-open-or-create :wk "open note")
     "di" '(denote-link-or-create :wk "denote insert link"))
