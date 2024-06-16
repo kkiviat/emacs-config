@@ -218,6 +218,7 @@ Emacs 29 has smooth scrolling natively.
   (evil-set-initial-state 'helpful-mode 'emacs)
   (evil-set-initial-state 'special-mode 'emacs)
   (evil-set-initial-state 'vterm-mode 'insert)
+  (evil-set-initial-state 'fundamental-mode 'insert)
   (evil-set-initial-state 'messages-buffer-mode 'normal))
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Use ESC to cancel everything
@@ -3323,6 +3324,20 @@ id:         %s
   (consult-notes-denote-mode))
 #+END_SRC
 
+** org-incoming
+Configure my fork of [[https://github.com/tinloaf/org-incoming][org-incoming]], which renames files with a denote naming scheme.
+#+BEGIN_SRC emacs-lisp
+(use-package org-incoming
+  :straight (org-incoming :type git :host github :repo "kkiviat/org-incoming")
+  :custom
+  (org-incoming-parse-date-pattern  "yyyyMMdd'T'HH'.'mm'.'ss")
+  (org-incoming-parse-date-re  "\\([^/\\[]*\\)\\(?: \\[.*\\]\\)?\.pdf")
+  (org-incoming-annotation-template ":PROPERTIES:\n:ID: ${id}\n:END:\n#+title:     ${title}\n#+date: ${date}\n#+filetags: ${keywords}\n\nLink: [[${link}]]\n\n* Extracted Text\n\n${extracted}\n$")
+  (org-incoming-dirs `((:source "~/Dropbox/Rocketbook" :target ,(org-roam-path "denote") :pdf-subdir "attachments"))))
+                       ;; (:source "/home/user/incoming/folder2" :target "/home/user/org/archive" :use-roam 't)
+                       ;; (:source "/home/user/incoming/folder3" :target "/home/user/org/todos" :pdf-subdir "originals")))
+
+#+END_SRC
 * Programming
 ** Auto-formatting
 #+BEGIN_SRC emacs-lisp
