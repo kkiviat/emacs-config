@@ -2070,14 +2070,14 @@ I have some modifications to make screenshot pasting work in markdown files as w
   :custom
   (org-download-heading-lvl nil)
   (org-download-screenshot-method "spectacle -br -o %s")
-  (org-download-image-dir "images"))
+  (org-download-image-dir "Technical/images"))
 #+END_SRC
 
 ** Roam
 #+BEGIN_SRC emacs-lisp
 (defvar org-roam-dir "~/Dropbox/org/roam")
-(defvar org-roam-image-dir "~/Dropbox/org/roam/images/")
-(defvar org-roam-attachments-dir "~/Dropbox/org/roam/attachments/")
+(defvar org-roam-image-dir "~/Dropbox/org/roam/Tools/images/")
+(defvar org-roam-attachments-dir "~/Dropbox/org/roam/Tools/attachments/")
 (defun org-roam-path (filename)
   "Return the absolute address of an org file, given its relative name."
   (concat (file-name-as-directory org-roam-dir) filename))
@@ -2093,6 +2093,8 @@ I have some modifications to make screenshot pasting work in markdown files as w
   (require 'md-roam)
   (md-roam-mode 1)
   (setq md-roam-node-insert-type 'id)
+  (setq org-roam-file-exclude-regexp
+	(concat "^" (expand-file-name org-roam-directory) "/.obsidian/"))
   (org-roam-db-autosync-mode)
   (add-hook 'org-roam-mode-hook #'visual-line-mode)
   (define-key org-roam-mode-map [mouse-1] #'org-roam-preview-visit)
@@ -2112,8 +2114,8 @@ I have some modifications to make screenshot pasting work in markdown files as w
 	  ("t" "technical" plain
            "%?"
            :if-new (file+head
-		    "Resources/technical/${title}.md"
-		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n")
+		    "Inputs/technical/%<%Y%m%dT%H%M%S>--${slug}.org"
+		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
 	  ("s" "source" plain ;; non-academic references
            "Source: %?"
@@ -2130,15 +2132,11 @@ I have some modifications to make screenshot pasting work in markdown files as w
 	  ("h" "howto" plain
 	   "%?"
            :if-new (file+head
-		    "Resources/howto/${title}.org"
-		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n")
+		    "How to/%<%Y%m%dT%H%M%S>--${slug}.org"
+		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
 	  ("p" "research zettel" plain "" :target
            (file+head "zettelResearch/${title}.md"
-		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n")
-	   :unnarrowed t)
-	  ("z" "zettel" plain "" :target
-           (file+head "folgezettel/${title}.md"
 		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n")
 	   :unnarrowed t)
 	  ("r" "bibliography reference" plain
