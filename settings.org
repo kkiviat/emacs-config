@@ -852,12 +852,12 @@ Code to show markup on current line from [[https://www.reddit.com/r/emacs/commen
     (add-hook 'post-command-hook #'nb/refontify-on-linemove nil t))
   :custom-face
   (markdown-header-delimiter-face ((t (:foreground "#616161" :height 0.9))))
-  (markdown-header-face-1 ((t (:height 1.6  :foreground "#0b0b0b" :weight extra-bold :inherit markdown-header-face))))
-  (markdown-header-face-2 ((t (:height 1.4  :foreground "#fbb8e8" :weight extra-bold :inherit markdown-header-face))))
-  (markdown-header-face-3 ((t (:height 1.2  :foreground "#abf3f1" :weight extra-bold :inherit markdown-header-face))))
-  (markdown-header-face-4 ((t (:height 1.15 :foreground "#e3bbea" :weight bold :inherit markdown-header-face))))
-  (markdown-header-face-5 ((t (:height 1.1  :foreground "#b48ead" :weight bold :inherit markdown-header-face))))
-  (markdown-header-face-6 ((t (:height 1.05 :foreground "#5e81ac" :weight semi-bold :inherit markdown-header-face))))
+  (markdown-header-face-1 ((t (:inherit org-level-1))))
+  (markdown-header-face-2 ((t (:inherit org-level-2))))
+  (markdown-header-face-3 ((t (:inherit org-level-3))))
+  (markdown-header-face-4 ((t (:inherit org-level-4))))
+  (markdown-header-face-5 ((t (:inherit org-level-5))))
+  (markdown-header-face-6 ((t (:inherit org-level-6))))
   :hook
   (markdown-mode . variable-pitch-mode)
   (markdown-mode . markdown-toggle-inline-images)
@@ -885,7 +885,7 @@ Custom font-locking for titles in markdown mode to make them look like headers (
     :config
     (set-face-attribute 'highlight-symbol-face nil
 			:background "#D0D0D0"
-			:foreground "default")
+			:foreground "#000000")
     (setq highlight-symbol-idle-delay 0)
     (setq highlight-symbol-on-navigation-p t)
     (add-hook 'prog-mode-hook #'highlight-symbol-mode)
@@ -1664,6 +1664,10 @@ The function reads the tags from the `elfeed' db."
 #+END_SRC
 
 ** dired
+*** dired tweaks
+#+BEGIN_SRC emacs-lisp
+(setq dired-vc-rename-file t)
+#+END_SRC
 *** dired-preview
 Preview files in dired in a side window.
 
@@ -1937,6 +1941,10 @@ Add support for Elsevier article format. From https://write.as/dani/writing-a-ph
 Allow using user-defined labels when exporting (necessary, e.g., for org-ref to reference figures by their =#+name= (see [[https://emacs.stackexchange.com/questions/38457/name-is-ignored-unless-running-emacs-with-q][this stackexchange post]])
 #+BEGIN_SRC emacs-lisp
 (setq org-latex-prefer-user-labels t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package ox-pandoc)
 #+END_SRC
 
 
