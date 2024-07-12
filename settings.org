@@ -2092,6 +2092,7 @@ I have some modifications to make screenshot pasting work in markdown files as w
   (add-to-list  'load-path "~/md-roam")
   (require 'md-roam)
   (md-roam-mode 1)
+  (setq md-roam-node-insert-type 'id)
   (org-roam-db-autosync-mode)
   (add-hook 'org-roam-mode-hook #'visual-line-mode)
   (define-key org-roam-mode-map [mouse-1] #'org-roam-preview-visit)
@@ -3281,6 +3282,43 @@ Load the languages to be recognized in code blocks, and also set default header 
 ** Denote
 #+BEGIN_SRC emacs-lisp
 (use-package denote
+  :config
+  (setq denote-faces--file-name-regexp
+    (concat "\\(?1:[0-9]\\{8\\}\\)\\(?2:[0-9]\\{6\\}\\)"
+            "\\(?:\\(?3:==\\)\\(?4:[[:alnum:][:nonascii:]=]*\\)\\)?"
+            "\\(?:\\(?5:--\\)\\(?6:[[:alnum:][:nonascii:]-]*\\)\\)?"
+            "\\(?:\\(?7:__\\)\\(?8:[[:alnum:][:nonascii:]_-]*\\)\\)?"
+            "\\(?9:\\..*\\)?$"))
+
+  (setq denote-faces-file-name-keywords-for-dired
+    `((,(concat " " denote-faces--file-name-regexp)
+       (1 'denote-faces-date)
+       (2 'denote-faces-time)
+       (3 'denote-faces-delimiter nil t)
+       (4 'denote-faces-signature nil t)
+       (5 'denote-faces-delimiter nil t)
+       (6 'denote-faces-title nil t)
+       (7 'denote-faces-delimiter nil t)
+       (8 'denote-faces-keywords nil t)
+       (9 'denote-faces-extension nil t ))))
+  (setq denote-id-format "%Y%m%d%H%M%S")
+  (setq denote-id-regexp "\\([0-9]\\{8\\}\\)\\(T?[0-9]\\{6\\}\\)")
+  (setq denote-id-only-link-in-context-regexp "\\[\\[denote:\\(?1:\\([0-9]\\{8\\}\\)\\(T?[0-9]\\{6\\}\\)\\)]]")
+  (setq denote-org-front-matter
+   ":PROPERTIES:
+:ID: %4$s
+:END:
+,#+title:      %1$s
+,#+date:       %2$s
+,#+filetags:   %3$s
+\n")
+  (setq denote-yaml-front-matter
+   "---
+title:      %s
+date:       %s
+tags:       %s
+id:         %s
+---\n")
   :custom
   (denote-directory "~/Dropbox/org/roam/denote")
   (xref-search-program 'ripgrep)
@@ -3288,26 +3326,11 @@ Load the languages to be recognized in code blocks, and also set default header 
   (denote-backlinks-show-context t)
   (denote-prompts '(file-type title keywords))
   (denote-date-prompt-use-org-read-date t)
-  (denote-org-front-matter
-	":PROPERTIES:
-:ID: %4$s
-:END:
-,#+title:      %1$s
-,#+date:       %2$s
-,#+filetags:   %3$s
-\n")
-  (denote-yaml-front-matter
-	"---
-title:      %s
-date:       %s
-filetags:   %s
-id:         %s
----\n")
   :general
   (klk/leader-key-def
     "dn" '(denote :wk "denote new file")
-    "ds" '(denote-sort-dired :wk "denote new file")
-    "db" '(denote-link-backlinks :wk "denote new file")
+    "ds" '(denote-sort-dired :wk "denote sort dired")
+    "db" '(denote-link-backlinks :wk "denote backlinks")
     "dk" '(denote-rename-file-keywords :wk "denote change keywords")
     "dt" '(denote-rename-file-title :wk "denote change title")
     "df" '(consult-notes :wk "find note")
@@ -3315,8 +3338,7 @@ id:         %s
     "di" '(denote-link-or-create :wk "denote insert link"))
   :config
   (add-hook 'dired-mode-hook #'denote-dired-mode)
-  (add-hook 'dired-before-readin-hook #'denote-dired-mode)
-  (add-hook 'find-file-hook #'denote-link-buttonize-buffer))
+  (add-hook 'dired-before-readin-hook #'denote-dired-mode))
 
 (use-package consult-notes
   :after denote consult org-roam
