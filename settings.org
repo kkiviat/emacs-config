@@ -808,7 +808,10 @@ Code to show markup on current line from [[https://www.reddit.com/r/emacs/commen
 	    "M-K" 'markdown-move-list-item-up
 	    "M-J" 'markdown-move-list-item-down
 	    "M-H" 'markdown-promote
-	    "M-L" 'markdown-demote)
+	    "M-L" 'markdown-demote
+	    "C-j" 'markdown-next-link
+	    "C-k" 'markdown-previous-link
+	    )
   (klk/leader-key-def
     :keymaps 'markdown-mode-map
     "ns" 'markdown-narrow-to-subtree :wk "narrow"
@@ -1794,7 +1797,10 @@ Alternatively, set org files to be headings-only on startup. This will start wit
 	    "M-K" 'org-move-subtree-up
 	    "M-J" 'org-move-subtree-down
 	    "M-H" 'org-promote-subtree
-	    "M-L" 'org-demote-subtree)
+	    "M-L" 'org-demote-subtree
+	    "C-j" 'org-next-link
+	    "C-k" 'org-previous-link
+	    )
   (klk/leader-key-def
     :keymaps 'org-mode-map
     "ns" 'org-narrow-to-subtree :wk "narrow"
