@@ -370,6 +370,10 @@ Utility to get the ROAM_REFS citekey from literature notes.
     "o"'(:ignore t :which-key "org")
     "ot" '(org-set-tags-command :which-key "add tag")
 
+    ;; notes
+    "ez" '(klk/export-zettel :which-key "export zettel")
+
+
     ;; Jump around
     "gh" #'ap/avy-org-goto-to-heading-timer
     "gg" #'avy-goto-char-timer
@@ -1930,13 +1934,14 @@ Allow overriding variable values in buffer for export (using =#+BIND: variable v
 (setq org-export-allow-bind-keywords t)
 #+END_SRC
 
+*** COMMENT minted
 Allow formatting code blocks using minted in $\LaTeX$ export. From [[https://stackoverflow.com/questions/46438516/how-to-encapsualte-code-blocks-into-a-frame-when-exporting-to-pdf/60396939#60396939][Stack Overflow]].
 #+BEGIN_SRC emacs-lisp
 (setq org-latex-listings 'minted
-      org-latex-packages-alist '(("" "minted"))
-      org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+      org-latex-packages-alist '(("" "minted")))
 #+END_SRC
 
+*** Elsevier
 Add support for Elsevier article format. From https://write.as/dani/writing-a-phd-thesis-with-org-mode.
 #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'ox-latex
@@ -1953,6 +1958,7 @@ Add support for Elsevier article format. From https://write.as/dani/writing-a-ph
 		     ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 #+END_SRC
 
+*** labels
 Allow using user-defined labels when exporting (necessary, e.g., for org-ref to reference figures by their =#+name= (see [[https://emacs.stackexchange.com/questions/38457/name-is-ignored-unless-running-emacs-with-q][this stackexchange post]])
 #+BEGIN_SRC emacs-lisp
 (setq org-latex-prefer-user-labels t)
@@ -2099,8 +2105,8 @@ I have some modifications to make screenshot pasting work in markdown files as w
 ** Roam
 #+BEGIN_SRC emacs-lisp
 (defvar org-roam-dir "~/Dropbox/org/roam")
-(defvar org-roam-image-dir "~/Dropbox/org/roam/Tools/images/")
-(defvar org-roam-attachments-dir "~/Dropbox/org/roam/Tools/attachments/")
+(defvar org-roam-image-dir "~/Dropbox/org/roam/images/")
+(defvar org-roam-attachments-dir "~/Dropbox/org/roam/attachments/")
 (defun org-roam-path (filename)
   "Return the absolute address of an org file, given its relative name."
   (concat (file-name-as-directory org-roam-dir) filename))
@@ -2134,18 +2140,46 @@ I have some modifications to make screenshot pasting work in markdown files as w
 		    "%<%Y%m%dT%H%M%S>--${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
+        ("s" "source" plain
+           "%?"
+           :if-new (file+head
+		    "zettel/source/@${citar-citekey}.org"
+		    "#+title: ${title}\n#+date: %U\n#+author: ${citar-author}\n#+year: ${citar-date}
+,#+setupfile: ../../Tools/templates/zettellatexsetupfile.org
+,#+include: ../../Tools/templates/title.org\n
+,[cite/n:@${citar-citekey}]\n
+,*topics*:: \n
+,*summary*:: \n
+
+,* Reference :ignore:
+,#+PRINT_BIBLIOGRAPHY:
+")
+           :unnarrowed t)
+        ("m" "main" plain
+           "%?"
+           :if-new (file+head
+		    "zettel/main/%<%Y%m%dT%H%M%S>--${slug}.org"
+		    "#+title: ${title}\n#+date: %U
+,#+setupfile: ../../Tools/templates/zettellatexsetupfile.org
+,#+include: ../../Tools/templates/title.org\n
+,*topics*:: \n
+
+,* Reference :ignore:
+,#+PRINT_BIBLIOGRAPHY:
+")
+           :unnarrowed t)
 	  ("t" "technical" plain
            "%?"
            :if-new (file+head
-		    "Inputs/technical/%<%Y%m%dT%H%M%S>--${slug}.org"
+		    "Resources/technical/%<%Y%m%dT%H%M%S>--${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
-	  ("s" "source" plain ;; non-academic references
-           "Source: %?"
-           :if-new (file+head
-		    "Resources/sources/${title}.org"
-		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n")
-           :unnarrowed t)
+	  ;; ("s" "source" plain ;; non-academic references
+          ;;  "Source: %?"
+          ;;  :if-new (file+head
+	  ;; 	    "Resources/sources/${title}.org"
+	  ;; 	      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n")
+          ;;  :unnarrowed t)
 	  ("o" "org-file" plain
            "%?"
            :if-new (file+head
@@ -2155,7 +2189,7 @@ I have some modifications to make screenshot pasting work in markdown files as w
 	  ("h" "howto" plain
 	   "%?"
            :if-new (file+head
-		    "How to/%<%Y%m%dT%H%M%S>--${slug}.org"
+		    "Resources/Howto/%<%Y%m%dT%H%M%S>--${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
 	  ("p" "research zettel" plain "" :target
@@ -3117,8 +3151,8 @@ Set up citar for citation management.
   :after citar org-roam
   :no-require
   :custom
-  (citar-org-roam-capture-template-key "r")
-  (setq citar-org-roam-note-title-template "${title}")
+  (citar-org-roam-capture-template-key "s")
+  (citar-org-roam-note-title-template "${title} - ${author}")
   :config
   (setq citar-org-roam-template-fields
 	; override this to include the file field
@@ -3223,8 +3257,8 @@ Make use of the jupyter customizations in [[https://github.com/jkitchin/scimax][
 #+BEGIN_SRC emacs-lisp
 (use-package pretty-hydra)
 (use-package jupyter)
-(add-to-list 'load-path "~/.emacs.d.scimax/")
-(require 'scimax-jupyter)
+;; (add-to-list 'load-path "~/.emacs.d.scimax/")
+;; (require 'scimax-jupyter)
 (setq org-confirm-babel-evaluate nil)
 #+END_SRC
 *** load languages
@@ -3257,7 +3291,7 @@ Load the languages to be recognized in code blocks, and also set default header 
     "ba" '(org-books-add-isbn :wk "add book by isbn")
     "br" '(klk/org-books-rate-book :wk "rate book at point"))
   :custom
-  (org-books-file (org-roam-path "40 Inputs/books/books.org"))
+  (org-books-file (org-roam-path "Inputs/books/books.org"))
   (org-books-url-pattern-dispatches
    '(("^\\(www\\.\\)?amazon\\." . org-books-get-details-amazon)
      ("^\\(www\\.\\)?goodreads\\.com" . org-books-get-details-goodreads)
@@ -3381,6 +3415,14 @@ Configure my fork of [[https://github.com/tinloaf/org-incoming][org-incoming]], 
                        ;; (:source "/home/user/incoming/folder3" :target "/home/user/org/todos" :pdf-subdir "originals")))
 
 #+END_SRC
+
+** Export
+#+BEGIN_SRC emacs-lisp
+(defun klk/export-zettel ()
+  (interactive)
+(shell-command (format "python ~/Dropbox/org/roam/Tools/Scripts/noteexport/exportZettel.py  %s" (buffer-file-name))))
+#+END_SRC
+
 * Programming
 ** Auto-formatting
 #+BEGIN_SRC emacs-lisp
