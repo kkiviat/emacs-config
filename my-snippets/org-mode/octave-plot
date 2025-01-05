@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: octave-plot
+# key: <op
+# --
+#+BEGIN_SRC octave :results file
+figure(1, "visible", "off" )
+$0
+print -dpng /tmp/$1.png;
+ans = "/tmp/$1.png";
+#+END_SRC

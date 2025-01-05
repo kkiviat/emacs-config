@@ -1,5 +1,9 @@
 bookmarks
 history
+autosave
+emojis
+saveplace
+tramp
 org-roam.db
 org.el
 settings.el

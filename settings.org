@@ -8,13 +8,40 @@ Enable lexical binding (needed for some of the org-roam config). *This must be a
 #+END_SRC
 
 * Basics
+** Saving
+#+BEGIN_SRC emacs-lisp
+  ;; Auto-revert modified files
+  (add-hook 'after-init-hook #'global-auto-revert-mode)
+
+  ;; Save a list of recently accessed files
+  (add-hook 'after-init-hook #'recentf-mode)
+
+  ;; Save minibuffer history across Emacs sessions
+  (add-hook 'after-init-hook #'savehist-mode)
+
+  ;; Remember the last location in a file
+  (add-hook 'after-init-hook #'save-place-mode)
+#+END_SRC
 ** Utilities
+
 #+BEGIN_SRC emacs-lisp
 (defun klk/save-buffer-and-exit()
-  "Save current buffer and kill window"
-  (interactive)
-  (save-buffer)
-  (kill-buffer-and-window))
+    "Save current buffer and kill window"
+    (interactive)
+    (save-buffer)
+    (kill-buffer-and-window))
+
+(defun klk/yank-file-path ()
+    (interactive)
+    (kill-new (buffer-file-name)))
+
+(defun klk/yank-file-name ()
+    (interactive)
+    (kill-new (buffer-name)))
+
+(defun klk/get-date-string ()
+  (format-time-string "%Y-%m-%d %A" (org-read-date nil t)))
+
 #+END_SRC
 
 [[https://github.com/bbatsov/crux][Crux]] has various useful functions.
@@ -27,15 +54,13 @@ Enable lexical binding (needed for some of the org-roam config). *This must be a
   ("C-x C-r" . crux-rename-buffer-and-file)
   ("C-x C-k" . crux-delete-buffer-and-file))
 #+END_SRC
-** Sensible Defaults
-sensible-defaults.el is from [[https://github.com/hrs/sensible-defaults.el][here]].
-Enable everything, but disable the visual bell function.
+
+*** explain pause mode
 #+BEGIN_SRC emacs-lisp
-(load-file (expand-file-name "sensible-defaults.el" user-emacs-directory))
-(sensible-defaults/use-all-settings)
-(sensible-defaults/use-all-keybindings)
-(setq ring-bell-function 'ignore)
-(global-auto-revert-mode t)
+(use-package explain-pause-mode
+  :straight (explain-pause-mode :type git :host github :repo "lastquestion/explain-pause-mode")
+  :config
+  (explain-pause-mode))
 #+END_SRC
 
 ** Help
@@ -61,49 +86,69 @@ Get more information about functions, etc.
     ([remap describe-key] . helpful-key))
 #+END_SRC
 
-** Windows
-Hide window chrome
- #+BEGIN_SRC emacs-lisp
- (tool-bar-mode 0)
- (menu-bar-mode 0)
- (scroll-bar-mode -1)
- #+END_SRC
-
- Use this to make the things actually maximized (see https://stackoverflow.com/questions/27758800/why-does-emacs-leave-a-gap-when-trying-to-maximize-the-frame)
- #+BEGIN_SRC emacs-lisp
-(setq frame-resize-pixelwise t)
- #+END_SRC
-
-Start with window maximized and partially transparent. (Disable maximization now since I'm using window tiling.)
-Transparency toggling / setting code based on [[https://www.reddit.com/r/emacs/comments/9e98hp/translucent_background/e5pi7bl/][this reddit post]].
+** Text
+Make the text bigger by default.
 #+BEGIN_SRC emacs-lisp
-;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
-(set-frame-parameter (selected-frame) 'alpha '(100 100))
-(add-to-list 'default-frame-alist '(alpha 100 100))
-(add-to-list 'default-frame-alist '(undecorated . t))
-
-(eval-when-compile (require 'cl))
-(defun toggle-transparency ()
-  (interactive)
-  (if (/=
-       (cadr (frame-parameter nil 'alpha))
-       100)
-      (set-frame-parameter nil 'alpha '(100 100))
-    (set-frame-parameter nil 'alpha '(60 60))))
-(global-set-key (kbd "<f9>") 'toggle-transparency)
-
-;; Set transparency of emacs
-(defun transparency (arg &optional active)
-  "Sets the transparency of the frame window. 0=transparent/100=opaque"
-  (interactive "nEnter alpha value (1-100): \np")
-  (let* ((elt (assoc 'alpha default-frame-alist))
-         (old (frame-parameter nil 'alpha))
-         (new (cond ((atom old)     `(,arg ,arg))
-                    ((eql 1 active) `(,arg ,(cadr old)))
-                    (t              `(,(car old) ,arg)))))
-    (if elt (setcdr elt new) (push `(alpha ,@new) default-frame-alist))
-    (set-frame-parameter nil 'alpha new)))
+(set-face-attribute 'default nil :height 120)
 #+END_SRC
+
+Default to visual line mode for some modes.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'text-mode-hook #'visual-line-mode)
+(add-hook 'LaTeX-mode-hook #'visual-line-mode)
+#+END_SRC
+
+*** fonts
+
+ETbb font from https://ctan.org/pkg/etbb
+
+Office Code Pro from https://github.com/nathco/Office-Code-Pro
+
+SF Pro font from https://github.com/sahibjotsaggu/San-Francisco-Pro-Fonts
+
+Put fonts in =~/.local/share/fonts= and run =fc-cache -f -v= to install.
+
+Set the default variable and fixed-pitch fonts.
+#+BEGIN_SRC emacs-lisp
+  (when (member "Office Code Pro" (font-family-list))
+    (set-face-attribute 'default nil :font "Office Code Pro"))
+
+  ;; (when (member "SF Pro Display" (font-family-list))
+  ;;   (set-face-attribute 'variable-pitch nil :font "SF Pro Display"))
+
+  (when (member "Iosevka Aile" (font-family-list))
+    (set-face-attribute 'variable-pitch nil :font "Iosevka Aile" :weight 'light :height 1.5))
+
+  (when (member "Office Code Pro" (font-family-list))
+    (set-face-attribute 'fixed-pitch nil :font "Office Code Pro" :height 0.8))
+#+END_SRC
+
+Mixed pitch
+#+BEGIN_SRC emacs-lisp
+(use-package mixed-pitch
+  :hook
+  (text-mode . mixed-pitch-mode))
+#+END_SRC
+
+Keybindings to scale font
+#+BEGIN_SRC emacs-lisp
+(define-key global-map (kbd "C-=") 'text-scale-increase)
+(define-key global-map (kbd "C--") 'text-scale-decrease)
+#+END_SRC
+
+** Undo tree
+More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
+
+#+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+  :diminish undo-tree-mode
+  :commands global-undo-tree-mode
+  :init (global-undo-tree-mode 1)
+  :config
+  (setq undo-tree-auto-save-history nil))
+#+END_SRC
+
+** Windows
 
 Allows undo and redo of changes in window configurations.
 By default, undo is bound to *C-c <left>* and redo to *C-c <right>*.
@@ -115,87 +160,31 @@ By default, undo is bound to *C-c <left>* and redo to *C-c <right>*.
 
 Set up keybinding for =ace-window= to quickly jump to a window.
 #+BEGIN_SRC emacs-lisp
-(use-package ace-window
-  :bind ("M-o" . ace-window))
-#+END_SRC
-
-*** popper
-Install https://github.com/karthink/popper to be able to quickly bring up and dismiss certain buffers as popups.
-#+BEGIN_SRC emacs-lisp
-(use-package popper
-  :after projectile
-  :bind (("C-`"   . popper-toggle-latest)
-         ("M-`"   . popper-cycle)
-         ("C-M-`" . popper-toggle-type))
-  :init
-  (setq popper-reference-buffers
-        '("\\*Messages\\*"
-          "Output\\*$"
-          "\\*Async Shell Command\\*"
-	  "^\\*eshell.*\\*$" eshell-mode ;eshell as a popup
-          "^\\*shell.*\\*$"  shell-mode  ;shell as a popup
-          "^\\*term.*\\*$"   term-mode   ;term as a popup
-          "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popupp
-          help-mode
-          compilation-mode))
-  (setq popper-group-function #'popper-group-by-projectile)
-  (popper-mode +1)
-  (popper-echo-mode +1))                ; For echo area hints
-#+END_SRC
-
-*** Window rotation
-
-Use code from https://www.emacswiki.org/emacs/TransposeFrame, which enables flipping, transposing, and rotating frames.
-
-#+BEGIN_SRC emacs-lisp
-(load-file (expand-file-name "transpose-frame.el" user-emacs-directory))
-(require 'transpose-frame)
+  (use-package ace-window
+    :bind ("M-o" . ace-window))
 #+END_SRC
 
 ** Tabs
+
+Basic tab configuration.
+
 #+BEGIN_SRC emacs-lisp
-(tab-bar-mode 1)
-(setq tab-bar-show 1)
-(setq tab-bar-close-button-show nil)
-(setq tab-bar-tab-hints t)
-(setq tab-bar-new-tab-choice "*scratch*")
-(global-set-key (kbd "C-l") 'tab-bar-switch-to-next-tab)
-(global-set-key (kbd "C-h") 'tab-bar-switch-to-prev-tab)
+(use-package emacs
+  :config
+  (global-set-key (kbd "C-l") 'tab-bar-switch-to-next-tab)
+  (global-set-key (kbd "C-h") 'tab-bar-switch-to-prev-tab))
 #+END_SRC
 
-** Scrolling
-Emacs 29 has smooth scrolling natively.
+Use =vim-tab-bar= for nicer looking tabs.
 #+BEGIN_SRC emacs-lisp
-(pixel-scroll-precision-mode)
-;; (global-set-key (kbd "<mouse-4>") 'pixel-scroll-down)
-;; (global-set-key (kbd "<mouse-5>") 'pixel-scroll-up)
-(setq pixel-scroll-precision-large-scroll-height 40.0)
-(setq pixel-scroll-precision-interpolation-factor 30)
-(setq scroll-conservatively 101) ;; keyboard scroll one line at a time
+(use-package vim-tab-bar
+  :commands vim-tab-bar-mode
+  :hook
+  (after-init . vim-tab-bar-mode))
 #+END_SRC
-
-** Line numbers
-  Display line numbers except in certain modes. From https://www.emacswiki.org/emacs/LineNumbers
-#+BEGIN_SRC emacs-lisp
-(require 'display-line-numbers)
-(defcustom display-line-numbers-exempt-modes '(vterm-mode eshell-mode shell-mode term-mode ansi-term-mode org-mode org-agenda-mode pdf-view-mode markdown-mode treemacs-mode)
-  "Major modes on which to disable the linum mode, exempts them from global requirement"
-  :group 'display-line-numbers
-  :type 'list
-  :version "green")
-
-(defun display-line-numbers--turn-on ()
-  "turn on line numbers but exempting certain major modes defined in `display-line-numbers-exempt-modes'"
-  (if (and
-       (not (member major-mode display-line-numbers-exempt-modes))
-       (not (minibufferp)))
-      (display-line-numbers-mode)))
-
-(global-display-line-numbers-mode)
-#+END_SRC
-
 ** Keybindings
 *** Evil mode
+
 #+BEGIN_SRC emacs-lisp
 (use-package evil
   :init
@@ -207,7 +196,6 @@ Emacs 29 has smooth scrolling natively.
   :config
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-  ;; (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
   (define-key evil-motion-state-map (kbd ":") 'evil-repeat-find-char)
   (define-key evil-motion-state-map (kbd ";") 'evil-ex)
 
@@ -215,22 +203,14 @@ Emacs 29 has smooth scrolling natively.
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
   (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
-  (evil-set-initial-state 'help-mode 'emacs)
-  (evil-set-initial-state 'helpful-mode 'emacs)
-  (evil-set-initial-state 'special-mode 'emacs)
+  (evil-set-initial-state 'help-mode 'normal)
+  (evil-set-initial-state 'helpful-mode 'normal)
+  (evil-set-initial-state 'special-mode 'normal)
   (evil-set-initial-state 'vterm-mode 'insert)
   (evil-set-initial-state 'fundamental-mode 'insert)
   (evil-set-initial-state 'messages-buffer-mode 'normal))
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Use ESC to cancel everything
-#+END_SRC
-
-Unbind RET from evil mode so it can still be used to follow org links. See https://emacs.stackexchange.com/a/46377. Also unbind =evil-mouse-drag-region= as it causes unintended highlighting (see https://github.com/emacs-evil/evil/issues/936)
-#+BEGIN_SRC emacs-lisp
-(with-eval-after-load 'evil-maps
-  (define-key evil-normal-state-map (kbd "C-.") nil)
-  (define-key evil-motion-state-map (kbd "RET") nil)
-  (define-key evil-motion-state-map [down-mouse-1] nil))
 #+END_SRC
 
 Additional evil keybindings for other parts of Emacs.
@@ -241,16 +221,7 @@ Additional evil keybindings for other parts of Emacs.
   (setq evil-collection-mode-list
         (remove 'outline evil-collection-mode-list))
   (evil-collection-init))
-#+END_SRC
 
-Avy-style jumping for evil motion commands. Type space followed by a motion key then type the letters corresponding to the desired candidate target.
-#+BEGIN_SRC emacs-lisp
-(use-package evil-easymotion
-  :config
-  (evilem-default-keybindings "SPC"))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
 (use-package evil-org
   :after org
   :hook (org-mode . (lambda () evil-org-mode))
@@ -260,42 +231,29 @@ Avy-style jumping for evil motion commands. Type space followed by a motion key 
   (setq org-super-agenda-header-map (make-sparse-keymap)))
 #+END_SRC
 
-Evil escape
+Avy-style jumping for evil motion commands. Type space followed by a motion key then type the letters corresponding to the desired candidate target.
+#+BEGIN_SRC emacs-lisp
+(use-package evil-easymotion
+  :config
+  (evilem-default-keybindings "SPC"))
+#+END_SRC
+
+Evil escape.
 #+BEGIN_SRC emacs-lisp
 (use-package evil-escape
   :init
   (setq-default evil-escape-key-sequence "fd")
+  (setq evil-escape-unordered-key-sequence t)
   (evil-escape-mode 1))
 #+END_SRC
+
+Unbind =C-.= for use with embark, and unbind RET so it can be used to follow org mode links.
+#+BEGIN_SRC emacs-lisp
+(with-eval-after-load 'evil-maps
+  (define-key evil-normal-state-map (kbd "C-.") nil)
+  (define-key evil-motion-state-map (kbd "RET") nil))
+#+END_SRC
 *** General
-Based on https://www.lucacambiaghi.com/vanilla-emacs/readme.html.
-
-#+BEGIN_SRC emacs-lisp
-(defun klk/yank-file-path ()
-  (interactive)
-  (kill-new (buffer-file-name)))
-
-(defun klk/yank-file-name ()
-  (interactive)
-  (kill-new (buffer-name)))
-#+END_SRC
-
-Utility to get the ROAM_REFS citekey from literature notes.
-
-#+BEGIN_SRC emacs-lisp
-(defun klk/get-roam-ref ()
-  "Attempts to read the file ROAM_REFS."
-  (save-excursion
-    (goto-char (point-min))
-    (let ((ref (org-entry-get nil "ROAM_REFS")))
-      (when (and ref (not (string= "" ref)))
-	ref))))
-
-(defun klk/yank-roam-ref ()
-  (interactive)
-  (kill-new (klk/get-roam-ref)))
-#+END_SRC
-
 #+BEGIN_SRC emacs-lisp
 (use-package general
   :demand t
@@ -347,13 +305,14 @@ Utility to get the ROAM_REFS citekey from literature notes.
     "yf" 'klk/yank-file-path
     "yr" 'klk/yank-roam-ref
 
-    ;; Themes
-    "T" 'klk-choose-theme :which-key "themes"
-
     ;; Tabs
     "tn" 'tab-bar-new-tab :which-key "new tab"
     "tk" 'tab-bar-close-tab :which-key "kill tab"
     "tr" 'tab-bar-rename-tab :which-key "rename tab"
+
+    ;; Themes
+    "td" 'klk/switch-dark-theme :which-key "dark theme"
+    "tl" 'klk/switch-light-theme :which-key "light theme"
 
     ;; Utilities
     "q" 'klk/save-buffer-and-exit
@@ -370,397 +329,54 @@ Utility to get the ROAM_REFS citekey from literature notes.
     "o"'(:ignore t :which-key "org")
     "ot" '(org-set-tags-command :which-key "add tag")
 
-    ;; notes
-    "ez" '(klk/export-zettel :which-key "export zettel")
-
+    ;; ;; notes
+    ;; "ez" '(klk/export-zettel :which-key "export zettel")
 
     ;; Jump around
-    "gh" #'ap/avy-org-goto-to-heading-timer
-    "gg" #'avy-goto-char-timer
-    "gl" #'avy-goto-line
-    "gp" #'avy-pop-mark))
+    ;; "gh" #'ap/avy-org-goto-to-heading-timer
+    "gg" #'avy-goto-char-timer))
+    ;; "gl" #'avy-goto-line
+    ;; "gp" #'avy-pop-mark))
 
 #+END_SRC
-** Selection
+
+** Visual
+*** Themes
+
 #+BEGIN_SRC emacs-lisp
-(use-package expand-region
-  :general ("C-'"  'er/expand-region))
+(use-package doom-themes :defer t)
+(load-theme 'doom-gruvbox t)
 #+END_SRC
 
-** Text
-Make the text bigger by default. (sensible-defaults binds font resize to C-- and C-+)
-#+BEGIN_SRC emacs-lisp
-(set-face-attribute 'default nil :height 110)
-#+END_SRC
-
-Default to visual line mode for some modes.
-#+BEGIN_SRC emacs-lisp
-(add-hook 'text-mode-hook #'visual-line-mode)
-(add-hook 'LaTeX-mode-hook #'visual-line-mode)
-#+END_SRC
-
-** Themes
-#+BEGIN_SRC emacs-lisp
-(setq custom-theme-directory (expand-file-name "themes" user-emacs-directory))
-(setq custom--inhibit-theme-enable nil)
-#+END_SRC
-
-*** fonts
-Enable changing font face per buffer. From https://www.emacswiki.org/emacs/FacesPerBuffer.
-
-ETbb font from https://ctan.org/pkg/etbb
-
-Office Code Pro from https://github.com/nathco/Office-Code-Pro
-
-SF Pro font from https://github.com/sahibjotsaggu/San-Francisco-Pro-Fonts
-
-Put fonts in =~/.local/share/fonts= and run =fc-cache -f -v= to install.
-
-Set the default variable and fixed-pitch fonts.
-#+BEGIN_SRC emacs-lisp
-(when (member "Office Code Pro" (font-family-list))
-  (set-face-attribute 'default nil :font "Office Code Pro"))
-
-(when (member "SF Pro Display" (font-family-list))
-  (set-face-attribute 'variable-pitch nil :font "SF Pro Display"))
-
-(when (member "Office Code Pro" (font-family-list))
-  (set-face-attribute 'fixed-pitch nil :font "Office Code Pro"))
-#+END_SRC
-
-Functions to change fonts. "default" includes org buffers when =fixed-pitch-mode= is not enabled. "fixed" controls code blocks, etc. "variable" controls the font in org buffers when =fixed-pitch-mode= is enabled.
-#+BEGIN_SRC emacs-lisp
-(defun klk-change-font (choice)
-  "Top-level function to choose the class of font to change then change it"
-  (interactive
-   (let ((choices '("default" "fixed" "variable")))
-     (list (completing-read "Choose: " choices nil t))))
-  (command-execute
-   (cond ((string= choice "default") 'klk/change-default-font-family)
-	 ((string= choice "fixed") 'klk/change-fixed-font-family)
-	 ((string= choice "variable") 'klk/change-variable-font-family)))
-  choice)
-
-(defun klk/change-variable-font-family (choice)
-  "Change the font used for variable width text"
-  (interactive
-   (let ((choices '("Source Sans 3" "ETbb" "SF Pro Display")))
-     (list (completing-read "Choose: " choices nil t))))
-  (set-face-attribute 'variable-pitch nil :family choice)
-  choice)
-
-(defun klk/change-fixed-font-family (choice)
-  "Change the font used for fixed width (including default) text"
-  (interactive
-   (let ((choices '("DejaVu Sans Mono" "Free Mono" "Source Code Pro" "Iosevka Fixed Slab" "Office Code Pro" "JetBrains Mono")))
-     (list (completing-read "Choose: " choices nil t))))
-  (set-face-attribute 'fixed-pitch nil :family choice)
-  choice)
-
-(defun klk/change-default-font-family (choice)
-  "Change the font used for default text (used in org buffers when not variable pitch)"
-  (interactive
-   (let ((choices '("DejaVu Sans Mono" "Source Sans Mono" "FreeMono" "Source Code Pro" "Office Code Pro" "Hack" "Iosevka Fixed Slab" "JetBrains Mono")))
-     (list (completing-read "Choose: " choices nil t))))
-  (set-face-attribute 'default nil :family choice)
-  choice)
-#+END_SRC
-
-
-Enable changing font per buffer.
-#+BEGIN_SRC emacs-lisp
-(defun klk-buffer-set-font-family (family)
-  "Set font to the specified family in current buffer"
-  (setq buffer-face-mode-face `(:family ,family))
-  (buffer-face-mode))
-#+END_SRC
-
-Functions to toggle =variable-pitch-mode= it for all org buffers.
-#+BEGIN_SRC emacs-lisp
-(defun klk-org-variable-pitch-on ()
-  (interactive)
-  (add-hook 'org-mode-hook 'variable-pitch-mode)
-  (mapc (lambda (buffer)
-          (with-current-buffer buffer
-	    (when (eq major-mode 'org-mode)
-            (variable-pitch-mode 1))))
-  (buffer-list))
-  )
-
-(defun klk-org-variable-pitch-off ()
-  (interactive)
-  (remove-hook 'org-mode-hook 'variable-pitch-mode)
-  (mapc (lambda (buffer)
-          (with-current-buffer buffer
-	    (when (eq major-mode 'org-mode)
-            (variable-pitch-mode -1))))
-  (buffer-list))
-  )
-
-(defun klk-toggle-variable-pitch-org-buffers ()
-  (interactive)
-  (mapc (lambda (buffer)
-          (with-current-buffer buffer
-	    (when (eq major-mode 'org-mode)
-            (call-interactively 'variable-pitch-mode))))
-  (buffer-list))
-  )
-#+END_SRC
-
-Use monospace font in code blocks and tables.  From https://github.com/jparcill/emacs_config/blob/master/config.el
-#+BEGIN_SRC emacs-lisp
-(defun klk-set-org-block-fixed-pitch ()
-  (interactive)
-  (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-block nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-table nil  :inherit 'fixed-pitch)
-  (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
-  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
-  )
-#+END_SRC
-
-*** Mixed pitch mode
-#+BEGIN_SRC emacs-lisp
-(use-package mixed-pitch
-  :hook
-  (org-mode . mixed-pitch-mode)
-  (org-roam-mode . mixed-pitch-mode)
-  :config
-  (setq mixed-pitch-set-height t)
-  (set-face-attribute 'variable-pitch nil :height 1.2))
-#+END_SRC
-
-*** Olivetti mode
-#+BEGIN_SRC emacs-lisp
-(use-package olivetti
-    :general
-    (klk/leader-key-def
-      "m o" '(olivetti-mode :wk "olivetti"))
-    :init
-    (setq olivetti-body-width 80)
-    (setq olivetti-recall-visual-line-mode-entry-state t)
-    :hook (text-mode . (lambda () (olivetti-mode 1))))
-#+END_SRC
-
-*** Load themes
-#+BEGIN_SRC emacs-lisp
-  (use-package doom-themes :defer t)
-#+END_SRC
-
-
-Config for quiet theme from https://github.com/quiettheme/emacs.
-#+BEGIN_SRC emacs-lisp
-(setq doom-quiet-dark-padded-modeline t)
-(setq doom-quiet-dark-brighter-modeline t)
-(setq doom-quiet-dark-brighter-comments t)
-(setq doom-quiet-light-padded-modeline t)
-(setq doom-quiet-light-brighter-comments t)
-#+END_SRC
-
-*** Configure modus themes
-#+BEGIN_SRC emacs-lisp
-(use-package emacs
-  :config
-  (require-theme 'modus-themes) ; `require-theme' is ONLY for the built-in Modus themes
-  (setq modus-themes-italic-constructs t
-	modus-themes-bold-constructs t
-	modus-themes-mixed-fonts t
-	modus-themes-mode-line '(accented)
-	modus-themes-region '(accented bg-only)
-	modus-themes-variable-pitch-ui nil
-	modus-themes-custom-auto-reload t
-	modus-themes-disable-other-themes t
-
-	;; Options for `modus-themes-prompts' are either nil (the
-	;; default), or a list of properties that may include any of those
-	;; symbols: `italic', `WEIGHT'
-	modus-themes-prompts '(italic bold)
-
-	modus-themes-completions
-	'((matches . (extrabold))
-	  (selection . (semibold italic text-also)))
-
-	modus-themes-org-blocks 'tinted-background ; {nil,'gray-background,'tinted-background}
-	;; The `modus-themes-headings' is an alist: read the manual's
-	;; node about it or its doc string.  Basically, it supports
-	;; per-level configurations for the optional use of
-	;; `variable-pitch' typography, a height value as a multiple of
-	;; the base font size (e.g. 1.5), and a `WEIGHT'.
-	modus-themes-headings
-	'((1 . (variable-pitch 1.5))
-          (2 . (1.3))
-          (agenda-date . (1.3))
-          (agenda-structure . (variable-pitch light 1.8))
-          (t . (1.1))))
-
-  ;; Load the theme of your choice.
-  ;; (load-theme 'modus-operandi))
-#+END_SRC
-*** Modeline
-**** COMMENT Doom modeline
-#+BEGIN_SRC emacs-lisp
-(use-package doom-modeline
-  :init
-  (setq doom-modeline-buffer-encoding nil)
-  (setq doom-modeline-buffer-file-name-style 'relative-from-project)
-  (setq doom-modeline-height 30)
-  (doom-modeline-mode 1)
-  )
-#+END_SRC
-
-**** Doom Nano Modeline
-#+BEGIN_SRC emacs-lisp
-(use-package doom-nano-modeline
-  :straight (doom-nano-modeline :type git :host github :repo "ronisbr/doom-nano-modeline")
-  :config
-  (doom-nano-modeline-mode 1))
-#+END_SRC
-
-*** toggle themes
-Spring theme uses fonts from https://www.ishouldbemoppingthefloor.com/2015/02/20-free-spring-fonts.html
 #+BEGIN_SRC emacs-lisp
 (defun klk-disable-all-themes ()
   (interactive)
   (dolist (theme custom-enabled-themes) (disable-theme theme)))
 
-(defun klk-choose-theme ()
+(defun klk/switch-dark-theme ()
   (interactive)
-  (let ((choices '(("Bespoke" . (lambda () (load-theme 'bespoke t)))
-		   ("Clean"  . (lambda () (load-theme 'clean t)))
-		   ("Nano Light"  . (lambda () (load-theme 'doom-nano-light t)))
-		   ("One" . (lambda () (load-theme 'doom-one t)))
-		   ("Modus" . (lambda () (load-theme 'modus-vivendi t)))
-		   ("Leuven" . (lambda () (load-theme 'leuven t)))
-		   ("Dark" . (lambda () (load-theme 'doom-quiet-dark t)))
-		   ("Light" . (lambda () (load-theme 'doom-quiet-light t)))
-		   ("Dark Yellow" . (lambda () (load-theme 'dark-yellow t)))
-                   ("DefaultPlus"  . (lambda () (load-theme 'defaultplus t))))))
-    (let ((choice (alist-get
-		   (completing-read "Choose: " choices) choices nil nil 'equal)))
-      (klk-disable-all-themes)
-      (funcall choice)
-      ;; (klk-set-org-block-fixed-pitch)
-      )
-    )
-  )
-#+END_SRC
+  (klk-disable-all-themes)
+  (load-theme 'doom-gruvbox t))
 
-Set up hook for theme changes that resets some faces.
-
-Also add a method to refresh $\LaTeX$ previews in all open org buffers, but don't call it on the hook because it's too slow. Call it manually if needed.
-=org-latex-preview= needs a =C-u C-u= prefix argument to reload for the whole buffer. =C-u= corresponds to 4, =C-u= corresponds to 16.
-#+BEGIN_SRC emacs-lisp
-(defun klk/refresh-latex-previews ()
+(defun klk/switch-light-theme ()
   (interactive)
-  (mapc (lambda (buffer)
-          (with-current-buffer buffer
-	    (when (eq major-mode 'org-mode)
-	      (let ((current-prefix-arg '(16))) ; C-u C-u
-		(call-interactively 'org-latex-preview)))))
-  (buffer-list)))
-
-(defun klk-refresh-org-buffer-colors (&rest args)
-  ;; (klk/refresh-latex-previews)
-  ;; Reset colors of window divider
-  (dolist (face '(window-divider
-                window-divider-first-pixel
-                window-divider-last-pixel))
-  (face-spec-reset-face face)
-  (set-face-foreground face (face-attribute 'default :background))
-  (set-face-background 'fringe (face-attribute 'default :background))
-  ;; reset thin modeline
-  ;; (set-face-attribute 'mode-line nil :height 10)
-  ;; (set-face-attribute 'header-line nil :height 128)
-  ))
-
-(advice-add 'load-theme :after 'klk-refresh-org-buffer-colors)
+  (klk-disable-all-themes)
+  (load-theme 'leuven t))
 #+END_SRC
 
-*** Set up current theme
 #+BEGIN_SRC emacs-lisp
-(load-theme 'doom-gruvbox t)
-;; (klk-set-org-block-fixed-pitch) ; default
+(defun customize-leuven ()
+      "Customize Leuven theme"
+      (if (member 'leuven custom-enabled-themes)
+          (custom-theme-set-faces
+           'leuven
+           '(font-lock-string-face ((t (:foreground "#F8F8F0" :background "#171717")))))))
+(customize-leuven)
 #+END_SRC
 
-** Prettify
-*** org-modern
-#+BEGIN_SRC emacs-lisp
-(use-package org-modern
-  :straight (org-modern :type git :host github :repo "minad/org-modern")
-  :config
-  (setq org-modern-star nil)
-  )
-#+END_SRC
+*** Prettify
 
-Include their config to add padding to buffers and tweak a few other things.
-#+BEGIN_SRC emacs-lisp
-(modify-all-frames-parameters
- '((right-divider-width . 20)
-   (internal-border-width . 20)))
-(dolist (face '(window-divider
-                window-divider-first-pixel
-                window-divider-last-pixel))
-  (face-spec-reset-face face)
-  (set-face-foreground face (face-attribute 'default :background)))
-(set-face-background 'fringe (face-attribute 'default :background))
-
-
-(setq
- ;; Edit settings
- org-auto-align-tags nil
- org-tags-column 0
- org-catch-invisible-edits 'show-and-error
- org-special-ctrl-a/e t
- org-insert-heading-respect-content t
-
- ;; Org styling, hide markup etc.
- org-hide-emphasis-markers t
- org-pretty-entities t
- org-pretty-entities-include-sub-superscripts nil
- org-ellipsis "…"
- org-fontify-quote-and-verse-blocks t
-
- ;; Agenda styling
- org-agenda-block-separator ?─
- org-agenda-time-grid
- '((daily today require-timed)
-   (800 1000 1200 1400 1600 1800 2000)
-   " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
- org-agenda-current-time-string
- "⭠ now ─────────────────────────────────────────────────")
-#+END_SRC
-
-Hide category prefix on tasks.
-#+BEGIN_SRC emacs-lisp
-(setq org-agenda-prefix-format
-      '((agenda . " %i %-12:c%?-12t% s")
-        (todo   . " ")
-        (tags   . " %i %-12:c")
-        (search . " %i %-12:c")))
-#+END_SRC
-
-*** icons
-#+BEGIN_SRC emacs-lisp
-(use-package all-the-icons
-  :if (display-graphic-p))
-
-(use-package all-the-icons-dired
-  :if (display-graphic-p)
-  :hook (dired-mode . all-the-icons-dired-mode)
-  :config (setq all-the-icons-dired-monochrome nil))
-#+END_SRC
-*** Colors
-#+BEGIN_SRC emacs-lisp
-(use-package rainbow-mode
-  :defer t
-  :hook (org-mode
-         emacs-lisp-mode))
-#+END_SRC
-*** Prettify symbols
+**** Prettify symbols
 #+BEGIN_SRC emacs-lisp
 (use-package org
   :config
@@ -781,282 +397,174 @@ Hide category prefix on tasks.
 				 ("#+RESULTS:" . "🠶")))
   :hook (org-mode . prettify-symbols-mode))
 #+END_SRC
-*** Emojis
+
+**** Emojis
 #+BEGIN_SRC emacs-lisp
 (use-package emojify
   :hook (after-init . global-emojify-mode)
   :config
   (bind-key* (kbd "C-c .") #'emojify-insert-emoji)) ; override binding in any mode
 #+END_SRC
-** Markdown
 
-Code to show markup on current line from [[https://www.reddit.com/r/emacs/comments/10h9jf0/beautify_markdown_on_emacs/][here]].
-
+*** Olivetti mode
 #+BEGIN_SRC emacs-lisp
-(use-package markdown-mode
+(use-package olivetti
+    :general
+    (klk/leader-key-def
+      "m o" '(olivetti-mode :wk "olivetti"))
+    :init
+    (setq olivetti-body-width 90) ;; 0.6
+    (setq olivetti-recall-visual-line-mode-entry-state t)
+    :hook (text-mode . (lambda () (olivetti-mode 1))))
+#+END_SRC
+
+*** Modeline
+#+BEGIN_SRC emacs-lisp
+(use-package doom-modeline
+  :init
+  (setq doom-modeline-buffer-encoding nil)
+  (setq doom-modeline-buffer-file-name-style 'relative-from-project)
+  (doom-modeline-mode 1))
+#+END_SRC
+
+Needed to display icons in doom-modeline.
+#+BEGIN_SRC emacs-lisp
+(use-package nerd-icons)
+#+END_SRC
+*** Icons
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons
+  :if (display-graphic-p))
+
+(use-package all-the-icons-dired
+  :if (display-graphic-p)
+  :hook (dired-mode . all-the-icons-dired-mode)
+  :config (setq all-the-icons-dired-monochrome nil))
+#+END_SRC
+
+** Images
+*** display
+Make files start with inline images loaded, and add a hook to display them after executing a code block to display resulting graphs.
+#+BEGIN_SRC emacs-lisp
+(setq org-startup-with-inline-images t)
+(add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
+#+END_SRC
+
+Set this to =nil= to allow customizing image preview size with something like:
+=#ATTR_ORG: :width 200=
+#+BEGIN_SRC emacs-lisp
+(setq org-image-actual-width nil)
+#+END_SRC
+
+*** org-download
+Note: need =xclip= installed for =org-download-clipboard=.
+
+I have some modifications to make screenshot pasting work in markdown files as well.
+#+BEGIN_SRC emacs-lisp
+(use-package org-download
+  :config
+  (defun klk/org-download-clipboard-md ()
+    "like org-download-clipboard, but with markdown link format and no annotation"
+    (interactive)
+    (let ((org-download-link-format "![screenshot](%s)\n")
+	  (org-download-annotate-function '(lambda (link) "")))
+      (org-download-clipboard))
+    (markdown-display-inline-images))
+  (defun klk/org-download-set-dir ()
+    (when buffer-file-name
+      (let ((dir (if (string-prefix-p (file-truename org-roam-dir) (buffer-file-name))
+		   org-roam-image-dir
+		 (concat (file-name-directory (buffer-file-name)) "images/"))))
+      (setq-local org-download-image-dir dir))))
+
+  ; force the code to run in markdown mode as well as org mode
+  (advice-add 'org-download-org-mode-p :override
+              (lambda () (or (eq major-mode 'org-mode) (when (derived-mode-p 'org-mode) t) (eq major-mode 'markdown-mode))))
+  :hook
+  (org-mode . klk/org-download-set-dir)
+  (markdown-mode . klk/org-download-set-dir)
   :general
-  (:keymaps 'markdown-mode-map
-	    "<M-return>" 'markdown-insert-header-dwim
-	    "<C-return>" 'markdown-insert-list-item
-	    "<M-left>" 'markdown-promote-list-item
-	    "<M-right>" 'markdown-demote-list-item
-	    "<M-up>" 'markdown-move-list-item-up
-	    "<M-down>" 'markdown-move-list-item-down
-	    "M-n" 'markdown-outline-next
-	    "M-p" 'markdown-outline-previous
-	    "M-h" 'markdown-outline-up
-	    "M-l" 'markdown-outline-next-same-level
-	    "M-j" 'markdown-outline-next-same-level
-	    "M-k" 'markdown-outline-previous-same-level
-	    "M-K" 'markdown-move-subtree-up
-	    "M-J" 'markdown-move-subtree-down
-	    "M-K" 'markdown-move-list-item-up
-	    "M-J" 'markdown-move-list-item-down
-	    "M-H" 'markdown-promote
-	    "M-L" 'markdown-demote
-	    "C-j" 'markdown-next-link
-	    "C-k" 'markdown-previous-link
-	    )
+  (klk/leader-key-def
+    :keymaps 'org-mode-map
+    "d" '(:ignore t :which-key "org-download")
+    "d s" '(org-download-screenshot :which-key "screenshot")
+    "d c" '(org-download-clipboard :which-key "clipboard")
+    "i r" '(org-download-rename-at-point :which-key "rename image"))
   (klk/leader-key-def
     :keymaps 'markdown-mode-map
-    "ns" 'markdown-narrow-to-subtree :wk "narrow"
-    "nw" 'widen :wk "widen"
-    "ii" 'klk/insert-org-roam-image-md :wk "insert image"
-    "tm" 'markdown-toggle-markup-hiding :wk "toggle markdown hiding"
-    "it" 'markdown-toggle-inline-images :wk "toggle images")
+    "d" '(:ignore t :which-key "org-download")
+    "d c" '(klk/org-download-clipboard-md :which-key "clipboard"))
   :custom
-  (markdown-enable-wiki-links t)
-  ;; (markdown-hide-markup t)
-  (markdown-max-image-size '(800 . 800))
-  :config
-  (defvar nb/current-line '(0 . 0)
-    "(start . end) of current line in current buffer")
-  (make-variable-buffer-local 'nb/current-line)
-
-  (defun nb/unhide-current-line (limit)
-    "Font-lock function"
-    (let ((start (max (point) (car nb/current-line)))
-          (end (min limit (cdr nb/current-line))))
-      (when (< start end)
-        (remove-text-properties start end
-                                '(invisible t display "" composition ""))
-        (goto-char limit)
-        t))))
-
-  (defun nb/refontify-on-linemove ()
-    "Post-command-hook"
-    (let* ((start (line-beginning-position))
-           (end (line-beginning-position 2))
-           (needs-update (not (equal start (car nb/current-line)))))
-      (setq nb/current-line (cons start end))
-      (when needs-update
-        (font-lock-fontify-block 3))))
-
-  (defun nb/markdown-unhighlight ()
-    "Enable markdown concealling"
-    (interactive)
-    (markdown-toggle-markup-hiding 'toggle)
-    (font-lock-add-keywords nil '((nb/unhide-current-line)) t)
-    (add-hook 'post-command-hook #'nb/refontify-on-linemove nil t))
-  :custom-face
-  (markdown-header-delimiter-face ((t (:foreground "#616161" :height 0.9))))
-  (markdown-header-face-1 ((t (:inherit org-level-1))))
-  (markdown-header-face-2 ((t (:inherit org-level-2))))
-  (markdown-header-face-3 ((t (:inherit org-level-3))))
-  (markdown-header-face-4 ((t (:inherit org-level-4))))
-  (markdown-header-face-5 ((t (:inherit org-level-5))))
-  (markdown-header-face-6 ((t (:inherit org-level-6))))
-  :hook
-  (markdown-mode . variable-pitch-mode)
-  (markdown-mode . markdown-toggle-inline-images)
-  (markdown-mode . nb/markdown-unhighlight)
-  :init
-  (advice-add #'markdown-indent-line :before-until #'completion-at-point))
+  (org-download-heading-lvl nil)
+  (org-download-screenshot-method "spectacle -br -o %s"))
 #+END_SRC
 
-Custom font-locking for titles in markdown mode to make them look like headers (with more subtle font for folgezettel ids).
-
-(See also [[https://stackoverflow.com/questions/6258455/emacs-font-lock-mode-provide-a-custom-color-instead-of-a-face
-][here]])
-#+BEGIN_SRC emacs-lisp
-(use-package markdown-mode
-  :config
-  (font-lock-add-keywords 'markdown-mode
-			  '(("^title: \\([1-9][^ ]*\\)?\\(.*\\)"
-			     (1 'font-lock-keyword-face t t)
-			     (2 'markdown-header-face-1 t)))))
-#+END_SRC
-** Highlighting
-  Highlight all occurrences of word under the cursor. Config from http://xenodium.com/emacs-highlight-symbol-mode/
+** Git
+*** Magit
   #+BEGIN_SRC emacs-lisp
-  (use-package highlight-symbol
-    :config
-    (set-face-attribute 'highlight-symbol-face nil
-			:background "#D0D0D0"
-			:foreground "#000000")
-    (setq highlight-symbol-idle-delay 0)
-    (setq highlight-symbol-on-navigation-p t)
-    (add-hook 'prog-mode-hook #'highlight-symbol-mode)
-    (add-hook 'prog-mode-hook #'highlight-symbol-nav-mode))
+(use-package magit
+  :straight (magit :type git :host github :repo "magit/magit")
+  :general
+  (klk/leader-key-def
+    "gs" '(magit-status :which-key "magit status"))
+  )
   #+END_SRC
-
-** electric-pair-mode
-
-Automatically match parentheses, etc.
-
+*** Git Gutter
 #+BEGIN_SRC emacs-lisp
-;; Exclude pairing '<' and '(' symbols
-(setq electric-pair-inhibit-predicate
-      (lambda (c)
-        (if (or
-	     (char-equal c ?\<)
-	     (char-equal c ?\")
-	     (char-equal c ?\())
-	    t (electric-pair-default-inhibit c))))
-(electric-pair-mode 1)
+(use-package git-gutter
+  :init (global-git-gutter-mode +1))
 #+END_SRC
 
-Add $ as a paired symbol for org mode. From https://emacs.stackexchange.com/a/2559
+** Math
+
+*** LaTeX rendering with math-preview
+
+Taken from [[https://daryl.wakatara.com/emacs-gtd-flow-evolved/#science-stuff][this nice config]].
+
+[[https://gitlab.com/matsievskiysv/math-preview][math-preview]] uses MathJax to display LaTeX. It has an external dependency, but it makes rendering much faster.
 
 #+BEGIN_SRC emacs-lisp
-(defvar org-electric-pairs '((?$ . ?$)) "Electric pairs for org-mode.")
-
-(defun org-add-electric-pairs ()
-  (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
-  (setq-local electric-pair-text-pairs electric-pair-pairs))
-
-(add-hook 'org-mode-hook 'org-add-electric-pairs)
-#+END_SRC
-
-** Backups / saves
-From [[https://www.emacswiki.org/emacs/BackupDirectory][emacswiki]]
-#+BEGIN_SRC emacs-lisp
-  (setq
-     backup-by-copying t      ; don't clobber symlinks
-     backup-directory-alist
-      '(("." . "~/.saves"))    ; don't litter my fs tree
-     delete-old-versions t
-     kept-new-versions 6
-     kept-old-versions 2
-     version-control t)       ; use versioned backups
-#+END_SRC
-
-Save history between sessions.
-#+BEGIN_SRC emacs-lisp
-(savehist-mode 1)
-#+END_SRC
-
-
-** Undo tree
-More typical undo mode. Adds C-/ mapping to undo and C-? mapping to redo.
-
-#+BEGIN_SRC emacs-lisp
-(use-package undo-tree
-  :commands global-undo-tree-mode
-  :init (global-undo-tree-mode 1)
-  :config
-  (setq undo-tree-auto-save-history nil))
-#+END_SRC
-
-
-** Projects
-*** Projectile
-Define some helper methods to support my current project notes workflow. I like to have roam files corresponding to projects for high-level information, but often there will be a separate (projectile-managed) directory for various project-related files, including a file for notes and tasks. I put a property in the roam file with the projectile project root, and define here a method to jump to the appropriate notes file. That uses the =PROJECT_ROOT= property if it exists, otherwise the current project root. There is also a method to insert the root of a chosen project as a property in the current file.
-#+BEGIN_SRC emacs-lisp
-(use-package rg) ;; ripgrep for searching in projectile
-
-(defvar klk/org-project-file-base "notes.org")
-
-(defun klk/get-project-from-property ()
-  (interactive)
-  "Attempts to read the project root path from a property."
-  (save-excursion
-    (goto-char (point-min))
-    (let ((root (org-entry-get nil "PROJECT_ROOT")))
-      (when (and root (not (string= "" root)))
-	root))))
-
-(defun klk/org-project-notes-file ()
-  "Get the project notes file path from a property if it is defined. Otherwise use the current projectile project"
-  (let ((project-root
-	 (or (klk/get-project-from-property) (projectile-project-root))))
-    (expand-file-name klk/org-project-file-base project-root)))
-
-(defun klk/get-project-root ()
-  "Returns root of selected project."
-  (projectile-load-known-projects)
-  (let ((choices projectile-known-projects))
-    (completing-read "Choose: " choices)))
-
-(defun klk/yank-project-root ()
-  (interactive)
-  (kill-new (klk/get-project-root)))
-
-(defun klk/insert-project-root-property ()
-  "Insert the root of the selected project as a property in current file."
-  (interactive)
-  (save-excursion
-    (let ((root (klk/get-project-root)))
-      (goto-char (point-min))
-      (org-entry-put nil "PROJECT_ROOT" root))))
-
-(defun klk/open-org-project-notes-file ()
-  "Finds the notes file for the project, and opens it to the beginning of a reverse datetree if it exists"
-  (interactive)
-  (find-file (klk/org-project-notes-file))
-  (goto-char (point-min))
-  ;; Jump to first heading consisting of the current year
-  ;; (this should be where the most recent entries are in the reverse datetree)
-  (search-forward-regexp (format "^\\*+ [0-9][0-9][0-9][0-9]$") nil t))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(use-package projectile
-  :init
-  (projectile-mode +1)
-  :bind (:map projectile-mode-map
-              ("s-p" . projectile-command-map)
-              ("C-c p" . projectile-command-map))
+(use-package math-preview
   :general
   (klk/leader-key-def
-    "p" '(:keymap projectile-command-map :which-key "project")
-    "pe" '(projectile-run-eshell :which-key "project eshell")
-    "pn" '(klk/open-org-project-notes-file :which-key "project notes")
-    "py" '(klk/yank-project-root :which-key "yank root"))
-    :config
-  (setq projectile-project-search-path '(("~/Dropbox/org/" . 3) ("~/" . 2) ("~/openfoam/" . 3) ("~/Dropbox/classes/" . 3) ("~/OpenFOAM/" . 4) ("~/Dropbox/projects/" . 3)))
-)
+    "m p" '(math-preview-all :which-key "latex preview"))
+	:custom
+    (math-preview-scale 1.25)
+    (math-preview-command "~/.npm-packages/bin/math-preview")
+    (math-preview-tex-marks-inline
+			'(("$" "$")))
+    (math-preview-tex-marks
+	 '(("\\begin{equation}" "\\end{equation}")
+		 ("\\begin{equation*}" "\\end{equation*}")
+		 ("\\begin{align}" "\\end{align}")
+		 ("\\begin{align*}" "\\end{align*}")
+		 ("$$" "$$")
+		 ))
+    ;; Remove labels to avoid error when re-evaluating
+    ;; This is supposed to be a list of functions, but it doesn't
+    ;; seem to work if there's more than one. But the default value
+    ;; doesn't seem important.
+    (math-preview-tex-preprocess-functions '((lambda (x)
+					       (puthash 'string
+							(s-replace-regexp "\\label{.+}" ""
+									  (gethash 'string x))
+							x)))))
+(add-hook 'markdown-mode-hook #'math-preview-all)
+;; (add-hook 'org-mode-hook #'math-preview-all)
+(defalias #'org-latex-preview #'math-preview-at-point)
+(defalias #'org-clear-latex-preview #'math-preview-clear-region)
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-(use-package consult-projectile
-  :straight (consult-projectile :type git :host gitlab :repo "OlMon/consult-projectile" :branch "master")
-  :general
-  (klk/leader-key-def
-    "pb" '(consult-projectile-switch-to-buffer :which-key "project buffer")
-    "pf" '(consult-projectile-find-file :which-key "project file")))
-#+END_SRC
+*** org-fragtog
 
-*** Perspective
-=perspective.el= allows saving multiple buffer lists / window configurations and quickly switching between them.
-- =C-z s= switch to or create new perspective
-- =C-z [n|p]= switch to next or previous perspective
+Automatically disable LaTeX images when the cursor is on them, and re-enable after leaving.
+
 #+BEGIN_SRC emacs-lisp
-(use-package perspective
-  :bind
-  ("C-x C-b" . persp-list-buffers)
-  :custom
-  (persp-mode-prefix-key (kbd "C-z"))
-  :init
-  (persp-mode)
+(use-package org-fragtog
   :config
-  (setq persp-state-default-file "~/Dropbox/org/.persp")
-  (setq persp-modestring-short t) ;; only show current persp in modeline
-  (add-hook 'kill-emacs-hook #'persp-state-save))
-
-(use-package persp-projectile
-  :after projectile)
+  (add-hook 'org-mode-hook 'org-fragtog-mode))
 #+END_SRC
+
 ** Completion
 *** Yasnippet
 #+BEGIN_SRC emacs-lisp
@@ -1076,39 +584,12 @@ Define some helper methods to support my current project notes workflow. I like 
   (yas-global-mode t)
   :diminish yas-minor-mode)
 #+END_SRC
-
-*** Yasnippet Company Integration
-Taken from [[https://emacs.stackexchange.com/a/7909. Use =C-o= for yasnippet expansion to avoid conflict with company-mode.
-#+BEGIN_SRC emacs-lisp
-(global-set-key "\C-o" 'aya-open-line)
-
-(defun aya-open-line ()
-  "Call `open-line', unless there are abbrevs or snippets at point.
-In that case expand them.  If there's a snippet expansion in progress,
-move to the next field. Call `open-line' if nothing else applies."
-  (interactive)
-  (cond ((expand-abbrev))
-
-        ((yas--snippets-at-point)
-         (yas-next-field-or-maybe-expand))
-
-        ((ignore-errors
-           (yas-expand)))
-
-        (t
-         (open-line 1))))
-#+END_SRC
-*** Hippie Expand
-Insert proposed expansion with =M-/=. Can be used to, e.g., repeat previous lines. Good for expanding file names.
-#+BEGIN_SRC emacs-lisp
-(global-set-key [remap dabbrev-expand] 'hippie-expand)
-#+END_SRC
 *** Vertico
 #+BEGIN_SRC emacs-lisp
 (use-package vertico
-  :straight (:files (:defaults "extensions/*"))
-  :init
-  (vertico-mode)
+  ;; :straight (:files (:defaults "extensions/*"))
+  :defer t
+  :commands vertico-mode
   :bind (:map vertico-map
          ("M-j" . vertico-next)
          ("M-k" . vertico-previous)
@@ -1118,7 +599,9 @@ Insert proposed expansion with =M-/=. Can be used to, e.g., repeat previous line
          ("DEL" . vertico-directory-delete-char)
          ("M-DEL" . vertico-directory-delete-word))
   ;; Tidy shadowed file names
-  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy)
+  :hook
+  (rfn-eshadow-update-overlay . vertico-directory-tidy)
+  (after-init . vertico-mode)
   :custom
   (vertico-cycle t))
 #+END_SRC
@@ -1126,24 +609,23 @@ Insert proposed expansion with =M-/=. Can be used to, e.g., repeat previous line
 *** Orderless
 #+BEGIN_SRC emacs-lisp
 (use-package orderless
-  :init
-  (setq completion-styles '(orderless basic)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion)))))
 #+END_SRC
 
 *** Marginalia
 Provides nice annotations for minibuffer completion options (like command descriptions and keyboard shortcuts).
 #+BEGIN_SRC emacs-lisp
 (use-package marginalia
-  ;; Either bind `marginalia-cycle` globally or only in the minibuffer
+  :defer t
   :bind (:map minibuffer-local-map
          ("M-A" . marginalia-cycle))
-  :init
-  ;; Must be in the :init section of use-package such that the mode gets
-  ;; enabled right away. Note that this forces loading the package.
-  (marginalia-mode))
+  :commands (marginalia-mode marginalia-cycle)
+  :hook (after-init . marginalia-mode))
 #+END_SRC
+
 *** Consult
 #+BEGIN_SRC emacs-lisp
 (use-package consult
@@ -1154,9 +636,30 @@ Provides nice annotations for minibuffer completion options (like command descri
     "s o" '(consult-outline :which-key "outline")
     "s h" '(consult-org-heading :which-key "org heading")
     "s p" '(consult-ripgrep :which-key "ripgrep project"))
-    ;; "b" 'consult-buffer :which-key "consult buffer")
+  ;; Enable automatic preview at point in the *Completions* buffer.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+  :init
+  ;; Optionally configure the register formatting. This improves the register
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format)
+
+  ;; Optionally tweak the register preview window.
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
   :config
-  (autoload 'projectile-project-root "projectile"))
+  ;; (autoload 'projectile-project-root "projectile"))
+  (consult-customize
+   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   ;; :preview-key "M-."
+   :preview-key '(:debounce 0.4 any))
+  (setq consult-narrow-key "<"))
 #+END_SRC
 
 Quickly select another directory in minibuffer.
@@ -1167,16 +670,16 @@ Quickly select another directory in minibuffer.
          ("C-x C-d" . consult-dir)
          ("C-x C-j" . consult-dir-jump-file)))
 #+END_SRC
+
 *** Embark
 #+BEGIN_SRC emacs-lisp
 (use-package embark
+  :defer t
   :bind
   (("C-." . embark-act)         ;; pick some comfortable binding
    ("C-;" . embark-dwim))        ;; good alternative: M-.
-   ;; ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
 
   :init
-  ;; Optionally replace the key help with a completing-read interface
   (setq prefix-help-command #'embark-prefix-help-command)
 
   :config
@@ -1189,55 +692,62 @@ Quickly select another directory in minibuffer.
 
 (use-package embark-consult
   :after (embark consult)
-  :demand t ; only necessary if you have the hook below
+  ;; :demand t ; only necessary if you have the hook below
   ;; if you want to have consult previews as you move around an
   ;; auto-updating embark collect buffer
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 #+END_SRC
+
 *** Corfu
 #+BEGIN_SRC emacs-lisp
 (use-package corfu
+  :defer t
+  :commands (corfu-mode global-corfu-mode)
+  :hook ((prog-mode . corfu-mode)
+	 (shell-mode . corfu-mode)
+	 (eshell-mode . corfu-mode))
   :custom
   (corfu-cycle t)           ;; Enable cycling for `corfu-next/previous'
   (corfu-preselect 'prompt) ;; Always preselect the prompt
+  ;; Enable corfu in minibuffer if no completion UI is active
+  (global-corfu-minibuffer
+      (lambda ()
+        (not (or (bound-and-true-p mct--active)
+                 (bound-and-true-p vertico--input)
+                 (eq (current-local-map) read-passwd-map)))))
 
   :bind
   (:map corfu-map
 	("SPC" . corfu-insert-separator)
-   ("TAB" . corfu-next)
+	("TAB" . corfu-next)
 	("C-j" . corfu-next)
 	("C-k" . corfu-previous)
-   ([tab] . corfu-next)
-   ("S-TAB" . corfu-previous)
-   ([backtab] . corfu-previous))
+	([tab] . corfu-next)
+	("S-TAB" . corfu-previous)
+	([backtab] . corfu-previous))
   :config
-  (defun corfu-enable-always-in-minibuffer ()
-    "Enable Corfu in the minibuffer if Vertico/Mct are not active."
-    (unless (or (bound-and-true-p mct--active)
-		(bound-and-true-p vertico--input))
-      ;; (setq-local corfu-auto nil) Enable/disable auto completion
-      (corfu-mode 1)))
-  (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
   (evil-make-overriding-map corfu-map)
   (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
   (advice-add 'corfu--teardown :after 'evil-normalize-keymaps)
-  :init
+  :config
   (global-corfu-mode))
 
 (use-package emacs
-  :init
+  :custom
   ;; TAB cycle if there are only few candidates
-  (setq completion-cycle-threshold 3)
-
-  ;; Emacs 28: Hide commands in M-x which do not apply to the current mode.
-  ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
-  (setq read-extended-command-predicate
-        #'command-completion-default-include-p)
+  (completion-cycle-threshold 3)
 
   ;; Enable indentation+completion using the TAB key.
   ;; `completion-at-point' is often bound to M-TAB.
-  (setq tab-always-indent 'complete))
+  (tab-always-indent 'complete)
+
+  ;; Emacs 30 and newer: Disable Ispell completion function.
+  ;; Try `cape-dict' as an alternative.
+  ;; (text-mode-ispell-word-completion nil)
+
+  ;; Hide commands in M-x which do not apply to the current mode.
+  (read-extended-command-predicate #'command-completion-default-include-p))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -1249,141 +759,33 @@ Quickly select another directory in minibuffer.
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 #+END_SRC
-** Latex
-*** auctex
-
-Feature name different from package name; see https://github.com/raxod502/straight.el/issues/516
-
+*** Cape
 #+BEGIN_SRC emacs-lisp
-(use-package tex
-  :straight auctex)
-#+END_SRC
-
-*** cdlatex
-
-[[https://github.com/cdominik/cdlatex][cdlatex]] gives an efficient way to enter $\LaTeX$ symbols. See [[https://karthinks.com/software/latex-input-for-impatient-scholars/][Latex Input for Impatient Scholars]] for a good introduction and configuration tips.
-
-#+BEGIN_SRC emacs-lisp
-(use-package cdlatex
-  :config
-  (add-hook 'org-mode-hook #'turn-on-org-cdlatex)
-  (add-hook 'LaTeX-mode-hook #'turn-on-cdlatex)   ; with AUCTeX LaTeX mode
-  (add-hook 'latex-mode-hook #'turn-on-cdlatex)   ; with Emacs latex mode
-  (dolist (cmd '(("vc" "Insert \\vect{}" "\\vect{?}"
-                  cdlatex-position-cursor nil nil t)
-                 ("sfr" "Insert \\sfrac{}{}" "\\sfrac{?}{}"
-                  cdlatex-position-cursor nil nil t)
-                 ("abs" "Insert \\abs{}" "\\abs{?}"
-                  cdlatex-position-cursor nil nil t)
-                 ("equ*" "Insert equation* env"
-                  "\\begin{equation*}\n?\n\\end{equation*}"
-                  cdlatex-position-cursor nil t nil)
-                 ("sn*" "Insert section* env"
-                  "\\section*{?}"
-                  cdlatex-position-cursor nil t nil)
-                 ("ss*" "Insert subsection* env"
-                  "\\subsection*{?}"
-                  cdlatex-position-cursor nil t nil)
-                 ("sss*" "Insert subsubsection* env"
-                  "\\subsubsection*{?}"
-                  cdlatex-position-cursor nil t nil)))
-    (push cmd cdlatex-command-alist))
+(use-package cape
+  :ensure t
+  :defer t
+  :commands (cape-dabbrev cape-file cape-elisp-block)
+  :bind ("C-c p" . cape-prefix-map)
   :init
-  (setq cdlatex-math-symbol-alist '((?F ("\\Phi"))
-				    (?o ("\\omega" "\\mho" "\\mathcal{O}"))
-				    (?. ("\\cdot" "\\circ"))
-				    (?6 ("\\partial"))
-				    (?v ("\\vee" "\\forall"))
-				    (?^ ("\\uparrow" "\\Updownarrow" "\\updownarrow"))))
-  (setq cdlatex-math-modify-alist '((?b "\\mathbb" "\\textbf" t nil nil)
-				    (?B "\\mathbf" "\\textbf" t nil nil)
-				    (?t "\\text" nil t nil nil))))
+  ;; Add to the global default value of `completion-at-point-functions' which is
+  ;; used by `completion-at-point'.
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block))
 #+END_SRC
-
-*** latex-auto-activating-snippets
-
-https://github.com/tecosaur/LaTeX-auto-activating-snippets
-
-Doesn't have the which-key-like suggestions and doesn't work as well in org-mode, but some of these are more convenient to type.
-
-#+BEGIN_SRC emacs-lisp
-(use-package laas
-  :init
-  (setq laas-accent-snippets nil)
-  :hook
-  (LaTeX-mode . laas-mode)
-  (org-mode . laas-mode)
-  :config ; do whatever here
-  (aas-set-snippets 'laas-mode
-                    ;; set condition!
-                    :cond #'texmathp ; expand only while in math
-                    "supp" "\\supp"
-                    "On" "O(n)"
-                    "O1" "O(1)"
-                    "Olog" "O(\\log n)"
-                    "Olon" "O(n \\log n)"
-                    ;; bind to functions!
-                    "Sum" (lambda () (interactive)
-                            (yas-expand-snippet "\\sum_{$1}^{$2} $0"))
-                    "Span" (lambda () (interactive)
-                             (yas-expand-snippet "\\Span($1)$0"))
-                    ;; add accent snippets
-                    :cond #'laas-object-on-left-condition
-                    ";t" (lambda () (interactive) (laas-wrap-previous-object "text"))
-                    "qq" (lambda () (interactive) (laas-wrap-previous-object "sqrt"))))
-#+END_SRC
-
-** Git
-*** Magit
-  #+BEGIN_SRC emacs-lisp
-(use-package magit
-  :straight (magit :type git :host github :repo "magit/magit")
-  :general
-  (klk/leader-key-def
-    "gs" '(magit-status :which-key "magit status"))
-  )
-  #+END_SRC
-*** Git Gutter
-#+BEGIN_SRC emacs-lisp
-(use-package git-gutter
-  :init (global-git-gutter-mode +1))
-#+END_SRC
-
 ** Terminal
 #+BEGIN_SRC emacs-lisp
 (use-package vterm
+  :defer t
   :commands vterm
   :config
   (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
-  ;;(setq vterm-shell "zsh")                       ;; Set this to customize the shell to launch
-  (setq vterm-max-scrollback 10000))
+  (setq vterm-max-scrollback 10000)
+  ;; Speed up vterm
+  (setq vterm-timer-delay 0.01))
 
 (use-package multi-vterm)
 #+END_SRC
-
-** imenu
-#+BEGIN_SRC emacs-lisp
-(use-package imenu
-  :config
-  (setq org-imenu-depth 3))
-#+END_SRC
-
-** Utilities
-
-*** explain pause mode
-#+BEGIN_SRC emacs-lisp
-(use-package explain-pause-mode
-  :straight (explain-pause-mode :type git :host github :repo "lastquestion/explain-pause-mode")
-  :config
-  (explain-pause-mode))
-#+END_SRC
-
-** local variables
-Don't prompt me about local variables.
-#+BEGIN_SRC emacs-lisp
-(setq enable-local-variables t)
-#+END_SRC
-
 ** treemacs
 #+BEGIN_SRC emacs-lisp
 (use-package treemacs
@@ -1469,7 +871,7 @@ Don't prompt me about local variables.
   :general
   (klk/leader-key-def
     "t" '(:ignore t :which-key "treemacs")
-    "t d" '(treemacs-select-directory :which-key "select directory")
+    ;; "t d" '(treemacs-select-directory :which-key "select directory")
     "t p" '(treemacs-projectile :which-key "add project"))
   :bind
   (:map global-map
@@ -1491,618 +893,107 @@ Don't prompt me about local variables.
 (use-package treemacs-magit
   :after (treemacs magit))
 
-(use-package treemacs-persp
-  :after (treemacs persp-mode)
-  :config (treemacs-set-scope-type 'Perspectives))
-
-;; (use-package treemacs-tab-bar ;;treemacs-tab-bar if you use tab-bar-mode
-;;   :after (treemacs)
-;;   :config (treemacs-set-scope-type 'Tabs))
+(use-package treemacs-tab-bar ;;treemacs-tab-bar if you use tab-bar-mode
+  :after (treemacs)
+  :config (treemacs-set-scope-type 'Tabs))
+#+END_SRC
+** casual
+#+BEGIN_SRC emacs-lisp
+(use-package casual)
+#+END_SRC
+* Projects
+** Projectile
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+  :init
+  (projectile-mode +1)
+  :bind (:map projectile-mode-map
+              ("s-p" . projectile-command-map)
+              ("C-c p" . projectile-command-map))
+  :general
+  (klk/leader-key-def
+    "p" '(:keymap projectile-command-map :which-key "project")
+    "pe" '(projectile-run-eshell :which-key "project eshell")
+    "pn" '(klk/open-org-project-notes-file :which-key "project notes")
+    "py" '(klk/yank-project-root :which-key "yank root"))
+    :config
+  (setq projectile-project-search-path '(("~/Dropbox/org/" . 3) ("~/" . 2) ("~/Dropbox/projects/" . 3)))
+)
 #+END_SRC
 
-** elfeed
 #+BEGIN_SRC emacs-lisp
-(use-package elfeed
+(use-package consult-projectile
+  :straight (consult-projectile :type git :host gitlab :repo "OlMon/consult-projectile" :branch "master")
+  :general
+  (klk/leader-key-def
+    "pb" '(consult-projectile-switch-to-buffer :which-key "project buffer")
+    "pf" '(consult-projectile-find-file :which-key "project file")))
+#+END_SRC
+* Notes
+** org-journal
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-journal
+  :general
+  (klk/leader-key-def
+    "j" '(:ignore t :wk "journal")
+    "j j" '(org-journal-new-entry :wk "new entry")
+    "j o" '(org-journal-open-current-journal-file :wk "open file")
+    "j d" '(org-journal-new-date-entry :wk "new entry at date")
+    "j s" '(org-journal-search :wk "search")
+    "j S" '(org-journal-search-forever :wk "search all"))
+  (klk/leader-key-def
+    :keymaps 'org-journal-mode-map
+    "," 'org-journal-previous-entry
+    "." 'org-journal-next-entry)
   :config
-  (setq elfeed-feeds
-	'(("https://planet.emacslife.com/atom.xml" emacs)
-	  ("https://forum.effectivealtruism.org/feed.xml?view=frontpage-rss&karmaThreshold=30" EA) ; EA Forum Top Posts
-	  ("https://www.astralcodexten.com/feed" ACX)
-	  ("http://sciencemag.org/rss/current.xml" paper) ; Science
-	  ("http://nature.com/neuro/rss/current.xml" paper) ; Nature Neuroscience
-	  ("http://nature.com/nbt/rss/current.xml" paper) ; Nature Biotechnology
-	  ;; "https://rss.sciencedirect.com/publication/science/1369703X" ; Biochemical Engineering Journal
-	  ))
-  (defface EA-elfeed-entry
-    '((t :background "#02ccbf"))
-    "Marks an EA Elfeed entry.")
-
-  (push '(EA EA-elfeed-entry)
-	elfeed-search-face-alist)
-
-  (defface ACX-elfeed-entry
-    '((t :background "#b0c7ef"))
-    "Marks an ACX Elfeed entry.")
-
-  (push '(ACX ACX-elfeed-entry)
-	elfeed-search-face-alist)
-
-  (defface emacs-elfeed-entry
-    '((t :background "#CEB0F0"))
-    "Marks an Emacs Elfeed entry.")
-
-  (push '(emacs emacs-elfeed-entry)
-	elfeed-search-face-alist)
-  )
-#+END_SRC
-
-Scoring
-#+BEGIN_SRC emacs-lisp
-(use-package elfeed-score
-  :after elfeed
-  ;; :custom
-  ;; (elfeed-score-score-file "~/.emacs.d.default/elfeed.score")
-  :config
-  (elfeed-score-enable)
-  (define-key elfeed-search-mode-map "=" elfeed-score-map))
-;; (setq elfeed-search-print-entry-function #'elfeed-score-print-entry)
-
-(defun concatenate-authors (authors-list)
-    "Given AUTHORS-LIST, list of plists; return string of all authors concatenated."
-    (if (> (length authors-list) 1)
-        (format "%s et al." (plist-get (nth 0 authors-list) :name))
-      (plist-get (nth 0 authors-list) :name)))
-
-(defun my-search-print-fn (entry)
-    "Print ENTRY to the buffer."
-    (let* ((date (elfeed-search-format-date (elfeed-entry-date entry)))
-        (title (or (elfeed-meta entry :title)
-                    (elfeed-entry-title entry) ""))
-        (title-faces (elfeed-search--faces (elfeed-entry-tags entry)))
-	(feed (elfeed-entry-feed entry))
-	(feed-title
-	 (when feed
-	   (or (elfeed-meta feed :title) (elfeed-feed-title feed))))
-	(tags (mapcar #'symbol-name (elfeed-entry-tags entry)))
-	(tags-str (mapconcat
-		   (lambda (s) (propertize s 'face 'elfeed-search-tag-face))
-		   tags ","))
-        (entry-authors (concatenate-authors
-                        (elfeed-meta entry :authors)))
-        (title-width (- (window-width) 10
-                        elfeed-search-trailing-width))
-        (title-column (elfeed-format-column
-                        title 100
-                        :left))
-        (entry-score (elfeed-format-column (number-to-string (elfeed-score-scoring-get-score-from-entry entry)) 10 :left))
-        (authors-column (elfeed-format-column entry-authors 40 :left)))
-    (insert (propertize date 'face 'elfeed-search-date-face) " ")
-
-    (insert entry-score "")
-    (insert (propertize title-column
-                        'face title-faces 'kbd-help title) " ")
-    (when feed-title
-      (insert (propertize feed-title 'face 'elfeed-search-feed-face) " "))
-    (when tags
-      (insert "(" tags-str ")"))
-    (insert (propertize authors-column
-                        'kbd-help entry-authors) " ")
-    ))
-
-(setq elfeed-search-print-entry-function #'my-search-print-fn)
-(setq elfeed-search-date-format '("%y-%m-%d" 10 :left))
-(setq elfeed-score-score-format '("%d-" 2 :right))
-(setq elfeed-search-title-max-width 110)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(use-package elfeed
-  :config
-  (defun timu-elfeed-load-db-and-open ()
-    "Wrapper to load the `elfeed' db from disk before opening. `elfeed' will be opened in a new tab with `tab-bar-new-tab'."
-    (interactive)
-    (tab-bar-new-tab)
-    (elfeed-db-load)
-    (elfeed)
-    (elfeed-update))
-  (defun timu-elfeed-search-other-window ()
-    "Browse `elfeed' entry in the other window.
-Credit: https://protesilaos.com/dotemacs"
-    (interactive)
-    (let* ((entry (if (eq major-mode 'elfeed-show-mode)
-                      elfeed-show-entry
-                    (elfeed-search-selected :ignore-region)))
-           (link (elfeed-entry-link entry))
-           (win (selected-window)))
-      (with-current-buffer (get-buffer "*elfeed-search*")
-	(unless (one-window-p)              ; experimental
-          (delete-other-windows win))
-	(split-window-right)
-	(other-window 1)
-	(evil-window-increase-width 10)
-	(elfeed-search-show-entry entry))))
-  (defun timu-elfeed-kill-buffer-and-window ()
-    "Do-what-I-mean way to handle `elfeed' windows and buffers.
-When in an entry buffer, kill the buffer and return to the Search view.
-If the entry is in its own window, delete it as well.
- When in the search view, close all other windows, else kill the buffer."
-    (interactive)
-    (let ((win (selected-window)))
-      (cond ((eq major-mode 'elfeed-show-mode)
-             (elfeed-kill-buffer)
-             (unless (one-window-p) (delete-window win))
-             (switch-to-buffer "*elfeed-search*"))
-            ((eq major-mode 'elfeed-search-mode)
-             (if (one-window-p)
-		 (progn
-		   (message "closing")
-                   (elfeed-search-quit-window)
-                   (kill-buffer "*elfeed-search*")
-                   (kill-buffer "*elfeed-log*")
-                   ;; (kill-buffer "elfeed-list.org")
-                   (tab-bar-close-tab))
-               (delete-other-windows win))))))
-  (defun timu-elfeed-filter-include-tag ()
-    "Use `completing-read' to select tags to include `+'.
-The function reads the tags from the `elfeed' db."
-    (interactive)
-    (let ((filtered-tag (completing-read "Select Tags: " (elfeed-db-get-all-tags))))
-      (progn
-	(setq elfeed-search-filter (concat elfeed-search-filter " +" filtered-tag))
-	(elfeed-search-update--force))))
-
-
-  (defun timu-elfeed-filter-exclude-tag ()
-    "Use `completing-read' to select tags to exclude `-'.
-The function reads the tags from the `elfeed' db."
-    (interactive)
-    (let ((filtered-tag (completing-read "Select Tags: " (elfeed-db-get-all-tags))))
-      (progn
-	(setq elfeed-search-filter (concat elfeed-search-filter " -" filtered-tag))
-	(elfeed-search-update--force))))
-
-  :bind
-  (:map elfeed-search-mode-map
-        ("q" . timu-elfeed-kill-buffer-and-window)
-        ("y" . timu-elfeed-filter-include-tag))
-  ;; :bind
-  ;; (:map elfeed-show-mode-map
-  ;;       ("q" . timu-elfeed-kill-buffer-and-window))
-  ;; (bind-keys :map elfeed-show-mode-map
-  ;;            ("q" . timu-elfeed-kill-buffer-and-window)
-  ;;            ("f" . timu-elfeed-filter-include-tag)
-  ;;            ("F" . timu-elfeed-filter-exclude-tag))
-  ;; (bind-keys :map elfeed-search-mode-map
-  ;;            ("q" . timu-elfeed-kill-buffer-and-window))
-  )
-
-
-#+END_SRC
-
-** dired
-*** dired tweaks
-#+BEGIN_SRC emacs-lisp
-(setq dired-vc-rename-file t)
-#+END_SRC
-*** dired-preview
-Preview files in dired in a side window.
-
-#+BEGIN_SRC emacs-lisp
-(use-package dired-preview
+  (defun my-org-download-set-dir ()
+    (setq-local org-download-image-dir
+		(concat (file-name-directory (buffer-file-name)) "/images/" (file-name-base buffer-file-name) "/") ))
   :custom
-  (dired-preview-ignored-extensions-regexp
-      (concat "\\."
-              "\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a"
-              "\\|gz\\|zst\\|tar\\|xz\\|rar\\|zip"
-              "\\|iso\\|epub\\)"))
-  (dired-preview-delay 0.2)
-  :config
-  (dired-preview-global-mode 1))
-#+END_SRC
-*** casual-dired
-#+BEGIN_SRC emacs-lisp
-(use-package casual-dired
-  :general
-  (klk/leader-key-def
-    "Do" '(casual-dired-tmenu :which-key "casual dired menu"))
-  :config
-  (general-define-key
-   :states '(normal)
-   :keymaps 'dired-mode-map
-   "s" '(casual-dired-sort-by-tmenu :which-key "sort")
-   )
-  )
-#+END_SRC
-* Org-mode
-** Basics
-
-Save all org buffers periodically to reduce conflicts between desktop and orgzly on mobile.
-#+BEGIN_SRC emacs-lisp
-(run-with-idle-timer 60 t 'org-save-all-org-buffers)
+  ;; Don't carry over
+  (org-journal-file-type 'yearly)
+  (org-journal-carryover-items "")
+  (org-journal-dir "~/Dropbox/org/journal/")
+  (org-journal-file-format "%Y.org")
+  (org-journal-date-format "%A, %Y-%m-%d"))
 #+END_SRC
 
+** org-roam
+*** org-roam utilities
+Insert a point a list of links to all backlinks to the current node if they are not already linked to.
 #+BEGIN_SRC emacs-lisp
-(setq org-return-follows-link t)
-#+END_SRC
-
-Don't show blank lines between headings in folded view.
-#+BEGIN_SRC emacs-lisp
-(setq org-cycle-separator-lines 0)
-#+END_SRC
-
-Unbind this from cycling through the agenda so I can use it with =expand-region=.
-#+BEGIN_SRC emacs-lisp
-(define-key org-mode-map (kbd "C-'") nil)
-#+END_SRC
-
-Most of this is from [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][this]] guide:
-
-Set the org directory and method for getting the full path to an org file from its name.
-#+BEGIN_SRC emacs-lisp
-(setq org-directory "~/Dropbox/org/gtd")
-
-(defun org-file-path (filename)
-  "Return the absolute address of an org file, given its relative name."
-  (concat (file-name-as-directory org-directory) filename))
-#+END_SRC
-
-Increase list indentation
-#+BEGIN_SRC emacs-lisp
-(setq org-list-indent-offset 2)
-#+END_SRC
-
-Set a sequence for list bullet symbols.
-#+BEGIN_SRC emacs-lisp
-(setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+")))
-#+END_SRC
-
-Copied from https://mstempl.netlify.app/post/beautify-org-mode/. Replace list dash / plus with bullet symbols.
-#+BEGIN_SRC emacs-lisp
-(font-lock-add-keywords 'org-mode
-                        '(("^ *\\([-]\\) "
-                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-(font-lock-add-keywords 'org-mode
-                        '(("^ *\\([+]\\) "
-                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "◦"))))))
-#+END_SRC
-
-Stop org files from being opened in new windows.
-#+BEGIN_SRC emacs-lisp
-(setq org-link-frame-setup '((file . find-file-other-window) (denote . find-file-other-window)))
-#+END_SRC
-
-** Folding
-
-Org mode 9.6 switched to a different folding backend, and drawers are no longer folded after cycling folding in a file. This is supposed to do what I want, which is to set drawers folded by default, but it doesn't seem to be working.
-
-#+BEGIN_SRC emacs-lisp
-(setq org-hide-drawer-startup t)
-#+END_SRC
-
- This restores the old behavior, although they warn there may be performance issues with large files.
-
-#+BEGIN_SRC emacs-lisp
-;; (add-hook 'org-cycle-hook #'org-cycle-hide-drawers)
-#+END_SRC
-
-Alternatively, set org files to be headings-only on startup. This will start with drawers folded.
-
-#+BEGIN_SRC emacs-lisp
-;; (setq org-startup-folded 'content)
-#+END_SRC
-
-** Navigation
-#+BEGIN_SRC emacs-lisp
-(defun klk/goto-last-heading ()
-  "Interactively jump to end of current subtree"
+(defun klk/insert-missing-backlinks ()
   (interactive)
-  (org-end-of-subtree))
-
-(use-package org
-  :general
-  (:keymaps 'org-mode-map
-	    "M-n" 'org-next-visible-heading
-	    "M-p" 'org-previous-visible-heading
-	    "M-h" 'outline-up-heading
-	    "M-l" 'org-next-visible-heading
-	    "M-j" 'org-forward-heading-same-level
-	    "M-k" 'org-backward-heading-same-level
-	    "M-K" 'org-move-subtree-up
-	    "M-J" 'org-move-subtree-down
-	    "M-H" 'org-promote-subtree
-	    "M-L" 'org-demote-subtree
-	    "C-j" 'org-next-link
-	    "C-k" 'org-previous-link
-	    )
-  (klk/leader-key-def
-    :keymaps 'org-mode-map
-    "ns" 'org-narrow-to-subtree :wk "narrow"
-    "nw" 'widen :wk "widen"
-    "it" 'org-toggle-inline-images :wk "toggle images"
-    "gl" '(klk/goto-last-heading :wk "last heading")))
+  (let ((backlinks
+	 (flatten-tree
+	  (org-roam-db-query [:select source :from links :where (= dest $s1)]
+			    (org-roam-id-at-point))))
+	(links
+	 (flatten-tree
+	  (org-roam-db-query [:select dest :from links :where (= source $s1)]
+			    (org-roam-id-at-point)))))
+    (seq-doseq (id backlinks)
+      (let* ((backlink-node (org-roam-node-from-id id))
+	     (title (org-roam-node-title backlink-node))
+	     (link (if (md-roam--markdown-file-p (buffer-file-name (buffer-base-buffer)))
+		       (md-roam--wiki-link-create id title title)
+		     (org-link-make-string (concat "id:" id) title))))
+	(if (not (member id links))
+	    (insert (concat "- " link "\n")))))))
 #+END_SRC
 
-** org-ql
+Turning headings into nodes: add an id as well as a CREATED property with the current timestamp.
 #+BEGIN_SRC emacs-lisp
-(use-package org-ql
-  :straight (org-ql :type git :host github :repo "alphapapa/org-ql"
-            :files (:defaults (:exclude "helm-org-ql.el")))
-  :general
-  (klk/leader-key-def
-    "oqv" '(org-ql-view :which-key "open saved org-ql view")
-    "oqs" '(org-ql-search :which-key "org-ql search")
-    "oqr" '(klk/view-refs-by-tag :which-key "view related papers"))
-  )
-#+END_SRC
-
-Wrap =org-ql-view--format-element= to display reference notes matching a tag along with their summary field. Adapted from https://www.reddit.com/r/emacs/comments/uivx1f/comment/i7gv85g/
-
-I use a top-level heading in each reference file with the paper name, and apply any project tags to that heading. That way I can use =org-ql= to list matching papers, even thought it doesn't currently support file-level properties.
-
-#+BEGIN_SRC emacs-lisp
-(defun klk/org-ql-view-reference (orig-fun &rest args)
-  "This function will intercept the original function and
-   add the summary to the result as a new line.
-
-   ARGS is `element' in `org-ql-view--format-element'"
-  (if (not args)
-      ""
-    (let* ((element args)
-           (properties (cadar element))
-           (result (apply orig-fun element))
-           (summary (plist-get properties :SUMMARY)))
-      (concat result "\n\n" summary)
-      )))
-
-(defun klk/view-refs-by-tag ()
+(defun klk/org-roam-node-from-heading ()
   (interactive)
-  (require 'org-ql)
-  (advice-add 'org-ql-view--format-element :around #'klk/org-ql-view-reference)
-  (let ((tag (completing-read "Choose tag:" (org-get-buffer-tags))))
-  (org-ql-search
-    (directory-files-recursively (org-roam-path "references") "\\.org$")
-    `(tags-local ,tag)
-    :sort nil
-    :super-groups '((:auto-category t))))
-  (advice-remove #'klk/org-ql-view-reference 'org-ql-view--format-element))
+  (save-excursion
+    (org-back-to-heading)
+    (org-id-get-create)
+    (org-set-property "CREATED" (format-time-string "[%Y-%m-%d %T]"))))
 #+END_SRC
 
-*** COMMENT Other queries
-This doesn't need to be executed, as I've saved them as views
-#+BEGIN_SRC emacs-lisp
-(org-ql-search org-books-file
-  '()
-  :title "Books"
-  :super-groups '((:name "In Progress" :todo "READING")
-                  (:name "To-Read" :todo ("TO-READ"))
-                  (:name "Read" :todo ("READ"))
-		  (:discard (:anything t))))
-#+END_SRC
-** Sidebar
-The tree sidebar provides an outline on the left that you can use to jump around the file. The regular sidebar on the right shows TODO items in the file.
-#+BEGIN_SRC emacs-lisp
-(use-package org-sidebar
-  :straight (org-sidebar :type git :host github :repo "alphapapa/org-sidebar")
-  :bind (("<f5>" . org-sidebar-tree-toggle)
-	 ("<f6>" . org-sidebar-toggle))
-  )
-#+END_SRC
-** Bullets
-#+BEGIN_SRC emacs-lisp
-(use-package org-bullets
-  :hook
-  ('org-mode . (lambda () (org-bullets-mode 1))))
-#+END_SRC
-** Indentation
-Indent org files by default
-#+BEGIN_SRC emacs-lisp
-(setq org-startup-indented t)
-#+END_SRC
-
-This draws vertical lines under heading bullets. Add a function here to reset the pipe faces when loading a theme, since otherwise they won't change and it will look bad.
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package org-visual-indent
-  ;;   :straight (org-visual-outline :type git :host github :repo "legalnonsense/org-visual-outline")
-  ;;   :hook
-  ;;   (org-mode . org-visual-indent-mode)
-  ;;   ;; (org-mode . org-dynamic-bullets-mode)
-  ;;   :config
-  ;;   (defun klk/refresh-pipe-colors (&rest args)
-  ;;     (set-face-background 'org-visual-indent-blank-pipe-face (face-attribute 'default :background))
-  ;;     (set-face-background 'org-visual-indent-pipe-face (face-attribute 'default :foreground)))
-
-  ;;   (advice-add 'load-theme :after 'klk/refresh-pipe-colors))
-#+END_SRC
-
-Don't hide stars since this gets rid of bullets as well, and I have leading stars hidden anyway.
-#+BEGIN_SRC emacs-lisp
-(setq org-indent-mode-turns-on-hiding-stars nil)
-#+END_SRC
-
-** Export
-Enable using :ignore: in a heading to leave off the heading (but not content) of a section in export.
-#+BEGIN_SRC emacs-lisp
-(use-package org
-  :ensure org-plus-contrib
-  :config
-  (require 'ox-extra)
-  (ox-extras-activate '(ignore-headlines)))
-#+END_SRC
-
-Allow overriding variable values in buffer for export (using =#+BIND: variable value=)
-#+BEGIN_SRC emacs-lisp
-(setq org-export-allow-bind-keywords t)
-#+END_SRC
-
-*** COMMENT minted
-Allow formatting code blocks using minted in $\LaTeX$ export. From [[https://stackoverflow.com/questions/46438516/how-to-encapsualte-code-blocks-into-a-frame-when-exporting-to-pdf/60396939#60396939][Stack Overflow]].
-#+BEGIN_SRC emacs-lisp
-(setq org-latex-listings 'minted
-      org-latex-packages-alist '(("" "minted")))
-#+END_SRC
-
-*** Elsevier
-Add support for Elsevier article format. From https://write.as/dani/writing-a-phd-thesis-with-org-mode.
-#+BEGIN_SRC emacs-lisp
-(with-eval-after-load 'ox-latex
-  (add-to-list 'org-latex-classes
-		   '("elsarticle"
-		     "\\documentclass{elsarticle}
-   [NO-DEFAULT-PACKAGES]
-   [PACKAGES]
-   [EXTRA]"
-		     ("\\section{%s}" . "\\section*{%s}")
-		     ("\\subsection{%s}" . "\\subsection*{%s}")
-		     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-		     ("\\paragraph{%s}" . "\\paragraph*{%s}")
-		     ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
-#+END_SRC
-
-*** labels
-Allow using user-defined labels when exporting (necessary, e.g., for org-ref to reference figures by their =#+name= (see [[https://emacs.stackexchange.com/questions/38457/name-is-ignored-unless-running-emacs-with-q][this stackexchange post]])
-#+BEGIN_SRC emacs-lisp
-(setq org-latex-prefer-user-labels t)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(use-package ox-pandoc)
-#+END_SRC
-
-
-** Refiling
-Set targets for refiling. Use =C-c C-w= to refile. This determines what options you're prompted with. Includes everything in all the agenda files, plus the someday file and various list files.
-
-#+BEGIN_SRC emacs-lisp
-(defun klk/refile-in-same-file ()
-  "Refile under a heading in the current file."
-  (interactive)
-  (let ((org-refile-targets '((nil :maxlevel . 9))))
-    (org-refile)))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(setq org-refile-targets '((nil :maxlevel . 9) ;; refile in current file
-			   (org-agenda-files :maxlevel . 3)
-                           ("someday.org" :level . 1)
-			   ("l-media.org" :maxlevel . 2)
-			   ("l-ideas.org" :maxlevel . 2)))
-#+END_SRC
-
-Include the file name in the outline path to allow refiling as a top-level heading.
-#+BEGIN_SRC emacs-lisp
-(setq org-refile-use-outline-path 'file)
-(setq org-outline-path-complete-in-steps nil)
-#+END_SRC
-
-Create ids for links so they will work even if you move them across files.
-#+BEGIN_SRC emacs-lisp
-(setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id
-      org-clone-delete-id t)
-#+END_SRC
-
-** Key bindings
-#+BEGIN_SRC emacs-lisp
-(global-set-key "\C-cl" 'org-store-link)
-(global-set-key "\C-ca" 'org-agenda)
-(global-set-key "\C-cc" 'org-capture)
-(global-set-key "\C-cC" 'klk/open-calendar)
-#+END_SRC
-
-** Images
-Make files start with inline images loaded, and add a hook to display them after executing a code block to display resulting graphs.
-#+BEGIN_SRC emacs-lisp
-(setq org-startup-with-inline-images t)
-(add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
-#+END_SRC
-
-Set this to =nil= to allow customizing image preview size with something like:
-=#ATTR_ORG: :width 200=
-#+BEGIN_SRC emacs-lisp
-(setq org-image-actual-width nil)
-#+END_SRC
-
-*** LaTeX rendering with math-preview
-
-Taken from [[https://daryl.wakatara.com/emacs-gtd-flow-evolved/#science-stuff][this nice config]].
-
-[[https://gitlab.com/matsievskiysv/math-preview][math-preview]] uses MathJax to display LaTeX. It has an external dependency, but it makes rendering much faster.
-
-#+BEGIN_SRC emacs-lisp
-(use-package math-preview
-  :general
-  (klk/leader-key-def
-    "m p" '(math-preview-all :which-key "latex preview"))
-	:custom
-    (math-preview-scale 1.25)
-    (math-preview-tex-marks-inline
-			'(("$" "$")))
-    (math-preview-tex-marks
-	 '(("\\begin{equation}" "\\end{equation}")
-		 ("\\begin{equation*}" "\\end{equation*}")
-		 ("\\begin{align}" "\\end{align}")
-		 ("\\begin{align*}" "\\end{align*}")
-		 ("$$" "$$")
-		 ))
-    ;; Remove labels to avoid error when re-evaluating
-    ;; This is supposed to be a list of functions, but it doesn't
-    ;; seem to work if there's more than one. But the default value
-    ;; doesn't seem important.
-    (math-preview-tex-preprocess-functions '((lambda (x)
-					       (puthash 'string
-							(s-replace-regexp "\\label{.+}" ""
-									  (gethash 'string x))
-							x)))))
-(add-hook 'markdown-mode-hook #'math-preview-all)
-(defalias #'org-latex-preview #'math-preview-at-point)
-(defalias #'org-clear-latex-preview #'math-preview-clear-region)
-#+END_SRC
-
-*** org-fragtog
-
-Automatically disable LaTeX images when the cursor is on them, and re-enable after leaving.
-
-#+BEGIN_SRC emacs-lisp
-(use-package org-fragtog
-  :config
-  (add-hook 'org-mode-hook 'org-fragtog-mode))
-#+END_SRC
-
-
-*** org-download
-Note: need =xclip= installed for =org-download-clipboard=.
-
-I have some modifications to make screenshot pasting work in markdown files as well.
-#+BEGIN_SRC emacs-lisp
-(use-package org-download
-  :config
-  (defun klk/org-download-clipboard-md ()
-    "like org-download-clipboard, but with markdown link format and no annotation"
-    (interactive)
-    (let ((org-download-link-format "![screenshot](%s)\n")
-	  (org-download-annotate-function '(lambda (link) "")))
-      (org-download-clipboard))
-    (markdown-display-inline-images))
-
-  ; force the code to run in markdown mode as well as org mode
-  (advice-add 'org-download-org-mode-p :override
-              (lambda () (or (eq major-mode 'org-mode) (when (derived-mode-p 'org-mode) t) (eq major-mode 'markdown-mode))))
-  :general
-  (klk/leader-key-def
-    :keymaps 'org-mode-map
-    "d" '(:ignore t :which-key "org-download")
-    "d s" '(org-download-screenshot :which-key "screenshot")
-    "d c" '(org-download-clipboard :which-key "clipboard"))
-  (klk/leader-key-def
-    :keymaps 'markdown-mode-map
-    "d" '(:ignore t :which-key "org-download")
-    "d c" '(klk/org-download-clipboard-md :which-key "clipboard"))
-  :custom
-  (org-download-heading-lvl nil)
-  (org-download-screenshot-method "spectacle -br -o %s")
-  (org-download-image-dir "Technical/images"))
-#+END_SRC
-
-** Roam
+*** setup
 #+BEGIN_SRC emacs-lisp
 (defvar org-roam-dir "~/Dropbox/org/roam")
 (defvar org-roam-image-dir "~/Dropbox/org/roam/images/")
@@ -2114,14 +1005,14 @@ I have some modifications to make screenshot pasting work in markdown files as w
 (use-package org-roam
   :straight (org-roam :type git :flavor melpa :host github :repo "org-roam/org-roam")
   :demand t ; force this to be loaded
+  :after markdown-mode ; to work with md-roam
   :custom
   (org-roam-directory org-roam-dir)
   (org-roam-file-extensions '("org" "md"))
   :config
-  (add-to-list  'load-path "~/md-roam")
+  (add-to-list  'load-path "~/github/md-roam")
   (require 'md-roam)
   (md-roam-mode 1)
-  (setq md-roam-node-insert-type 'id)
   (setq org-roam-file-exclude-regexp
 	(concat "^" (expand-file-name org-roam-directory) "/.obsidian/"))
   (org-roam-db-autosync-mode)
@@ -2132,7 +1023,13 @@ I have some modifications to make screenshot pasting work in markdown files as w
 		 (display-buffer-in-direction)
 		 (direction . right)
 		 (window-width . 0.33)
-		 (window-height . fit-window-to-buffer)))
+		 (window-height . fit-window-to-buffer))))
+#+END_SRC
+
+*** org-roam capture templates
+#+BEGIN_SRC emacs-lisp
+(use-package org-roam
+  :config
   (setq org-roam-capture-templates
         '(("d" "default" plain
            "%?"
@@ -2140,69 +1037,90 @@ I have some modifications to make screenshot pasting work in markdown files as w
 		    "%<%Y%m%dT%H%M%S>--${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
+        ("p" "project" plain
+           "%?"
+           :if-new (file+head
+		    "projects/%<%Y%m%dT%H%M%S>--${slug}.org"
+		    "#+title: ${title}\n#+date: %U\n* Purpose\n")
+           :unnarrowed t)
+        ("P" "person" plain
+           "%?"
+           :if-new (file+head
+		    "administrative/people/${slug}.org"
+		    "#+title: ${title}\n#+date: %U\n")
+           :unnarrowed t)
+        ("M" "meeting" plain
+           "* %<%Y-%m-%d> ${title} :meeting:\n\n** Participants\n%?\n** Agenda\n\n** Notes\n\n** Action Items\n"
+           :if-new (file+head
+		    "administrative/meetings/lab-meetings.org"
+		    "#+title: Lab meetings")
+           :unnarrowed t)
         ("s" "source" plain
            "%?"
            :if-new (file+head
-		    "zettel/source/@${citar-citekey}.org"
-		    "#+title: ${title}\n#+date: %U\n#+author: ${citar-author}\n#+year: ${citar-date}
-,#+setupfile: ../../Tools/templates/zettellatexsetupfile.org
-,#+include: ../../Tools/templates/title.org\n
-,[cite/n:@${citar-citekey}]\n
-,*topics*:: \n
-,*summary*:: \n
+		    "zettel/source/@${citar-citekey}.md"
+		    "---
+title: ${title}
+date: %U
+author: ${citar-author}
+id: %<%Y-%m-%dT%H%M%S>
+year: ${citar-date}
+roam_refs: ${citar-citekey}
+---
 
-,* Reference :ignore:
-,#+PRINT_BIBLIOGRAPHY:
+- **source**:: [@${citar-citekey}]
+- **topics**::
+
+,**summary**::
+
 ")
            :unnarrowed t)
         ("m" "main" plain
            "%?"
            :if-new (file+head
-		    "zettel/main/%<%Y%m%dT%H%M%S>--${slug}.org"
-		    "#+title: ${title}\n#+date: %U
-,#+setupfile: ../../Tools/templates/zettellatexsetupfile.org
-,#+include: ../../Tools/templates/title.org\n
-,*topics*:: \n
+		    "zettel/main/%<%Y%m%dT%H%M%S>--${slug}.md"
+		    "---
+title: ${title}
+date: %U
+id: %<%Y-%m-%dT%H%M%S>
+---
 
-,* Reference :ignore:
-,#+PRINT_BIBLIOGRAPHY:
 ")
            :unnarrowed t)
 	  ("t" "technical" plain
            "%?"
            :if-new (file+head
-		    "Resources/technical/%<%Y%m%dT%H%M%S>--${slug}.org"
+		    "resources/technical/%<%Y%m%dT%H%M%S>--${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
-	  ;; ("s" "source" plain ;; non-academic references
-          ;;  "Source: %?"
-          ;;  :if-new (file+head
-	  ;; 	    "Resources/sources/${title}.org"
-	  ;; 	      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n")
-          ;;  :unnarrowed t)
 	  ("o" "org-file" plain
            "%?"
            :if-new (file+head
 		    "${slug}.org"
-		    "#+title: ${title}\n#+date: %U\n#+SETUPFILE: ~/Dropbox/org/roam/Resources/latexsetupfile.org\n\n* References :ignore:\n#+PRINT_BIBLIOGRAPHY:")
+		    "#+title: ${title}\n#+date: %U\n#+SETUPFILE: ~/Dropbox/org/roam/resources/latexsetupfile.org\n\n* References :ignore:\n#+PRINT_BIBLIOGRAPHY:")
            :unnarrowed t)
 	  ("h" "howto" plain
 	   "%?"
            :if-new (file+head
-		    "Resources/Howto/%<%Y%m%dT%H%M%S>--${slug}.org"
+		    "resources/howto/%<%Y%m%dT%H%M%S>--${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
-	  ("p" "research zettel" plain "" :target
-           (file+head "zettelResearch/${title}.md"
-		      "---\ntitle: ${title}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n")
-	   :unnarrowed t)
 	  ("r" "bibliography reference" plain
            "%?"
            :target
            (file+head
-            "Resources/references/@${citar-citekey}.md"
-            "---\ntitle: \"${citar-title}\"\nauthor: ${citar-author}\nyear: ${citar-date}\nroam_refs: ${citar-citekey}\nid: %<%Y-%m-%dT%H%M%S>\ncreated: %U\n---\n\n- **tags**:: \n\n# ${citar-title} (${citar-date})\n${citar-author}\n\n[@${citar-citekey}]\n[Link to PDF (Obsidian)](<file:///home/kira/Dropbox/Zotero/${citar-file}>)\n\n**Summary**:: \n\n# Notes\n\n# Metadata\n **Status**:: To Read\n")
+            "resources/references/@${citar-citekey}.org"
+            "#+title: ${note-title} (${citar-citekey})
+,#+author: ${citar-author}
+,#+year: ${citar-date}
+,#+created: %U
+
+[@${citar-citekey}]
+,* Summary
+
+,* Notes\n")
            :unnarrowed t)))
+
   (setq org-roam-dailies-directory "dailies/")
   (setq org-roam-dailies-capture-templates
 	(quote (("d" "daily" plain
@@ -2213,6 +1131,7 @@ I have some modifications to make screenshot pasting work in markdown files as w
 		 :unnarrowed t)))))
   #+END_SRC
 
+*** slugs
 Change org-roam's slugs to use dashes instead of underscores in filename, like in Denote. Copied from [[https://www.reddit.com/r/emacs/comments/omxl6n/config_for_orgroam_v2/][this post]].
   #+BEGIN_SRC emacs-lisp
 (use-package org-roam
@@ -2259,102 +1178,7 @@ Change org-roam's slugs to use dashes instead of underscores in filename, like i
           (downcase slug))))))
 #+END_SRC
 
-Turning headings into nodes: add an id as well as a CREATED property with the current timestamp.
-#+BEGIN_SRC emacs-lisp
-(defun klk/org-roam-node-from-heading ()
-  (interactive)
-  (save-excursion
-    (org-back-to-heading)
-    (org-id-get-create)
-    (org-set-property "CREATED" (format-time-string "[%Y-%m-%d %T]"))))
-#+END_SRC
-
-Handy config from https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/ to add roam files with the Project tag to the agenda list, so I can track TODOs within a project. I could switch to just adding everything in the new projects directory, but I like being able to exclude old projects from the agenda list by just removing the tag.
-  #+BEGIN_SRC emacs-lisp :lexical t
-;; Add existing projects to agenda list on startup:
-(defun my/org-roam-filter-by-tag (tag-name)
-  (lambda (node)
-    (member tag-name (org-roam-node-tags node))))
-
-(defun my/org-roam-list-notes-by-tag (tag-name)
-  (cl-remove-duplicates
-   (mapcar #'org-roam-node-file
-	   (seq-filter
-	    (my/org-roam-filter-by-tag tag-name)
-	    (org-roam-node-list)))
-   :test 'string=))
-
-(defun my/org-roam-refresh-agenda-list ()
-  (interactive)
-  (setq org-agenda-files (append org-agenda-files (my/org-roam-list-notes-by-tag "project"))))
-
-;; Build the agenda list the first time for the session
-(my/org-roam-refresh-agenda-list)
-
-;; And add new projects to agenda list after capture.
-(defun my/org-roam-project-finalize-hook ()
-  "Adds the captured project file to `org-agenda-files' if the
-capture was not aborted."
-  ;; Remove the hook since it was added temporarily
-  (remove-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
-
-  ;; Add project file to the agenda list if the capture was confirmed
-  (unless org-note-abort
-    (with-current-buffer (org-capture-get :buffer)
-      (add-to-list 'org-agenda-files (buffer-file-name)))))
-
-(defun my/org-roam-find-project ()
-  (interactive)
-  ;; Add the project file to the agenda after capture is finished
-  (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
-
-  ;; Select a project file to open, creating it if necessary
-  (org-roam-node-find
-   nil
-   nil
-   (my/org-roam-filter-by-tag "project")
-   nil
-   :templates
-   '(("p" "project" plain "* Goals\n\n%?\n\n* Tasks\n\n"
-      :if-new (file+head
-	       "Projects/${title}.org"
-	       "#+title: ${title}\n#+created: %U\n#+category: ${title}\n#+filetags: :project:")
-      :unnarrowed t))))
-
-(defun my/org-roam-find-research-project ()
-  (interactive)
-  ;; Add the project file to the agenda after capture is finished
-  (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
-
-  ;; Select a project file to open, creating it if necessary
-  (org-roam-node-find
-   nil
-   nil
-   (my/org-roam-filter-by-tag "project")
-   nil
-   :templates
-   '(("p" "project" plain "* Goals\n\n%?\n\n* Tasks\n\n"
-      :if-new (file+head
-	       "Research/Projects/%<%Y%m%dT%H%M%S>--${slug}.org"
-	       "#+title: ${title}\n#+created: %U\n#+category: ${title}\n#+filetags: :project:")
-      :unnarrowed t))))
-
-(defun my/org-roam-capture-task ()
-  (interactive)
-  ;; Add the project file to the agenda after capture is finished
-  (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
-
-  ;; Capture the new task, creating the project file if necessary
-  (org-roam-capture- :node (org-roam-node-read
-                            nil
-                            (my/org-roam-filter-by-tag "project"))
-                     :templates '(("p" "project" plain "** TODO %?\n:PROPERTIES:\n:CREATED: %U\n:Purpose: %^{purpose}\n:Results:\n:END:\n"
-                                   :if-new (file+head+olp "%<%Y%m%dT%H%M%S>--${slug}.org"
-                                                          "#+title: ${title}\n#+category: ${title}\n#+filetags: :project:"
-                                                          ("Tasks"))))))
-#+END_SRC
-
-
+*** filter by type
 Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/org-roam-guide/. Use subdirectories to define properties of nodes.
 #+BEGIN_SRC emacs-lisp
 (use-package org-roam
@@ -2372,32 +1196,51 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
   (setq org-roam-node-display-template
 	(concat "${type:15} ${todo:8} ${title:150} " (propertize "${tags:20}" 'face 'org-tag)))
 
-  (defun klk/org-roam-find-by-type (type-name)
+  (defun klk/org-roam-node-in-archive (node)
+    (cl-search "zzArchive" (file-name-directory (org-roam-node-file node))))
+
+  (defun klk/org-roam-find-default ()
     (interactive)
     (org-roam-node-find
      nil nil
      (lambda (node)
-       (string-equal type-name (org-roam-node-type node)))))
+       (and (not (string-match-p "^[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} (\\(Monday\\|Tuesday\\|Wednesday\\|Thursday\\|Friday\\|Saturday\\|Sunday\\))" (org-roam-node-title node)))
+            (not (klk/org-roam-node-in-archive node))))))
 
-  (defun klk/org-roam-find-excluding-type (type-name)
+  (defun klk/org-roam-find-by-type (type-name &optional exclude-archive)
     (interactive)
     (org-roam-node-find
      nil nil
      (lambda (node)
-       (not (string-equal type-name (org-roam-node-type node))))))
+       (and (string-equal type-name (org-roam-node-type node))
+            (if exclude-archive (not (klk/org-roam-node-in-archive node)) t)))))
+  
+  (defun klk/org-roam-find-excluding-types (type-names &optional exclude-archive)
+    (interactive)
+    (org-roam-node-find
+     nil nil
+     (lambda (node)
+       (and (not (member (org-roam-node-type node) type-names ))
+            (if exclude-archive (not (klk/org-roam-node-in-archive node)) t)))))
 
-  (defun klk/org-roam-insert-by-type (type-name)
+  (defun klk/org-roam-insert-by-type (type-name &optional exclude-archive)
     (interactive)
     (org-roam-node-insert
      (lambda (node)
-       (string-equal type-name (org-roam-node-type node)))))
+       (and (string-equal type-name (org-roam-node-type node))
+            (if exclude-archive (not (klk/org-roam-node-in-archive node)) t)))))
 
-  (defun klk/org-roam-insert-excluding-type (type-name)
+  (defun klk/org-roam-insert-excluding-types (type-names &optional exclude-archive)
     (interactive)
     (org-roam-node-insert
      (lambda (node)
-       (not (string-equal type-name (org-roam-node-type node))))))
+       (and (not (member (org-roam-node-type node) type-names ))
+            (if exclude-archive (not (klk/org-roam-node-in-archive node)) t))))))
+#+END_SRC
 
+*** keybindings
+#+BEGIN_SRC emacs-lisp
+(use-package org-roam
   :general
   (klk/leader-key-def
     "n" '(:ignore t :which-key "org-roam")
@@ -2415,38 +1258,20 @@ Allow filtering by type (from subdirectory). From https://jethrokuan.github.io/o
     "n a" '(:ignore t :which-key "all")
     "n a f" '(org-roam-node-find :wk "find all")
     "n a i" '(org-roam-node-insert :wk "insert all")
-    "n f" '((lambda () (interactive) (klk/org-roam-find-excluding-type "dailies")) :wk "find all but dailies")
-    "n i" '((lambda () (interactive) (klk/org-roam-insert-excluding-type "dailies")) :wk "insert all but dailies")
+    "n f" '((lambda () (interactive) (klk/org-roam-find-default)) :wk "find all but dailies and archive")
+    "n i" '((lambda () (interactive) (klk/org-roam-insert-excluding-types '("dailies") t)) :wk "insert all but dailies and archive")
     "n r" '(:ignore t :which-key "references")
-    "n r f" '((lambda () (interactive) (klk/org-roam-find-by-type "references")) :wk "find")
-    "n r i" '((lambda () (interactive) (klk/org-roam-insert-by-type "references")) :wk "insert")
+    "n r f" '((lambda () (interactive) (klk/org-roam-find-by-type "references" t)) :wk "find")
+    "n r i" '((lambda () (interactive) (klk/org-roam-insert-by-type "references" t)) :wk "insert")
     "n z" '(:ignore t :which-key "zettel")
-    "n z f" '((lambda () (interactive) (klk/org-roam-find-by-type "zettel")) :wk "find")
-    "n z i" '((lambda () (interactive) (klk/org-roam-insert-by-type "zettel")) :wk "insert")
+    "n z f" '((lambda () (interactive) (klk/org-roam-find-by-type "zettel" t)) :wk "find")
+    "n z i" '((lambda () (interactive) (klk/org-roam-insert-by-type "zettel" t)) :wk "insert")
     "n h" '(:ignore t :which-key "howto")
-    "n h f" '((lambda () (interactive) (klk/org-roam-find-by-type "howto")) :wk "find")
-    "n h i" '((lambda () (interactive) (klk/org-roam-insert-by-type "howto")) :wk "insert"))
-  )
+    "n h f" '((lambda () (interactive) (klk/org-roam-find-by-type "howto" t)) :wk "find")
+    "n h i" '((lambda () (interactive) (klk/org-roam-insert-by-type "howto" t)) :wk "insert")))
 #+END_SRC
 
-  Graphical UI
-#+BEGIN_SRC emacs-lisp
-(use-package org-roam-ui
-  :straight
-    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
-    :after org-roam
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-    ;; :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start nil))
-#+END_SRC
-
-*** roam images
+*** images
 
 I insert a lot of screenshots into org-roam notes, but I don't want to have to worry about where the links point, in case I decide to move a file to another directory. To solve this, I define a single directory for org-roam images, and set =org-link-abbrev-alist= so I can use links of the form =[[org-roam-images:myimage.png]]=.
 
@@ -2473,14 +1298,8 @@ Here I define a function that converts all png links in a file to use the =org-r
 (advice-add 'org-download-clipboard :after 'klk/convert-org-roam-image-links)
 #+END_SRC
 
-
-Finally, I add the following to a =.dir-locals.el= in the root of the org roam directory, so org-download will save screenshots there.
-#+begin_example
-((nil . ((org-download-image-dir . "~/Dropbox/org/roam/images"))))
-#+end_example
-
 **** inserting images
-Function to help with inserting images in markdown. Prompts for a file from the roam images directory, then inserts a markdown image construct with the relative path to that files.
+Functions to help with inserting images in org and markdown. Prompts for a file from the roam images directory, then inserts an org-roam-images link or a markdown image construct with the relative path to that files.
 
 #+BEGIN_SRC emacs-lisp
 (defun klk/insert-org-roam-image-md ()
@@ -2491,35 +1310,265 @@ Function to help with inserting images in markdown. Prompts for a file from the 
    (file-name-directory buffer-file-name))))
     (insert (concat "![image](" relative-path ")")))
   (markdown-display-inline-images))
-#+END_SRC
 
-** org-journal
+(defun klk/insert-org-roam-image ()
+  "Insert an org-roam-images link to chosen file"
+  (interactive)
+  (let ((image-name (file-name-nondirectory (read-file-name "Choose image " org-roam-image-dir))))
+    (insert (concat "[[org-roam-images:" image-name "]]")))
+  (org-display-inline-images))
+#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(use-package org-journal
+(use-package org
   :general
   (klk/leader-key-def
-    "j" '(:ignore t :wk "journal")
-    "j j" '(org-journal-new-entry :wk "new entry")
-    "j o" '(org-journal-open-current-journal-file :wk "open file")
-    "j d" '(org-journal-new-date-entry :wk "new entry at date")
-    "j s" '(org-journal-search :wk "search")
-    "j S" '(org-journal-search-forever :wk "search all"))
-  (klk/leader-key-def
-    :keymaps 'org-journal-mode-map
-    "," 'org-journal-previous-entry
-    "." 'org-journal-next-entry)
-  :custom
-  ;; Don't carry over
-  (org-journal-file-type 'yearly)
-  (org-journal-carryover-items "")
-  (org-journal-dir "~/Dropbox/org/journal/")
-  (org-journal-file-format "%Y.org")
-  (org-journal-date-format "%A, %Y-%m-%d"))
+    :keymaps 'org-mode-map
+    "ii" 'klk/insert-org-roam-image :wk "insert image"))
 #+END_SRC
 
-** Tasks
+** denote
+#+BEGIN_SRC emacs-lisp
+(use-package denote
+  :custom
+  (denote-directory org-roam-dir)
+  (xref-search-program 'ripgrep)
+  (denote-known-keywords '(""))
+  (denote-backlinks-show-context t)
+  (denote-prompts '(file-type title signature keywords))
+  (denote-date-prompt-use-org-read-date t)
+  :general
+  (klk/leader-key-def
+    "dn" '(denote :wk "denote new file")
+    "ds" '(denote-sort-dired :wk "denote sort dired")
+    "db" '(denote-link-backlinks :wk "denote backlinks")
+    "dk" '(denote-rename-file-keywords :wk "denote change keywords")
+    "dt" '(denote-rename-file-title :wk "denote change title")
+    "df" '(consult-notes :wk "find note")
+    "do" '(denote-open-or-create :wk "open note")
+    "di" '(denote-link-or-create :wk "denote insert link"))
+  :config
+  (add-hook 'dired-mode-hook #'denote-dired-mode)
+  (add-hook 'dired-before-readin-hook #'denote-dired-mode))
+#+END_SRC
 
+* Markdown
+
+Code to show markup on current line from [[https://www.reddit.com/r/emacs/comments/10h9jf0/beautify_markdown_on_emacs/][here]].
+
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :general
+  (:keymaps 'markdown-mode-map
+	    "<M-return>" 'markdown-insert-header-dwim
+	    "<C-return>" 'markdown-insert-list-item
+	    "<M-left>" 'markdown-promote-list-item
+	    "<M-right>" 'markdown-demote-list-item
+	    "<M-up>" 'markdown-move-list-item-up
+	    "<M-down>" 'markdown-move-list-item-down
+	    "M-n" 'markdown-outline-next
+	    "M-p" 'markdown-outline-previous
+	    "M-h" 'markdown-outline-up
+	    "M-l" 'markdown-outline-next-same-level
+	    "M-j" 'markdown-outline-next-same-level
+	    "M-k" 'markdown-outline-previous-same-level
+	    "M-K" 'markdown-move-subtree-up
+	    "M-J" 'markdown-move-subtree-down
+	    "M-K" 'markdown-move-list-item-up
+	    "M-J" 'markdown-move-list-item-down
+	    "M-H" 'markdown-promote
+	    "M-L" 'markdown-demote
+	    "C-j" 'markdown-next-link
+	    "C-k" 'markdown-previous-link
+	    )
+  (klk/leader-key-def
+    :keymaps 'markdown-mode-map
+    "ns" 'markdown-narrow-to-subtree :wk "narrow"
+    "nw" 'widen :wk "widen"
+    "ii" 'klk/insert-org-roam-image-md :wk "insert image"
+    "tm" 'markdown-toggle-markup-hiding :wk "toggle markdown hiding"
+    "it" 'markdown-toggle-inline-images :wk "toggle images")
+  :custom
+  (markdown-enable-wiki-links t)
+  ;; (markdown-hide-markup t)
+  (markdown-max-image-size '(800 . 800))
+  :config
+  (defvar nb/current-line '(0 . 0)
+    "(start . end) of current line in current buffer")
+  (make-variable-buffer-local 'nb/current-line)
+
+  (defun nb/unhide-current-line (limit)
+    "Font-lock function"
+    (let ((start (max (point) (car nb/current-line)))
+          (end (min limit (cdr nb/current-line))))
+      (when (< start end)
+        (remove-text-properties start end
+                                '(invisible t display "" composition ""))
+        (goto-char limit)
+        t)))
+
+  (defun nb/refontify-on-linemove ()
+    "Post-command-hook"
+    (let* ((start (line-beginning-position))
+           (end (line-beginning-position 2))
+           (needs-update (not (equal start (car nb/current-line)))))
+      (setq nb/current-line (cons start end))
+      (when needs-update
+        (font-lock-fontify-block 3))))
+
+  (defun nb/markdown-unhighlight ()
+    "Enable markdown concealling"
+    (interactive)
+    (markdown-toggle-markup-hiding 'toggle)
+    (font-lock-add-keywords nil '((nb/unhide-current-line)) t)
+    (add-hook 'post-command-hook #'nb/refontify-on-linemove nil t))
+  ;; :custom-face
+  ;; (markdown-header-delimiter-face ((t (:foreground "#616161" :height 0.9))))
+  ;; (markdown-header-face-1 ((t (:inherit org-level-1))))
+  ;; (markdown-header-face-2 ((t (:inherit org-level-2))))
+  ;; (markdown-header-face-3 ((t (:inherit org-level-3))))
+  ;; (markdown-header-face-4 ((t (:inherit org-level-4))))
+  ;; (markdown-header-face-5 ((t (:inherit org-level-5))))
+  ;; (markdown-header-face-6 ((t (:inherit org-level-6))))
+  ;; (add-hook 'markdown-mode-hook 'markdown-toggle-inline-images)
+  ;; (add-hook 'markdown-mode-hook 'nb/markdown-unhighlight)
+  :hook
+  ;; (markdown-mode . variable-pitch-mode)
+  (markdown-mode . markdown-toggle-inline-images)
+  (markdown-mode . nb/markdown-unhighlight)
+  :init
+  (advice-add #'markdown-indent-line :before-until #'completion-at-point))
+#+END_SRC
+
+Custom font-locking for titles in markdown mode to make them look like headers (with more subtle font for folgezettel ids).
+
+(See also [[https://stackoverflow.com/questions/6258455/emacs-font-lock-mode-provide-a-custom-color-instead-of-a-face
+][here]])
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :config
+  (font-lock-add-keywords 'markdown-mode
+			  '(("^title: \\([1-9][^ ]*\\)?\\(.*\\)"
+			     (1 'font-lock-keyword-face t t)
+			     (2 'markdown-header-face-1 t)))))
+#+END_SRC
+* Org mode
+** Basics
+Save all org buffers periodically to reduce conflicts between desktop and orgzly on mobile.
+#+BEGIN_SRC emacs-lisp
+(run-with-idle-timer 60 t 'org-save-all-org-buffers)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(setq org-return-follows-link t)
+#+END_SRC
+
+Set the org directory and method for getting the full path to an org file from its name.
+#+BEGIN_SRC emacs-lisp
+(setq org-directory "~/Dropbox/org/gtd")
+
+(defun org-file-path (filename)
+  "Return the absolute address of an org file, given its relative name."
+  (concat (file-name-as-directory org-directory) filename))
+#+END_SRC
+
+Set files to be included in the agenda. Includes archive because I like to see old completed tasks in the agenda, and also =daily.org= because I want to show my one-line daily summaries in the agenda.
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-files (append org-agenda-files
+			       `(,(org-file-path "inbox.org")
+				 ,(org-file-path "mobile inbox.org")
+				 ,(org-file-path "gcal.org")
+				 ,(org-file-path "gtd.org")
+				 ,(org-file-path "recurring.org")
+				 ,(org-file-path "archive.org")
+				 ,(org-file-path "school.org")
+				 ,(org-file-path "p-financial.org")
+				 ,(org-file-path "p-health.org")
+				 ,(org-file-path "p-garden.org"))))
+#+END_SRC
+
+** Visual
+Hide emphasis markers
+#+BEGIN_SRC emacs-lisp
+(setq org-hide-leading-stars t)
+(setq org-hide-emphasis-markers t)
+#+END_SRC
+
+But show them when the cursor is on the word.
+#+BEGIN_SRC emacs-lisp
+(use-package org-appear
+  :straight (org-appear :type git :host github :repo "awth13/org-appear")
+  :config (add-hook 'org-mode-hook 'org-appear-mode))
+#+END_SRC
+
+Load images inline.
+
+#+BEGIN_SRC emacs-lisp
+(setq org-startup-with-inline-images t)
+#+END_SRC
+
+** Navigation
+#+BEGIN_SRC emacs-lisp
+(defun klk/goto-last-heading ()
+  "Interactively jump to end of current subtree"
+  (interactive)
+  (org-end-of-subtree))
+
+(use-package org
+  :general
+  (:keymaps 'org-mode-map
+	    "M-n" 'org-next-visible-heading
+	    "M-p" 'org-previous-visible-heading
+	    "M-h" 'outline-up-heading
+	    "M-l" 'org-next-visible-heading
+	    "M-j" 'org-forward-heading-same-level
+	    "M-k" 'org-backward-heading-same-level
+	    "M-K" 'org-move-subtree-up
+	    "M-J" 'org-move-subtree-down
+	    "M-H" 'org-promote-subtree
+	    "M-L" 'org-demote-subtree
+	    "C-j" 'org-next-link
+	    "C-k" 'org-previous-link
+	    )
+  (klk/leader-key-def
+    :keymaps 'org-mode-map
+    "ns" 'org-narrow-to-subtree :wk "narrow"
+    "nw" 'widen :wk "widen"
+    "it" 'org-toggle-inline-images :wk "toggle images"
+    "gl" '(klk/goto-last-heading :wk "last heading")))
+#+END_SRC
+
+** Refiling
+Set targets for refiling. Use =C-c C-w= to refile. This determines what options you're prompted with. Includes everything in all the agenda files, plus the someday file and various list files.
+
+#+BEGIN_SRC emacs-lisp
+(defun klk/refile-in-same-file ()
+  "Refile under a heading in the current file."
+  (interactive)
+  (let ((org-refile-targets '((nil :maxlevel . 9))))
+    (org-refile)))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(setq org-refile-targets '((nil :maxlevel . 9) ;; refile in current file
+			   (org-agenda-files :maxlevel . 3)
+                           ("someday.org" :level . 1)
+			   ("l-media.org" :maxlevel . 2)
+			   ("l-ideas.org" :maxlevel . 2)))
+#+END_SRC
+
+Include the file name in the outline path to allow refiling as a top-level heading.
+#+BEGIN_SRC emacs-lisp
+(setq org-refile-use-outline-path 'file)
+(setq org-outline-path-complete-in-steps nil)
+#+END_SRC
+
+Create ids for links so they will work even if you move them across files.
+#+BEGIN_SRC emacs-lisp
+(setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id
+      org-clone-delete-id t)
+#+END_SRC
+** Tasks
 *** Basics
 Stop parent tasks from being marked as complete if they have incomplete children.
 #+BEGIN_SRC emacs-lisp
@@ -2548,9 +1597,9 @@ Set the =TODO= states.
 (setq org-agenda-skip-unavailable-files t)
 #+END_SRC
 
-[[https://orgmode.org/worg/org-contrib/org-checklist.html][org-checklist]] supports recurring checklists
+Enable inline tasks.
 #+BEGIN_SRC emacs-lisp
-;(use-package org-checklist)
+(require 'org-inlinetask)
 #+END_SRC
 
 *** Archiving
@@ -2559,7 +1608,6 @@ Set the =TODO= states.
   (setq org-archive-location
         (concat (org-file-path "archive.org") "::* From %s"))
 #+END_SRC
-
 *** Logging
  Log state changes in a drawer, not in the task content.
  #+BEGIN_SRC emacs-lisp
@@ -2571,417 +1619,287 @@ Set the =TODO= states.
  (setq org-log-done 'time)
  #+END_SRC
 
-*** Capture
-**** Reverse datetree
-#+BEGIN_SRC emacs-lisp
-(use-package org-reverse-datetree)
-#+END_SRC
-
-**** Templates
-[[https://github.com/progfolio/doct][doct]] provides a nicer syntax for defining capture templates.
-#+BEGIN_SRC emacs-lisp
-(use-package doct)
-#+END_SRC
-
-This automatically adds a created timestamp to new captured items, but I'm not using it because I don't always want that.
-#+BEGIN_SRC emacs-lisp
-;; (use-package org-expiry
-;;   :straight (:type built-in)
-;;   :config
-;;   (setq
-;;    org-expiry-created-property-name "CREATED"
-;;    org-expiry-inactive-timestamps t
-;;    )
-;;   (add-hook 'org-capture-before-finalize-hook
-;;           (lambda()
-;;                (save-excursion
-;;                     (org-back-to-heading)
-;;                     (org-expiry-insert-created)))))
-#+END_SRC
-
-Define a function to go to the last top-level heading in an org file. For my weekly capture template I want to add the heading as a child under the last month heading.
-#+BEGIN_SRC emacs-lisp
-(defun klk/org-last-top-level-heading ()
-  (goto-char (point-max))
-  (search-backward-regexp "^* " nil t))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(defun klk/get-date-string ()
-  (format-time-string "%Y-%m-%d %A" (org-read-date nil t)))
-#+END_SRC
-
-Define capture templates. Config for capturing project-specific tasks / notes based on [[https://www.reddit.com/r/emacs/comments/fs7tk3/how_to_manage_todo_tasks_in_my_project/][this thread]].
-Function to dynamically choose heading from target file from [[https://www.reddit.com/r/orgmode/comments/j4yl0y/orgcapturetemplates_how_can_i_dynamically_pick_a/][here]].
-#+BEGIN_SRC emacs-lisp
-(setq
- org-capture-templates
- (doct `((:group
-          :empty-lines 1
-          :children
-          (("TODO" :keys "t"
-            :file ,(org-file-path "inbox.org")
-	    :template ("* %{todo-state} %?"
-                       "%{scheduled}:PROPERTIES:"
-                       ":CREATED: %U"
-                       ":END:"
-                       "%{body}")
-            :children (
-		       ("todo" :keys "t" :body nil :scheduled nil :todo-state "TODO")
-		       ("scheduled" :keys "s" :body nil :scheduled "SCHEDULED: %^{scheduled}t\n" :todo-state "TODO")
-		       ("next" :keys "n" :body nil :scheduled nil :todo-state "NEXT")))
-	   ("Research" :keys "r"
-	    :file ,(org-roam-path "Research/Projects/Research Tasks.org")
-            :function (lambda () (let ((org-goto-interface 'outline-path-completion))
-				   (org-goto)))
-            :children (
-		       ("task" :keys "t"
-			:template ("* TODO %^{task}"
-				   ":PROPERTIES:"
-				   ":CATEGORY: %\\1"
-				   ":CREATED: %U"
-				   ":END:"
-				   "** Purpose"
-				   "** Notes"
-				   "** Log"))
-		       ("log" :keys "l"
-			:template ("* %t %?"))
-		       ("log under current" :keys "L"
-			:contexts (:in-file "Research Tasks\\.org$")
-			:function (lambda () (search-forward "* Log"))
-			:template ("* %t %?"))))
-	   ("Projects" :keys "p"
-	    :file ,(org-roam-path "Projects/Personal Projects.org")
-            :function (lambda () (let ((org-goto-interface 'outline-path-completion))
-				   (org-goto)))
-            :children (
-		       ("task" :keys "t"
-			:template ("* TODO %^{task}"
-				   ":PROPERTIES:"
-				   ":CATEGORY: %\\1"
-				   ":CREATED: %U"
-				   ":END:"
-				   "** Notes"
-				   "** Log"))
-		       ("log" :keys "l"
-			:template ("* %t %?"))
-		       ("log under current" :keys "L"
-			:contexts (:in-file "Personal Projects\\.org$")
-			:function (lambda () (search-forward "* Log"))
-			:template ("* %t %?"))))
-	   ("Meetings"
-	    :keys "m"
-	    :template ("* %^u\n%?")
-	    :prepend t
-	    :children (
-                       ("advisor"
-			:type plain
-			:keys "a"
-			:file ,(org-roam-path "Research/Advisor Meetings.org")
-			:template ("* %^u\n** Questions\n%?")
-			:function (lambda () (goto-char (point-min)) (search-forward "* Questions") (org-forward-heading-same-level 1))
-			)
-                       ("group"
-			:keys "g"
-			:file (lambda () (read-file-name "File: " (org-roam-path "Research/") nil nil nil (lambda (x) (string-match-p ".*[mM]eeting.*" x))))
-			:template ("* %^u\n%?")
-			:function (lambda () (goto-char (point-min)) (search-forward "* "))
-			)))
-	   ("Advisor Question"
-	    :keys "q"
-	    :file ,(org-roam-path "Research/Meetings/Advisor Meetings.org")
-	    :type item
-	    :empty-lines 0
-	    :olp ("Questions")
-	    :function (lambda () (goto-char (point-min)))
-	    :template ("%?"))
-	   ("Goal" :keys "g"
-	    :immediate-finish t
-	    :template ("* TODO %^{Goal}"
-		       ":PROPERTIES:"
-		       ":CREATED: %U"
-		       ":END:")
-            :children (
-		       ("weekly" :keys "w" :file ,(org-file-path "goals.org") :headline "Weekly")
-		       ("monthly" :keys "m" :file ,(org-file-path "goals.org") :headline "Monthly")))
-	   ("Research Weekly" :keys "w"
-	    :empty-lines 1
-	    :prepend t
-	    :function (lambda () (goto-char (point-min)))
-	    :file ,(org-roam-path "Research/research_weekly.org")
-	    :template ("* Week ending %(klk/get-date-string)"))
-	   )))))
-
-#+END_SRC
-
 *** Agenda
 #+BEGIN_SRC emacs-lisp
 (use-package org
   :general
   (klk/leader-key-def
     "a" '(org-agenda :wk "agenda")
-    "c c" '(org-capture :wk "capture")))
+    "c c" '(org-capture :wk "capture"))
+  :custom
+  (org-agenda-skip-scheduled-if-done t)
+  (org-agenda-skip-deadline-if-done t)
+  (org-agenda-include-deadlines t)
+  (org-agenda-start-with-log-mode t)
+  (org-deadline-warning-days 7)
+  )
+#+END_SRC
+** Export
+*** pandoc
+
+#+BEGIN_SRC emacs-lisp
+(use-package ox-pandoc)
 #+END_SRC
 
-Make agenda full screen.
+*** hugo
 #+BEGIN_SRC emacs-lisp
-(add-hook 'org-agenda-finalize-hook (lambda () (delete-other-windows)))
+(use-package ox-hugo)
 #+END_SRC
 
-Some agenda view tweaks.
+*** labels
+Allow using user-defined labels when exporting (necessary, e.g., for org-ref to reference figures by their =#+name= (see [[https://emacs.stackexchange.com/questions/38457/name-is-ignored-unless-running-emacs-with-q][this stackexchange post]])
 #+BEGIN_SRC emacs-lisp
-(setq org-agenda-skip-scheduled-if-done t)
-(setq org-agenda-skip-deadline-if-done t)
-(setq org-agenda-include-deadlines t)
-(setq org-agenda-start-with-log-mode t)
-(setq org-deadline-warning-days 7)
+(setq org-latex-prefer-user-labels t)
 #+END_SRC
 
-Add lines between days in weekly view. Taken from [[https://www.reddit.com/r/orgmode/comments/e4stk2/adding_a_separator_line_between_days_in_emacs/][reddit]].
+*** extras
+Enable using :ignore: in a heading to leave off the heading (but not content) of a section in export.
 #+BEGIN_SRC emacs-lisp
-(setq org-agenda-format-date (lambda (date) (concat "\n"
-                                                    (make-string (window-width) 9472)
-                                                    "\n"
-                                                    (org-agenda-format-date-aligned date))))
-#+END_SRC
-
-Add more space for the category in the agenda.
-#+BEGIN_SRC emacs-lisp
-(setq org-agenda-prefix-format '((agenda . " %i %-15:c%?-12t% s")
-				 (todo . " %i %-12:c")
-				 (tags . "")
-				 (search . " %i %-12:c")))
-#+END_SRC
-
-Set files to be included in the agenda. Includes archive because I like to see old completed tasks in the agenda, and also =daily.org= because I want to show my one-line daily summaries in the agenda.
-#+BEGIN_SRC emacs-lisp
-(setq org-agenda-files (append org-agenda-files
-			       `(,(org-file-path "inbox.org")
-				 ,(org-file-path "mobile inbox.org")
-				 ,(org-roam-path "Research/Projects/Research Tasks.org")
-				 ,(org-roam-path "Projects/Personal Projects.org")
-				 ,(org-file-path "gcal.org")
-				 ,(org-file-path "gtd.org")
-				 ,(org-file-path "recurring.org")
-				 ,(org-file-path "archive.org")
-				 ,(org-file-path "school.org")
-				 ,(org-file-path "p-financial.org")
-				 ,(org-file-path "p-health.org")
-				 ,(org-file-path "p-garden.org"))))
-#+END_SRC
-
-Enable inline tasks.
-#+BEGIN_SRC emacs-lisp
-(require 'org-inlinetask)
-#+END_SRC
-
-Super Agenda
-#+BEGIN_SRC emacs-lisp
-(use-package org-super-agenda
+(use-package org-contrib
   :config
-  (org-super-agenda-mode t))
-(require 'org-habit)
+  (require 'ox-extra)
+  (ox-extras-activate '(ignore-headlines)))
 #+END_SRC
 
-Sorting functions. Taken from [[https://daryl.wakatara.com/emacs-gtd-flow-evolved/][here]] and [[https://emacs.stackexchange.com/a/79468][here]].
+Allow overriding variable values in buffer for export (using =#+BIND: variable value=)
 #+BEGIN_SRC emacs-lisp
-(defun cmp-date-property-stamp (prop)
-  "Compare two `org-mode' agenda entries, `A' and `B', by some date property.
-If a is before b, return -1. If a is after b, return 1. If they
-are equal return nil."
-  (lexical-let ((prop prop))
-    #'(lambda (a b)
-
-	(let* ((a-pos (get-text-property 0 'org-marker a))
-	       (b-pos (get-text-property 0 'org-marker b))
-	       (a-date (or (org-entry-get a-pos prop)
-			   (format "<%s>" (org-read-date t nil "now"))))
-	       (b-date (or (org-entry-get b-pos prop)
-			   (format "<%s>" (org-read-date t nil "now"))))
-	       (cmp (compare-strings a-date nil nil b-date nil nil))
-	       )
-	  (if (eq cmp t) nil (signum cmp))
-	  ))))
-
-(defun org-cmp-closed (a b)
-  (let* ((a-marker (get-text-property 0 'org-marker a))
-         (b-marker (get-text-property 0 'org-marker b))
-         (now (current-time))
-         (a-closed-ts (org-timestamp-from-string
-                       (org-entry-get a-marker "CLOSED")))
-         (b-closed-ts (org-timestamp-from-string
-                       (org-entry-get b-marker "CLOSED")))
-         (a-closed-time (or (and a-closed-ts
-                                 (org-timestamp-to-time a-closed-ts))
-                            now))
-         (b-closed-time (or (and b-closed-ts
-                                 (org-timestamp-to-time b-closed-ts))
-                            now)))
-    (cond ((time-less-p b-closed-time a-closed-time) +1)
-          ((time-less-p a-closed-time b-closed-time) -1)
-          (t nil))))
+(setq org-export-allow-bind-keywords t)
+#+END_SRC
+*** Latex command
+#+BEGIN_SRC emacs-lisp
+(setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
 #+END_SRC
 
-
-Define the agenda views:
+** babel
+Don't indent code blocks, and don't confirm to evaluate.
 #+BEGIN_SRC emacs-lisp
-  (defun timestamp-in-n-days (n)
-    "Get the timestamp of n days in the future."
-    (format-time-string "%Y-%m-%d" (time-add (* 3600 24 n) (current-time))))
-
-  (setq org-agenda-custom-commands
-        (list
-         (quote
-  	("x" "Daily Agenda"
-  	 ((agenda "" (
-  		      (org-agenda-span 'day)
-  		      (org-agenda-overriding-header "Today")
-  		      (org-agenda-log-mode-items '(closed clock state))
-  		      (org-agenda-prefix-format "  %?-12t% s")
-  		      (org-super-agenda-groups
-  		       '((:name "Calendar" :time-grid t)
-  			 (:name "☆ Important" :priority "A")
-  			 (:name "⚠ Overdue!" :deadline past :and (:scheduled past :not (:habit t)))
-  			 (:name "Scheduled Today" :scheduled today)
-  			 (:auto-property "Project")
-  			 (:auto-category)
-  			 (:name "☆ Due" :and (:deadline today :not (:habit t)))
-  			 ))
-  		      ))
-  	  (alltodo "" ((org-agenda-overriding-header "Upcoming Schedule")
-                         (org-super-agenda-groups
-                          `((:name "Tomorrow" :scheduled (on ,(timestamp-in-n-days 1)))
-  			  (:name "In Two Days" :scheduled (on ,(timestamp-in-n-days 2)))
-  			  (:discard (:anything t))
-  			  ))))
-           (tags-todo "project"
-                       ((org-agenda-overriding-header "Project Tasks")
-                        (org-super-agenda-groups '((:auto-category)))))
-  	  )))
-         (quote
-  	("U" "Unscheduled"
-  	 ((todo ""
-  		((org-agenda-overriding-header "Unscheduled Tasks")
-  		 (org-agenda-skip-function '(org-agenda-skip-entry-if 'timestamp 'todo '("PROJECT"))))))
-  	 ((org-agenda-todo-ignore-scheduled 'future)
-  	  (org-agenda-sorting-strategy '(deadline-up)))))
-         (quote("N" "Next tasks" todo "NEXT"
-  	      ((org-agenda-overriding-header "Next Tasks")
-  	       (org-super-agenda-groups '((:auto-property "Project") (:auto-category)))
-  	       ))
-  	     )
-         (quote("p" "Project Tasks"
-           ((tags-todo "project"
-                       ((org-agenda-overriding-header "Project Tasks")
-                        (org-super-agenda-groups '((:auto-category)))))
-            )))
-        (quote("P" "Projects (old)" todo ""
-  	     (
-  	      (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo '("PROJECT")))
-  	      (org-super-agenda-groups '((:auto-property "Project" :not (:todo "PROJECT")) (:discard (:anything t))))
-  	      )
-  	     ))
-        (quote
-         ("n" "Notes"
-  	(
-  	 (agenda "" ((org-agenda-span 'week)
-  		     (org-agenda-log-mode-items '(closed clock state))
-  		     (org-agenda-prefix-format "  %?-12t% s")
-  					; (org-agenda-compact-blocks t)
-  		     (org-super-agenda-groups
-  		      '(
-  			(:name "Daily Summary" :and (:time-grid t :tag "daily"))
-  			(:discard (:anything t))
-  			))
-  		     )))))
-
-         ;; (quote
-         ;; 	("r" "Resonance Cal" tags "Type={.}"
-         ;; 	   ((org-agenda-files
-         ;; 		 (directory-files-recursively
-         ;; 			"/home/kira/Dropbox/org/roam/40 Inputs/books" "\\.org$"))
-         ;; 	   (org-overriding-columns-format
-         ;; 		 "%35Item %Type %Author %Time %Finished %Image %Rating")
-         ;; 	   ;; (org-agenda-cmp-user-defined
-         ;; 	   ;; 	 (cmp-date-property-stamp "Start"))
-         ;; 	   ;; (org-agenda-sorting-strategy
-         ;; 	   ;; 	'(user-defined-down))
-         ;; (org-agenda-overriding-header "C-u r to re-run Type={.}")
-         ;; (org-agenda-mode-hook
-         ;; 	   (lambda ()
-         ;; 	     (visual-line-mode -1)
-         ;; 	     (setq truncate-lines 1)
-         ;; 	     (setq display-line-numbers-offset -1)
-         ;; 	     (display-line-numbers-mode 1)))
-         ;; 	  (org-agenda-view-columns-initially t))))
-         (quote
-        	("b" "books" todo "*"
-        	   ((org-agenda-files `(,org-books-file))
-        	   (org-overriding-columns-format
-        		 "%60Item %Author %Time %Added %Closed %10Rating")
-        	   (org-agenda-cmp-user-defined 'org-cmp-closed)
-        	   (org-agenda-sorting-strategy
-        		'(user-defined-down))
-         (org-agenda-overriding-header "r to re-run")
-        	  (org-agenda-view-columns-initially t))))
-        ))
+(setq org-src-preserve-indentation t)
+(setq org-confirm-babel-evaluate nil)
 #+END_SRC
 
-** Visual
+Set =org-babel-min-lines-for-block-output= to 1 to always wrap output in an example block, rather than prepending with =:=. Alternatively, could use =:results output drawer= in the code block header.
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :custom
+  (org-babel-min-lines-for-block-output 1)
+  :general
+  (klk/leader-key-def
+    :keymaps 'org-mode-map
+    "'" '(org-edit-special :wk "edit")
+    "-" '(org-babel-demarcate-block :wk "split block")
+    "z" '(org-babel-hide-result-toggle :wk "fold result")
+    "Z" '(org-babel-result-hide-all :wk "fold all results")))
+#+END_SRC
 
-Use syntax highlighting in source blocks while editing.
+*** languages
+#+BEGIN_SRC emacs-lisp
+(use-package jupyter)
+#+END_SRC
+
+Load the languages to be recognized in code blocks, and also set default header args.
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-src-fontify-natively t)
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((python . t)
+   (jupyter . t)
+   (octave . t)
+   ;; (R . t)
+   ;; other languages..
+   ))
+
+(add-to-list 'org-babel-default-header-args:python
+             '(:results . "output"))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-src-preserve-indentation t)
+(setq org-babel-python-command "python3")
 #+END_SRC
 
-Hide emphasis markers like *,/,=
+* Programming
+** commenting
+Taken from https://github.com/hrs/sensible-defaults.el. Make comment/uncomment affect the current line when no region is selected.
+#+BEGIN_SRC emacs-lisp
+(defun sensible-defaults/comment-or-uncomment-region-or-line ()
+  "Comments or uncomments the region or the current line if
+there's no active region."
+  (interactive)
+  (let (beg end)
+    (if (region-active-p)
+        (setq beg (region-beginning) end (region-end))
+      (setq beg (line-beginning-position) end (line-end-position)))
+    (comment-or-uncomment-region beg end)))
+
+(global-set-key (kbd "M-;")
+                'sensible-defaults/comment-or-uncomment-region-or-line)
+
+#+END_SRC
+** Auto-formatting
+#+BEGIN_SRC emacs-lisp
+;; auto-format different source code files extremely intelligently
+;; https://github.com/radian-software/apheleia
+;; Don't enable it globally since it messes up my openfoam files
+(use-package apheleia
+  :hook (python-mode . apheleia-mode))
+#+END_SRC
+
+** eglot
+#+BEGIN_SRC emacs-lisp
+(use-package eglot
+  :ensure nil
+  :defer t
+  :general
+  (klk/leader-key-def
+    "l x" '(eglot-code-action-extract :wk "extract code")
+    "l a" '(eglot-code-actions :wk "code actions")
+    "l r" '(eglot-rename :wk "rename")
+    "l d" '(xref-find-definitions :wk "go to definition")
+    )
+  :commands (eglot
+             eglot-rename
+             eglot-ensure
+             eglot-rename
+             eglot-format-buffer)
+
+  :custom
+  (eglot-report-progress nil)  ; Prevent minibuffer spam
+
+  :hook
+  (python-base-mode-hook . eglot-ensure)
+
+  :config
+  ;; Optimizations
+  (fset #'jsonrpc--log-event #'ignore)
+  (setq jsonrpc-event-hook nil))
+#+END_SRC
+
+** python
 
 #+BEGIN_SRC emacs-lisp
-(setq org-hide-emphasis-markers t)
+(use-package python-isort
+  :hook
+  (python-mode . python-isort-on-save-mode))
+
+(use-package python-pytest)
+
+(use-package flycheck)
+
+(setq-default eglot-workspace-configuration
+              `(:pylsp (:plugins
+                        (
+                         :autopep8 (:enabled t)
+
+                         ;; Syntax checkers (works with Flymake)
+                         :pylint (:enabled t)
+                         :pycodestyle (:enabled t)
+                         ;; :flake8 (:enabled t)
+                         ;; :pyflakes (:enabled t)
+                         :pydocstyle (:enabled t)
+                         :mccabe (:enabled t)
+
+                         :yapf (:enabled :json-false)
+                         :rope_autoimport (:enabled :json-false)))))
 #+END_SRC
+
+Include the =(when buffer-file-name ...)= as a workaround to avoid slowness when using org-babel src blocks. See https://github.com/wyuenho/emacs-pet/issues/24.
+#+BEGIN_SRC emacs-lisp
+(use-package pet
+  :config
+  (add-hook 'python-base-mode-hook
+            (lambda ()
+              (when buffer-file-name (setq-local python-shell-interpreter (pet-executable-find "python")
+                          python-shell-virtualenv-root (pet-virtualenv-root))
+
+	      (pet-eglot-setup)
+	      (eglot-ensure
+	      )))))
+#+END_SRC
+
+** virtual env
+#+BEGIN_SRC emacs-lisp
+(use-package pyvenv)
+#+END_SRC
+
+** octave
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :init
+  (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
+  :hook
+  ;; unset C-h since I use it for switching tabs
+  (octave-mode . (lambda () (local-unset-key (kbd "C-h"))))
+  (inferior-octave-mode . (lambda () (local-unset-key (kbd "C-h"))))
+  :general
+  (klk/leader-key-def
+    :keymaps 'octave-mode-map
+    "o o" '(run-octave :which-key "run octave")
+    "e" '(:ignore t :which-key "execute")
+    "e l" '(octave-send-line :which-key "line")
+    "e r" '(octave-send-region :which-key "region")
+    "e B" '(octave-send-block :which-key "block")
+    "e d" '(octave-send-defun :which-key "function def")
+    "e b" '(octave-send-buffer :which-key "buffer"))
+  )
+#+END_SRC
+
+** code cells
+
+Allows defining separate cells in a code file using, e.g., # %% Title. Overwrite code-cells-boundary-regexp to also use ## as a cell marker.
 
 #+BEGIN_SRC emacs-lisp
-(setq org-hide-leading-stars t)
+(use-package code-cells
+  :hook 
+  (python-mode . code-cells-mode)
+  (octave-mode . code-cells-mode)
+  (octave-mode . (lambda () (setq-local code-cells-boundary-regexp "^%%\\(%+\\)")))
+  (matlab-mode . code-cells-mode)
+  (matlab-mode . (lambda () (setq-local code-cells-boundary-regexp "^%%")))
+	 ;; (julia-mode . code-cells-mode))
+  :custom
+  (code-cells-boundary-regexp
+   (rx (+ (syntax comment-start))
+       (or (seq (* (syntax whitespace)) "%" (group-n 1 (+ "%")))
+           (group-n 1 (+ "*"))
+           (group-n 1 (+ "#"))
+           (seq " In[" (* (any space digit)) "]:")))
+   :type 'regexp)
+  :general
+  (klk/leader-key-def
+    :keymaps 'code-cells-mode-map
+    "e c" '(code-cells-eval :wk "cell"))
+  :config
+  ;; (add-to-list 'code-cells-eval-region-commands '(julia-snail-mode . julia-snail-send-code-cell))
+  (add-to-list 'code-cells-eval-region-commands '(octave-mode . octave-send-region))
+  (add-to-list 'code-cells-eval-region-commands '(matlab-mode . matlab-shell-run-region))
+  (let ((map code-cells-mode-map))
+    (define-key map (kbd "M-p") 'code-cells-backward-cell)
+    (define-key map (kbd "M-n") 'code-cells-forward-cell)
+    (define-key map (kbd "M-P") 'code-cells-move-cell-up)
+    (define-key map (kbd "M-N") 'code-cells-move-cell-down)
+    (define-key map (kbd "C-c C-c") 'code-cells-eval)
+    ;; Overriding other minor mode bindings requires some insistence...
+    (define-key map [remap jupyter-eval-line-or-region] 'code-cells-eval)))
 #+END_SRC
 
-But show them when the cursor is on the word.
+** matlab
 #+BEGIN_SRC emacs-lisp
-(use-package org-appear
-  :straight (org-appear :type git :host github :repo "awth13/org-appear")
-  :config (add-hook 'org-mode-hook 'org-appear-mode))
+(use-package matlab-mode
+  :straight (matlab-mode :type git :host github :repo "MathWorks/Emacs-MATLAB-Mode")
+  :hook
+  ;; unset C-h since I use it for switching tabs
+  (matlab-mode . (lambda () (local-unset-key (kbd "C-h"))))
+  :general
+  (klk/leader-key-def
+    :keymaps 'matlab-mode-map
+    "m m" '(matlab-shell :which-key "run matlab shell")
+    "e" '(:ignore t :which-key "execute")
+    "e l" '(matlab-shell-run-region-or-line :which-key "line")
+    "e r" '(matlab-shell-run-region :which-key "region"))
+  )
 #+END_SRC
 
-Load images inline.
-
-#+BEGIN_SRC emacs-lisp
-(setq org-startup-with-inline-images t)
-#+END_SRC
-
-This changes the context settings for sparse subtrees so that it will show the content of a heading matching the tag.
-#+BEGIN_SRC emacs-lisp
-(push '(tags-tree . local) org-show-context-detail)
-#+END_SRC
-
-** Code
-*** Basics
-Make TAB act as if it were issued in a buffer of the language's major mode.
-#+BEGIN_SRC emacs-lisp
-  (setq org-src-tab-acts-natively t)
-#+END_SRC
-
-When editing a code snippet, use the current window rather than popping open a
-new one (which shows the same information).
-#+BEGIN_SRC emacs-lisp
-  (setq org-src-window-setup 'current-window)
-#+END_SRC
-
-** Reference management
-*** pdf-tools
+* Reference management
+** pdf-tools
 
 Better pdf interactions in Emacs. Config based on https://github.com/yanghaoxie/emacs.d/blob/master/init.org#pdf-tools
 
@@ -3032,18 +1950,7 @@ Better pdf interactions in Emacs. Config based on https://github.com/yanghaoxie/
   )
 #+END_SRC
 
-Emacs 29's =pixel-scroll-precision-mode= doesn't seem to work with pdf-tools ([[https://github.com/vedang/pdf-tools/issues/56][issue]]). For now, work around it by turning mode off when changing to a pdf buffer, and on otherwise.
-#+BEGIN_SRC emacs-lisp
-  (if (version< emacs-version "29") nil (progn
-  (defun my/set-precision-scrolling ()
-    (if (eq major-mode 'pdf-view-mode)
-	(pixel-scroll-precision-mode -1)
-      (pixel-scroll-precision-mode 1)))
-
-  (add-hook 'buffer-list-update-hook #'my/set-precision-scrolling)))
-#+END_SRC
-
-*** bibtex
+** bibtex
 Set paths that will be used by multiple packages.
 #+BEGIN_SRC emacs-lisp
 (setq bib-files (directory-files "~/Dropbox/Zotero" t "^[A-Z|a-z].+.bib$")
@@ -3051,7 +1958,7 @@ Set paths that will be used by multiple packages.
       pdf-files-directory "~/Dropbox/papers/bibtex")
 #+END_SRC
 
-*** citar
+** citar
 First set up the built-in org-cite to handle export. Use citeproc to include csl support for everything except latex export.
 #+BEGIN_SRC emacs-lisp
 (use-package citeproc)
@@ -3074,6 +1981,7 @@ Set up citar for citation management.
   (klk/leader-key-def
     "c i" '(citar-insert-citation :wk "insert citation")
     "c y" '(citar-org-kill-citation :wk "yank citation")
+    "c o" '(citar-open :wk "open citation")
     "c n" '(citar-open-note :wk "open reference note"))
   :custom-face
   (citar-highlight ((t (:weight normal))))
@@ -3132,12 +2040,12 @@ Set up citar for citation management.
           (note . "Notes on ${author editor:%etal}, ${title}")))
   :custom
   (citar-at-point-function 'embark-act)
-  (citar-library-paths '("~/Dropbox/Zotero/"))
+  (citar-open-entry-function 'citar-open-entry-in-zotero)
   (citar-notes-paths `(,(org-roam-path "references")))
   (citar-bibliography '("~/Dropbox/Zotero/library.bib")))
 #+END_SRC
 
-**** citar-embark
+*** citar-embark
 #+BEGIN_SRC emacs-lisp
 (use-package citar-embark
   :after citar embark
@@ -3145,13 +2053,13 @@ Set up citar for citation management.
   :config (citar-embark-mode))
 #+END_SRC
 
-**** citar-org-roam
+*** citar-org-roam
 #+BEGIN_SRC emacs-lisp
 (use-package citar-org-roam
   :after citar org-roam
   :no-require
   :custom
-  (citar-org-roam-capture-template-key "s")
+  (citar-org-roam-capture-template-key "r")
   (citar-org-roam-note-title-template "${title} - ${author}")
   :config
   (setq citar-org-roam-template-fields
@@ -3164,7 +2072,7 @@ Set up citar for citation management.
     (:citar-type . ("=type="))))
   (citar-org-roam-mode))
 #+END_SRC
-*** org-ref
+** org-ref
 
 I'm using citar now for reference management, but org-ref still provides a nice menu for inserting references to figures / tables / etc. So I still use it for that.
 
@@ -3173,439 +2081,4 @@ I'm using citar now for reference management, but org-ref still provides a nice 
   :general
   (klk/leader-key-def
     "rr" '(org-ref-insert-ref-link :wk "insert ref")))
-#+END_SRC
-
-*** org-noter
-Attach notes to locations in the pdf.
-#+BEGIN_SRC emacs-lisp
-(use-package org-noter
-  ;; :after org-roam
-  :config
-  (setq org-noter-notes-window-location 'other-frame
-	org-noter-always-create-frame nil
-	org-noter-hide-other nil
-	org-noter-kill-frame-at-session-end nil
-	;; org-noter-notes-search-path (org-roam-path "references")
-	org-noter-doc-split-fraction '(0.66 . 0.5)
-	)
-  :general
-  (klk/leader-key-def-major-mode
-   :keymaps 'pdf-view-mode-map
-   "i" 'org-noter-insert-note
-   "k" 'org-noter-kill-session)
-  (klk/leader-key-def
-    :keymaps 'org-mode-map
-    "nn" '(org-noter :wk "noter")
-    "nk" '(org-noter-kill-session :wk "noter"))
-  )
-#+END_SRC
-
-*** Anki
-#+BEGIN_SRC emacs-lisp
-(use-package org-anki
-  :config
-  (setq org-anki-default-deck "Default")
-  :bind (("C-c s" . org-anki-sync-entry))
-  )
-#+END_SRC
-** COMMENT Calendar
-  Set up syncing with google calendar  following https://github.com/emacsmirror/org-gcal.
-
-*** org-gcal
-#+BEGIN_SRC emacs-lisp
-; Install some dependencies first
-(use-package alert)
-(use-package request)
-(use-package request-deferred)
-(use-package persist)
-(use-package aio)
-
-(use-package org-gcal
-  :straight (org-gcal.el :host github :repo "kidd/org-gcal.el")
-  :config
-  (setq org-gcal-client-id (klk/get-gcal-client-id)
-	org-gcal-client-secret (klk/get-gcal-client-secret)
-	org-gcal-fetch-file-alist `((,(klk/get-gcal-id) . "~/Dropbox/org/gtd/gcal.org")
-				    (,(klk/get-gcal-id-school) . "~/Dropbox/org/gtd/gcal-school.org"))))
-#+END_SRC
-** babel
-
-Set =org-babel-min-lines-for-block-output= to 1 to always wrap output in an example block, rather than prepending with =:=. Alternatively, could use =:results output drawer= in the code block header.
-#+BEGIN_SRC emacs-lisp
-(use-package org
-  :custom
-  (org-babel-min-lines-for-block-output 1)
-  :general
-  (klk/leader-key-def
-    :keymaps 'org-mode-map
-    "'" '(org-edit-special :wk "edit")
-    "-" '(org-babel-demarcate-block :wk "split block")
-    "z" '(org-babel-hide-result-toggle :wk "fold result")
-    "Z" '(org-babel-result-hide-all :wk "fold all results")))
-#+END_SRC
-
-*** venv
-#+BEGIN_SRC emacs-lisp
-(use-package virtualenvwrapper
-  :init
-  (venv-workon "base")
-  )
-#+END_SRC
-
-*** jupyter from scimax
-Make use of the jupyter customizations in [[https://github.com/jkitchin/scimax][scimax]].
-#+BEGIN_SRC emacs-lisp
-(use-package pretty-hydra)
-(use-package jupyter)
-;; (add-to-list 'load-path "~/.emacs.d.scimax/")
-;; (require 'scimax-jupyter)
-(setq org-confirm-babel-evaluate nil)
-#+END_SRC
-*** load languages
-
-Load the languages to be recognized in code blocks, and also set default header args.
-
-#+BEGIN_SRC emacs-lisp
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((python . t)
-   (jupyter . t)
-   (octave . t)
-   ;; (R . t)
-   ;; other languages..
-   ))
-
-(add-to-list 'org-babel-default-header-args:python
-             '(:results . "output"))
-#+END_SRC
-
-
-** content capture
-*** org-books
-
-#+BEGIN_SRC emacs-lisp
-(use-package org-books
-  :demand
-  :general
-  (klk/leader-key-def
-    "ba" '(org-books-add-isbn :wk "add book by isbn")
-    "br" '(klk/org-books-rate-book :wk "rate book at point"))
-  :custom
-  (org-books-file (org-roam-path "Inputs/books/books.org"))
-  (org-books-url-pattern-dispatches
-   '(("^\\(www\\.\\)?amazon\\." . org-books-get-details-amazon)
-     ("^\\(www\\.\\)?goodreads\\.com" . org-books-get-details-goodreads)
-     ("openlibrary\\.org" . klk/org-books-get-details-isbn)))
-  :config
-					; custom function to get additional details on book
-  (defun klk/org-books-get-details-isbn (url)
-    "Get book details from openlibrary ISBN response from URL."
-    (let* ((json-object-type 'hash-table)
-           (json-array-type 'list)
-           (json-key-type 'string)
-           (json (org-books--get-json url))
-           (isbn (car (hash-table-keys json)))
-           (data (gethash isbn json))
-           (title (gethash "title" data))
-           (year (gethash "publish_date" data))
-           (pages (gethash "number_of_pages" data))
-           (cover (gethash "medium" (gethash "cover" data)))
-           (author (gethash "name" (car (gethash "authors" data)))))
-      (list title author `(("ISBN" . ,url) ("Year" . ,year) ("Pages" . ,(number-to-string pages)) ("Cover" . ,cover)))))
-
-  ; override to change formatting
-  (defun org-books-format (level title author &optional props)
-    (with-temp-buffer
-      (org-mode)
-      (insert (make-string level ?*) " TO-READ " title "\n")
-      (org-set-property "Author" author)
-      (org-set-property "Added" (format-time-string "[%Y-%02m-%02d]"))
-      (org-set-property "Time" "")
-      (dolist (prop props)
-	(org-set-property (car prop) (cdr prop)))
-      (buffer-substring-no-properties (point-min) (point-max))))
-
-  (defun klk/org-books-rate-book (rating)
-    "Apply RATING to book at current point."
-    (interactive "nRating (stars 1-5): ")
-    (if (> rating 0)
-	(org-set-property "Rating" (s-repeat rating "⭐"))))
-  )
-#+END_SRC
-
-* Notes
-** Denote
-#+BEGIN_SRC emacs-lisp
-(use-package denote
-  :config
-  (setq denote-faces--file-name-regexp
-    (concat "\\(?1:[0-9]\\{8\\}\\)\\(?2:[0-9]\\{6\\}\\)"
-            "\\(?:\\(?3:==\\)\\(?4:[[:alnum:][:nonascii:]=]*\\)\\)?"
-            "\\(?:\\(?5:--\\)\\(?6:[[:alnum:][:nonascii:]-]*\\)\\)?"
-            "\\(?:\\(?7:__\\)\\(?8:[[:alnum:][:nonascii:]_-]*\\)\\)?"
-            "\\(?9:\\..*\\)?$"))
-
-  (setq denote-faces-file-name-keywords-for-dired
-    `((,(concat " " denote-faces--file-name-regexp)
-       (1 'denote-faces-date)
-       (2 'denote-faces-time)
-       (3 'denote-faces-delimiter nil t)
-       (4 'denote-faces-signature nil t)
-       (5 'denote-faces-delimiter nil t)
-       (6 'denote-faces-title nil t)
-       (7 'denote-faces-delimiter nil t)
-       (8 'denote-faces-keywords nil t)
-       (9 'denote-faces-extension nil t ))))
-  (setq denote-id-format "%Y%m%d%H%M%S")
-  (setq denote-id-regexp "\\([0-9]\\{8\\}\\)\\(T?[0-9]\\{6\\}\\)")
-  (setq denote-id-only-link-in-context-regexp "\\[\\[denote:\\(?1:\\([0-9]\\{8\\}\\)\\(T?[0-9]\\{6\\}\\)\\)]]")
-  (setq denote-org-front-matter
-   ":PROPERTIES:
-:ID: %4$s
-:END:
-,#+title:      %1$s
-,#+date:       %2$s
-,#+filetags:   %3$s
-\n")
-  (setq denote-yaml-front-matter
-   "---
-title:      %s
-date:       %s
-tags:       %s
-id:         %s
----\n")
-  :custom
-  (denote-directory "~/Dropbox/org/roam/denote")
-  (xref-search-program 'ripgrep)
-  (denote-known-keywords '(""))
-  (denote-backlinks-show-context t)
-  (denote-prompts '(file-type title keywords))
-  (denote-date-prompt-use-org-read-date t)
-  :general
-  (klk/leader-key-def
-    "dn" '(denote :wk "denote new file")
-    "ds" '(denote-sort-dired :wk "denote sort dired")
-    "db" '(denote-link-backlinks :wk "denote backlinks")
-    "dk" '(denote-rename-file-keywords :wk "denote change keywords")
-    "dt" '(denote-rename-file-title :wk "denote change title")
-    "df" '(consult-notes :wk "find note")
-    "do" '(denote-open-or-create :wk "open note")
-    "di" '(denote-link-or-create :wk "denote insert link"))
-  :config
-  (add-hook 'dired-mode-hook #'denote-dired-mode)
-  (add-hook 'dired-before-readin-hook #'denote-dired-mode))
-
-(use-package consult-notes
-  :after denote consult org-roam
-  :config
-  (consult-notes-denote-mode))
-#+END_SRC
-
-** org-incoming
-Configure my fork of [[https://github.com/tinloaf/org-incoming][org-incoming]], which renames files with a denote naming scheme.
-#+BEGIN_SRC emacs-lisp
-(use-package org-incoming
-  :straight (org-incoming :type git :host github :repo "kkiviat/org-incoming")
-  :custom
-  (org-incoming-parse-date-pattern  "yyyyMMdd'T'HH'.'mm'.'ss")
-  (org-incoming-parse-date-re  "\\([^/\\[]*\\)\\(?: \\[.*\\]\\)?\.pdf")
-  (org-incoming-annotation-template ":PROPERTIES:\n:ID: ${id}\n:END:\n#+title:     ${title}\n#+date: ${date}\n#+filetags: ${keywords}\n\nLink: [[${link}]]\n\n* Extracted Text\n\n${extracted}\n$")
-  (org-incoming-dirs `((:source "~/Dropbox/Rocketbook" :target ,(org-roam-path "denote") :pdf-subdir "attachments"))))
-                       ;; (:source "/home/user/incoming/folder2" :target "/home/user/org/archive" :use-roam 't)
-                       ;; (:source "/home/user/incoming/folder3" :target "/home/user/org/todos" :pdf-subdir "originals")))
-
-#+END_SRC
-
-** Export
-#+BEGIN_SRC emacs-lisp
-(defun klk/export-zettel ()
-  (interactive)
-(shell-command (format "python ~/Dropbox/org/roam/Tools/Scripts/noteexport/exportZettel.py  %s" (buffer-file-name))))
-#+END_SRC
-
-* Programming
-** Auto-formatting
-#+BEGIN_SRC emacs-lisp
-;; auto-format different source code files extremely intelligently
-;; https://github.com/radian-software/apheleia
-;; Don't enable it globally since it messes up my openfoam files
-(use-package apheleia
-  :hook (python-mode . apheleia-mode))
-#+END_SRC
-** Tree-sitter
-#+BEGIN_SRC emacs-lisp
-(use-package tree-sitter
-  :config
-  ;; activate tree-sitter on any buffer containing code for which it has a parser available
-  (global-tree-sitter-mode)
-  ;; you can easily see the difference tree-sitter-hl-mode makes for python, ts or tsx
-  ;; by switching on and off
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
-
-(use-package tree-sitter-langs
-  :after tree-sitter)
-#+END_SRC
-** eglot
-#+BEGIN_SRC emacs-lisp
-(use-package eglot)
-#+END_SRC
-** LSP
-
-Config from the corfu [[https://github.com/minad/corfu/wiki#configuring-corfu-for-lsp-mode][wiki]].
-
-#+BEGIN_SRC emacs-lisp
-(use-package lsp-mode
-  :custom
-  (lsp-completion-provider :none) ;; we use Corfu!
-  :init
-  (defun my/lsp-mode-setup-completion ()
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-          '(orderless))) ;; Configure orderless
-  :config
-  (let ((map xref--xref-buffer-mode-map))
-    (define-key map (kbd "M-j") 'xref-next-line)
-    (define-key map (kbd "M-k") 'xref-prev-line)
-    (define-key map (kbd "M-J") 'xref-next-group)
-    (define-key map (kbd "M-K") 'xref-prev-group))
-  :hook
-  (lsp-completion-mode . my/lsp-mode-setup-completion))
-#+END_SRC
-
-** Flycheck
-  Syntax checking support
-#+BEGIN_SRC emacs-lisp
-(use-package flycheck
-  :diminish
-  :init
-  (global-flycheck-mode)
-  ;; only check on save
-  (setq flycheck-check-syntax-automatically '(mode-enabled save))
-  :config
-  (define-key flycheck-mode-map (kbd "C-c ! !") 'org-time-stamp-inactive))
-#+END_SRC
-
-** Python
-Simple python config based on https://gist.github.com/Nathan-Furnal/b327f14e861f009c014af36c1790ec49.
-#+BEGIN_SRC emacs-lisp
-;; Remove guess indent python message
-(use-package python
-  :config
-  (setq python-indent-guess-indent-offset-verbose nil))
-
-(use-package blacken
-  :ensure t
-  :defer t
-  :custom
-  (blacken-allow-py36 t)
-  :hook (python-mode-hook . blacken-mode))
-
-(use-package numpydoc
-  :ensure t
-  :defer t
-  :custom
-  (numpydoc-insert-examples-block nil)
-  (numpydoc-template-long nil)
-  :bind (:map python-mode-map
-              ("C-c C-n" . numpydoc-generate)))
-
-(use-package lsp-pyright
-  :ensure t
-  :custom
-  (read-process-output-max (* 1024 1024))
-  :general
-  (klk/leader-key-def
-    "l" '(:ignore t :which-key "lsp")
-    "ld" '(lsp-find-definition :which-key "definition")
-    "lb" '(xref-pop-marker-stack :which-key "xref back")
-    "lr" '(lsp-rename :which-key "rename")
-    "lx" '(lsp-find-references :which-key "references"))
-  :hook (python-mode . (lambda ()
-                          (require 'lsp-pyright)
-                          (lsp-deferred))))
-#+END_SRC
-
-** R
-Installed via github with =git clone https://github.com/emacs-ess/ESS.git= (run =make= in =ESS= dir) since the current release is old.
-
-Add to load-path and use deferred loading.
-#+BEGIN_SRC emacs-lisp
-(add-to-list  'load-path "~/.emacs.d/ESS/lisp")
-(load "ess-autoloads")
-#+END_SRC
-** Typescript
-Taken from https://vxlabs.com/2022/06/12/typescript-development-with-emacs-tree-sitter-and-lsp-in-2022/.
-#+BEGIN_SRC emacs-lisp
-(use-package typescript-mode
-  :after tree-sitter
-  :config
-  ;; we choose this instead of tsx-mode so that eglot can automatically figure out language for server
-  ;; see https://github.com/joaotavora/eglot/issues/624 and https://github.com/joaotavora/eglot#handling-quirky-servers
-  (define-derived-mode typescriptreact-mode typescript-mode
-    "TypeScript TSX")
-
-  ;; use our derived mode for tsx files
-  (add-to-list 'auto-mode-alist '("\\.tsx?\\'" . typescriptreact-mode))
-  ;; by default, typescript-mode is mapped to the treesitter typescript parser
-  ;; use our derived mode to map both .tsx AND .ts -> typescriptreact-mode -> treesitter tsx
-  (add-to-list 'tree-sitter-major-mode-language-alist '(typescriptreact-mode . tsx)))
-#+END_SRC
-#+BEGIN_SRC emacs-lisp
-(use-package tide
-  :after (typescript-mode company flycheck)
-  :hook ((typescript-mode . tide-setup)
-         (typescript-mode . tide-hl-identifier-mode)
-         (before-save . tide-format-before-save)))
-#+END_SRC
-
-
-** Julia
-
-Set =julia-snail-multimedia-enable= in a =.dir-locals.el= to enable displaying plots in buffer.
-#+BEGIN_SRC emacs-lisp
-(use-package julia-snail
-  :hook (julia-mode . julia-snail-mode)
-  :general
-  (klk/leader-key-def
-    :keymaps 'julia-snail-mode-map
-    "e e" '(julia-snail-send-dwim :wk "eval dwim"))
-  )
-#+END_SRC
-** code cells
-
-Allows defining separate cells in a code file using, e.g., =# %% Title=.
-Overwrite =code-cells-boundary-regexp= to also use =##= as a cell marker.
-#+BEGIN_SRC emacs-lisp
-(use-package code-cells
-  :hook (
-	 (python-mode . code-cells-mode)
-	 (julia-mode . code-cells-mode))
-  :custom
-  (code-cells-boundary-regexp
-   (rx (+ (syntax comment-start))
-       (or (seq (* (syntax whitespace)) "%" (group-n 1 (+ "%")))
-           (group-n 1 (+ "*"))
-           (group-n 1 (+ "#"))
-           (seq " In[" (* (any space digit)) "]:")))
-   :type 'regexp)
-  :general
-  (klk/leader-key-def
-    :keymaps 'code-cells-mode-map
-    "e c" '(code-cells-eval :wk "cell"))
-  :config
-  (add-to-list 'code-cells-eval-region-commands '(julia-snail-mode . julia-snail-send-code-cell))
-  (let ((map code-cells-mode-map))
-    (define-key map (kbd "M-p") 'code-cells-backward-cell)
-    (define-key map (kbd "M-n") 'code-cells-forward-cell)
-    (define-key map (kbd "M-P") 'code-cells-move-cell-up)
-    (define-key map (kbd "M-N") 'code-cells-move-cell-down)
-    (define-key map (kbd "C-c C-c") 'code-cells-eval)
-    ;; Overriding other minor mode bindings requires some insistence...
-    (define-key map [remap jupyter-eval-line-or-region] 'code-cells-eval)))
-#+END_SRC
-
-** COMMENT C / C++
-#+BEGIN_SRC emacs-lisp
-(use-package ccls
-  :hook ((c-mode c++-mode objc-mode cuda-mode) .
-         (lambda () (require 'ccls) (lsp))))
 #+END_SRC
