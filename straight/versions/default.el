@@ -60,6 +60,7 @@
  ("goto-chg" . "72f556524b88e9d30dc7fc5b0dc32078c166fda7")
  ("helm-bibtex" . "6064e8625b2958f34d6d40312903a85c173b5261")
  ("helpful" . "4ba24cac9fb14d5fdc32582cd947572040e82b2c")
+ ("howm" . "347228032d436bd72ec22616ca7cf8f52f32ed17")
  ("ht.el" . "1c49aad1c820c86f7ee35bf9fff8429502f60fef")
  ("hydra" . "317e1de33086637579a7aeb60f77ed0405bf359b")
  ("jsonrpc" . "9c60f597f925c826146535dcd7263be7af23406a")

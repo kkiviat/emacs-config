@@ -1382,6 +1382,85 @@ Functions to help with inserting images in org and markdown. Prompts for a file 
   (add-hook 'dired-before-readin-hook #'denote-dired-mode))
 #+END_SRC
 
+** howm
+#+BEGIN_SRC emacs-lisp
+(use-package howm
+  :ensure true
+  :init
+  ;; Use with org mode 
+  (require 'howm-org)
+  (setq howm-keyword-body-regexp "[^>=\n]+")
+  (setq howm-ref-body-regexp "[^=\n]+")   
+
+  ;; Preferences
+  (setq howm-directory "~/Dropbox/org/roam/howm") ;; Where to store the files?
+  (setq howm-follow-theme t) ;; Use your Emacs theme colors. (*3)
+  ;; (setq howm-prefix (kbd " "))
+  ;; 
+  ;; Performance
+  (setq howm-menu-expiry-hours 1) ;; Cache menu N hours. (*4)
+  (setq howm-menu-refresh-after-save nil) ;; Speed up note saving. (*5)
+  (defun klk-howm-menu ()
+    (interactive)
+    (if (and (string= (buffer-name) (howm-menu-name howm-menu-top))
+             (eq last-command 'my-howm-menu))
+        (turn-on-evil-mode)
+        (progn
+          (howm-menu)
+          (turn-off-evil-mode))))
+
+  (defun klk-find-howm ()
+    (interactive)
+    (let* ((note-list (cdr (cdr (cdr (howm-normalize (howm-all-items))))))
+           (file-names (mapcar (lambda (x) (car x)) note-list))
+           (titles (mapcar (lambda (x) (car (cdr x))) note-list))
+           (search-list (seq-mapn #'(lambda (a b) (cons a b)) titles file-names)))
+           (cdr (assoc (completing-read "Select Tags: " titles) search-list))))
+
+  (defun klk-insert-howm-link ()
+    (interactive)
+    (let* ((file-name (klk-find-howm))
+           (adjusted-file-name (replace-regexp-in-string "^/[^/]+/[^/]+" "~" file-name)))
+      (insert (concat ">>> " adjusted-file-name "="))))
+  (howm-mode)
+  :custom
+  ;; Use ripgrep as grep
+  (howm-view-use-grep t)
+  (howm-view-grep-command "rg")
+  (howm-view-grep-option "-nH --no-heading --color never")
+  (howm-view-grep-extended-option nil)
+  (howm-view-grep-fixed-option "-F")
+  (howm-view-grep-expr-option nil)
+  (howm-view-grep-file-stdin-option nil)
+  :general
+  (klk/leader-key-def
+    "v" '(:keymap howm-mode-map :which-key "howm")
+    "v," '(howm-menu :which-key "howm menu")
+    "v." '(howm-find-today :which-key "today")
+    "v:" '(howm-find-yesterday :which-key "yesterday")
+    "vA" '(howm-list-around :which-key "around")
+    "vc" '(howm-create :which-key "create")
+    "vb" '(howm-list-buffers :which-key "buffers")
+    "vd" '(howm-insert-date :which-key "insert date")
+    "vD" '(howm-insert-dtime :which-key "insert datetime")
+    "vg" '(howm-list-grep :which-key "grep")
+    "va" '(howm-list-all :which-key "all")
+    "vl" '(howm-list-recent :which-key "recent")
+    "vh" '(howm-history :which-key "history")
+    "vo" '(howm-occur :which-key "occur")
+    "vs" '(howm-list-grep-fixed :which-key "search")
+    "vw" '(howm-random-walk :which-key "random walk")
+    )
+  :config
+  (setq howm-list-buffers-exclude (append howm-list-buffers-exclude org-agenda-files '("*Warnings*" "*howmM:%menu%*" "*scratch*" "*straight-process*" "*Async-native-compile-log*")))
+  :hook
+  (howm-mode-on-hook turn-off-evil-mode)
+  ;; Rename buffers to their title
+  ;; (howm-mode-hook howm-mode-set-buffer-name)
+  ;; (after-save-hook howm-mode-set-buffer-name)
+  )
+#+END_SRC
+
 * Markdown
 
 Code to show markup on current line from [[https://www.reddit.com/r/emacs/comments/10h9jf0/beautify_markdown_on_emacs/][here]].
