@@ -1415,13 +1415,17 @@ Functions to help with inserting images in org and markdown. Prompts for a file 
            (file-names (mapcar (lambda (x) (car x)) note-list))
            (titles (mapcar (lambda (x) (car (cdr x))) note-list))
            (search-list (seq-mapn #'(lambda (a b) (cons a b)) titles file-names)))
-           (cdr (assoc (completing-read "Select Tags: " titles) search-list))))
+           (cdr (assoc (completing-read "Note: " titles) search-list))))
 
   (defun klk-insert-howm-link ()
     (interactive)
     (let* ((file-name (klk-find-howm))
            (adjusted-file-name (replace-regexp-in-string "^/[^/]+/[^/]+" "~" file-name)))
       (insert (concat ">>> " adjusted-file-name "="))))
+  (defun klk-open-howm-file ()
+    (interactive)
+    (let ((file-name (klk-find-howm)))
+      (find-file file-name)))
   (howm-mode)
   :custom
   ;; Use ripgrep as grep
@@ -1432,9 +1436,10 @@ Functions to help with inserting images in org and markdown. Prompts for a file 
   (howm-view-grep-fixed-option "-F")
   (howm-view-grep-expr-option nil)
   (howm-view-grep-file-stdin-option nil)
+  ;; case insensitive keywords
+  (howm-keyword-case-fold-search t)
   :general
   (klk/leader-key-def
-    "v" '(:keymap howm-mode-map :which-key "howm")
     "v," '(howm-menu :which-key "howm menu")
     "v." '(howm-find-today :which-key "today")
     "v:" '(howm-find-yesterday :which-key "yesterday")
@@ -1450,9 +1455,18 @@ Functions to help with inserting images in org and markdown. Prompts for a file 
     "vo" '(howm-occur :which-key "occur")
     "vs" '(howm-list-grep-fixed :which-key "search")
     "vw" '(howm-random-walk :which-key "random walk")
+    "vi" '(klk-insert-howm-link :which-key "insert link")
+    "vf" '(klk-open-howm-file :which-key "find file")
+    )
+  (klk/leader-key-def
+  :keymaps 'howm-view-summary-mode-map
+    "vS" '(howm-view-sort :which-key "sort")
     )
   :config
   (setq howm-list-buffers-exclude (append howm-list-buffers-exclude org-agenda-files '("*Warnings*" "*howmM:%menu%*" "*scratch*" "*straight-process*" "*Async-native-compile-log*")))
+  ; Make it sort recent list with most recent at top
+  (advice-add 'howm-list-recent :after 'howm-view-sort-by-date)
+  (advice-add 'howm-list-recent :after 'howm-view-sort-by-reverse)
   :hook
   (howm-mode-on-hook turn-off-evil-mode)
   ;; Rename buffers to their title
