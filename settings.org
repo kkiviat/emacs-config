@@ -1395,7 +1395,6 @@ Functions to help with inserting images in org and markdown. Prompts for a file 
   ;; Preferences
   (setq howm-directory "~/Dropbox/org/roam/howm") ;; Where to store the files?
   (setq howm-follow-theme t) ;; Use your Emacs theme colors. (*3)
-  ;; (setq howm-prefix (kbd " "))
   ;; 
   ;; Performance
   (setq howm-menu-expiry-hours 1) ;; Cache menu N hours. (*4)
@@ -1411,7 +1410,7 @@ Functions to help with inserting images in org and markdown. Prompts for a file 
 
   (defun klk-find-howm ()
     (interactive)
-    (let* ((note-list (cdr (cdr (cdr (howm-normalize (howm-all-items))))))
+    (let* ((note-list (cdr (cdr (howm-normalize (howm-all-items)))))
            (file-names (mapcar (lambda (x) (car x)) note-list))
            (titles (mapcar (lambda (x) (car (cdr x))) note-list))
            (search-list (seq-mapn #'(lambda (a b) (cons a b)) titles file-names)))
