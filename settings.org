@@ -322,6 +322,7 @@ Unbind =C-.= for use with embark, and unbind RET so it can be used to follow org
     ;; Themes
     "td" 'klk/switch-dark-theme :which-key "dark theme"
     "tl" 'klk/switch-light-theme :which-key "light theme"
+    "to" 'klk/switch-modus-operandi :which-key "modus operandi theme"
 
     ;; Utilities
     "q" 'klk/save-buffer-and-exit
@@ -371,6 +372,11 @@ Unbind =C-.= for use with embark, and unbind RET so it can be used to follow org
   (interactive)
   (klk-disable-all-themes)
   (load-theme 'leuven t))
+
+(defun klk/switch-modus-operandi ()
+  (interactive)
+  (klk-disable-all-themes)
+  (load-theme 'modus-operandi t))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -413,6 +419,11 @@ Unbind =C-.= for use with embark, and unbind RET so it can be used to follow org
   :hook (after-init . global-emojify-mode)
   :config
   (bind-key* (kbd "C-c .") #'emojify-insert-emoji)) ; override binding in any mode
+#+END_SRC
+
+**** Indents
+#+BEGIN_SRC emacs-lisp
+(setq org-list-indent-offset 4)
 #+END_SRC
 
 *** Olivetti mode
@@ -1073,7 +1084,7 @@ Turning headings into nodes: add an id as well as a CREATED property with the cu
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
         ("M" "meeting" plain
-           "* %<%Y-%m-%d> ${title} :meeting:\n\n** Participants\n%?\n** Agenda\n\n** Notes\n\n** Action Items\n"
+           "* <%<%Y-%m-%d>> ${title} :meeting:\n\n** Participants\n%?\n** Agenda\n\n** Notes\n\n** Action Items\n"
            :if-new (file+head
 		    "administrative/meetings/lab-meetings.org"
 		    "#+title: Lab meetings")
