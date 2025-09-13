@@ -1480,9 +1480,16 @@ Functions to help with inserting images in org and markdown. Prompts for a file 
   :hook
   (howm-mode-on-hook turn-off-evil-mode)
   ;; Rename buffers to their title
-  ;; (howm-mode-hook howm-mode-set-buffer-name)
-  ;; (after-save-hook howm-mode-set-buffer-name)
+  (howm-mode-hook howm-mode-set-buffer-name)
+  (after-save-hook howm-mode-set-buffer-name)
   )
+#+END_SRC
+
+** anki
+#+BEGIN_SRC emacs-lisp
+(use-package anki-editor
+  :defer t
+  :straight (:repo "anki-editor/anki-editor"))
 #+END_SRC
 
 * Markdown

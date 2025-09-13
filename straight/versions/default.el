@@ -2,6 +2,7 @@
  ("ace-window" . "77115afc1b0b9f633084cf7479c767988106c196")
  ("all-the-icons-dired" . "e157f0668f22ed586aebe0a2c0186ab07702986c")
  ("all-the-icons.el" . "39ef44f810c34e8900978788467cc675870bcd19")
+ ("anki-editor" . "0a889b50922af6b1fb5086ceaa344b3201e8547e")
  ("annalist.el" . "e1ef5dad75fa502d761f70d9ddf1aeb1c423f41d")
  ("apheleia" . "543f6d651d11322f26665f017f051fbcfc21ceb0")
  ("avy" . "933d1f36cca0f71e4acb5fac707e9ae26c536264")
