@@ -1149,7 +1149,7 @@ id: %<%Y-%m-%dT%H%M%S>
 ,#+year: ${citar-date}
 ,#+created: %U
 
-[@${citar-citekey}]
+[cite:@${citar-citekey}]
 ,* Summary
 
 ,* Notes\n")
