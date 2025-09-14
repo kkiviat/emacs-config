@@ -937,6 +937,53 @@ Quickly select another directory in minibuffer.
 #+BEGIN_SRC emacs-lisp
 (use-package casual)
 #+END_SRC
+** dired
+*** show title from YAML for markdown files
+I'm trying out using timestamps as file names so that I can interact with my markdown files smoothly from either Obsidian or from Emacs using md-roam. The latter requires the title to be in the frontmatter, while Obsidian requires it to be the file name. I don't want to have to worry about keeping those in sync, so instead I will just have the title in the frontmatter. Using the Obsidian front matter title plugin, Obsidian will show the frontmatter title everywhere. But in dired we'll need to add true title.
+
+Since I'm naming files by denote-style IDs and separating the true title from the file name with =--=, this looks nice with denote's dired font-locking.
+#+BEGIN_SRC emacs-lisp
+(defun klk/extract-yaml-title (file)
+  "Extract title from YAML front matter in FILE."
+  (when (and (file-regular-p file)
+             (string-match-p "[0-9]\\{8\\}T[0-9]\\{6\\}\\.md\\'" file))
+    (with-temp-buffer
+      (insert-file-contents file nil 0 1000) ; Read first 1000 chars
+      (goto-char (point-min))
+      (when (looking-at "^---\\s-*$")
+        (forward-line 1)
+        (let ((yaml-end (save-excursion
+                         (when (re-search-forward "^---\\s-*$" nil t)
+                           (line-beginning-position)))))
+          (when yaml-end
+            (when (re-search-forward "^title:\\s-*\\(.+\\)\\s-*$" yaml-end t)
+              (string-trim (match-string 1) "[\"\']" "[\"\']"))))))))
+
+(defun klk/dired-show-yaml-titles ()
+  "Add YAML titles to current dired buffer."
+  (interactive)
+  (when (derived-mode-p 'dired-mode)
+    (let ((inhibit-read-only t)
+          (modified-lines 0))
+      (save-excursion
+        (goto-char (point-min))
+        ;; Skip header lines
+        (dired-goto-next-file)
+        (while (not (eobp))
+          (let* ((filename (dired-get-filename 'no-dir t))
+                 (full-path (dired-get-filename nil t)))
+            (when (and filename full-path)
+              (let ((title (klk/extract-yaml-title full-path)))
+                (when (and title (not (string-empty-p title)))
+                  (dired-move-to-end-of-filename)
+                  ;; Check if we already have a title (to avoid duplicates)
+                  ;; (unless (looking-at " | ")
+                    (insert (format " -- %s" title))
+                    (setq modified-lines (1+ modified-lines))))))
+          (forward-line 1)))
+      )))
+(add-hook 'dired-after-readin-hook #'klk/dired-show-yaml-titles)
+#+END_SRC
 * Projects
 ** Projectile
 #+BEGIN_SRC emacs-lisp
@@ -1048,6 +1095,7 @@ Turning headings into nodes: add an id as well as a CREATED property with the cu
   (add-to-list  'load-path "~/github/md-roam")
   (require 'md-roam)
   (md-roam-mode 1)
+  (setq md-roam-node-insert-type 'id) % insert id links
   (setq org-roam-file-exclude-regexp
 	(concat "^" (expand-file-name org-roam-directory) "/.obsidian/"))
   (add-hook 'org-roam-mode-hook #'visual-line-mode)
@@ -1112,7 +1160,7 @@ roam_refs: ${citar-citekey}
         ("m" "main" plain
            "%?"
            :if-new (file+head
-		    "zettel/main/%<%Y%m%dT%H%M%S>--${slug}.md"
+		    "zettelkasten/main/%<%Y%m%dT%H%M%S>.md"
 		    "---
 title: ${title}
 date: %U
