@@ -355,7 +355,7 @@ Unbind =C-.= for use with embark, and unbind RET so it can be used to follow org
 
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes :defer t)
-(load-theme 'doom-gruvbox t)
+(load-theme 'doom-palenight t)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -366,7 +366,7 @@ Unbind =C-.= for use with embark, and unbind RET so it can be used to follow org
 (defun klk/switch-dark-theme ()
   (interactive)
   (klk-disable-all-themes)
-  (load-theme 'doom-gruvbox t))
+  (load-theme 'doom-palenight t))
 
 (defun klk/switch-light-theme ()
   (interactive)
@@ -1095,7 +1095,7 @@ Turning headings into nodes: add an id as well as a CREATED property with the cu
   (add-to-list  'load-path "~/github/md-roam")
   (require 'md-roam)
   (md-roam-mode 1)
-  (setq md-roam-node-insert-type 'id) % insert id links
+  (setq md-roam-node-insert-type 'id) ; insert id links
   (setq org-roam-file-exclude-regexp
 	(concat "^" (expand-file-name org-roam-directory) "/.obsidian/"))
   (add-hook 'org-roam-mode-hook #'visual-line-mode)
