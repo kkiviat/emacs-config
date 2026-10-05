@@ -1550,7 +1550,11 @@ Code to show markup on current line from [[https://www.reddit.com/r/emacs/commen
 #+BEGIN_SRC emacs-lisp
 (use-package markdown-mode
   :general
-  (:keymaps 'markdown-mode-map
+  (general-define-key
+   :keymaps 'markdown-mode-map
+   "TAB" #'klk/markdown-tab-command)
+  (:states '(normal insert)
+   :keymaps 'markdown-mode-map
 	    "<M-return>" 'markdown-insert-header-dwim
 	    "<C-return>" 'markdown-insert-list-item
 	    "<M-left>" 'markdown-promote-list-item
@@ -1571,22 +1575,33 @@ Code to show markup on current line from [[https://www.reddit.com/r/emacs/commen
 	    "M-L" 'markdown-demote
 	    "C-j" 'markdown-next-link
 	    "C-k" 'markdown-previous-link
+        "<backtab>" 'markdown-promote-list-item
 	    )
   (klk/leader-key-def
     :keymaps 'markdown-mode-map
     "ns" 'markdown-narrow-to-subtree :wk "narrow"
     "nw" 'widen :wk "widen"
     "ii" 'klk/insert-org-roam-image-md :wk "insert image"
+    "if" 'markdown-insert-footnote :wk "insert footnote"
+    "ir" 'markdown-footnote-return :wk "return from footnote"
     "tm" 'markdown-toggle-markup-hiding :wk "toggle markdown hiding"
     "it" 'markdown-toggle-inline-images :wk "toggle images")
   :custom
   (markdown-enable-wiki-links t)
   ;; (markdown-hide-markup t)
   (markdown-max-image-size '(800 . 800))
+  (markdown-list-indent-width 8)
   :config
   (defvar nb/current-line '(0 . 0)
     "(start . end) of current line in current buffer")
   (make-variable-buffer-local 'nb/current-line)
+
+  (defun klk/markdown-tab-command ()
+  "Demote list item if at a list, otherwise do default indent."
+  (interactive)
+  (if (markdown-list-item-at-point-p)
+      (markdown-demote-list-item)
+    (markdown-cycle)))
 
   (defun nb/unhide-current-line (limit)
     "Font-lock function"
