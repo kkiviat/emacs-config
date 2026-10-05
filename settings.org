@@ -268,7 +268,7 @@ Evil escape.
 #+BEGIN_SRC emacs-lisp
 (use-package evil-escape
   :init
-  (setq-default evil-escape-key-sequence "fd")
+  (setq-default evil-escape-key-sequence "jk")
   (setq evil-escape-unordered-key-sequence t)
   (evil-escape-mode 1))
 #+END_SRC
