@@ -22,7 +22,13 @@ Enable lexical binding (needed for some of the org-roam config). *This must be a
   ;; Remember the last location in a file
   (add-hook 'after-init-hook #'save-place-mode)
 #+END_SRC
-
+** Server
+#+BEGIN_SRC emacs-lisp
+(use-package server
+  :straight (:type built-in)
+  :config
+  (unless (server-running-p) (server-start)))
+#+END_SRC
 ** recentf
 Don't include mounted folders in recentf list, as it will have problems starting without the drive mounted.
 #+BEGIN_SRC emacs-lisp
@@ -173,6 +179,17 @@ Set up keybinding for =ace-window= to quickly jump to a window.
     :bind ("M-o" . ace-window))
 #+END_SRC
 
+Navigate between windows
+#+BEGIN_SRC emacs-lisp
+(defun klk/nav (dir)
+  "Select the window in DIR (left/right/up/down), or return \"edge\"."
+  (let* ((d (pcase dir ('up 'above) ('down 'below) (_ dir)))
+         (win (window-in-direction d)))
+    (if win
+        (progn (select-window win) "moved")
+      "edge")))
+#+END_SRC
+
 ** Tabs
 
 Basic tab configuration.
@@ -281,10 +298,6 @@ Unbind =C-.= for use with embark, and unbind RET so it can be used to follow org
   (klk/leader-key-def
     ;; Window management
     "w" '(:ignore t :which-key "window")
-    "wl" 'windmove-right
-    "wh" 'windmove-left
-    "wk" 'windmove-up
-    "wj" 'windmove-down
     "wR" 'winner-redo
     "wd" 'delete-window
     "w=" 'balance-windows-area
