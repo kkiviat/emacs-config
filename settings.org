@@ -1170,33 +1170,26 @@ roam_refs: ${citar-citekey}
 
 ")
            :unnarrowed t)
-        ("m" "main" plain
-           "%?"
-           :if-new (file+head
+        ("m" "main" plain ""
+           :target (file+head
 		    "zettelkasten/main/%<%Y%m%dT%H%M%S>.md"
-		    "---
-title: ${title}
-date: %U
-id: %<%Y-%m-%dT%H%M%S>
----
-
-")
+		    "---\ntitle: ${title}\nid: %<%Y%m%dT%H%M%S>\ncreated: %U\n---\n")
            :unnarrowed t)
 	  ("t" "technical" plain
            "%?"
-           :if-new (file+head
+           :target (file+head
 		    "resources/technical/%<%Y%m%dT%H%M%S>--${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
 	  ("o" "org-file" plain
            "%?"
-           :if-new (file+head
+           :target (file+head
 		    "${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n#+SETUPFILE: ~/Dropbox/org/roam/resources/latexsetupfile.org\n\n* References :ignore:\n#+PRINT_BIBLIOGRAPHY:")
            :unnarrowed t)
 	  ("h" "howto" plain
 	   "%?"
-           :if-new (file+head
+           :target (file+head
 		    "resources/howto/%<%Y%m%dT%H%M%S>--${slug}.org"
 		    "#+title: ${title}\n#+date: %U\n")
            :unnarrowed t)
@@ -1218,12 +1211,9 @@ id: %<%Y-%m-%dT%H%M%S>
 
   (setq org-roam-dailies-directory "dailies/")
   (setq org-roam-dailies-capture-templates
-	(quote (("d" "daily" plain
-		 "%?"
-		 :if-new (file+head
-                          "%<%Y-%m-%d>.org"
-                          "#+title: %<%Y-%m-%d (%A)>\n")
-		 :unnarrowed t)))))
+        '(("d" "default" entry
+           "* %?"
+           :target (file+datetree "journal.org" week)))))
   #+END_SRC
 
 *** slugs
