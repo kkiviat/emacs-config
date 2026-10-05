@@ -1683,7 +1683,7 @@ Set files to be included in the agenda. Includes archive because I like to see o
 (setq org-agenda-files (append org-agenda-files
 			       `(,(org-file-path "inbox.org")
                  ,(org-roam-path "administrative/meetings/lab-meetings.org")
-                 ,(org-roam-path "research-log.org")
+                 ,(org-roam-path "areas/work/research-log.org")
 				 ,(org-file-path "mobile inbox.org")
 				 ,(org-file-path "gcal.org")
 				 ,(org-file-path "gtd.org")
